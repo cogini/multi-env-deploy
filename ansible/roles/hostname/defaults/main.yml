@@ -1,0 +1,5 @@
+---
+hostname_is_aws: true
+hostname_app_name: "{{ app_name | default('app') }}"
+hostname_server_type: "instance"
+hostname_instance_hostname: "{{ hostname_app_name }}-{{ env }}-{{ hostname_server_type }}"

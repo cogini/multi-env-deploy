@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+#
+{% for auth in postfix_smtp_auth %}
+{{ auth.host }} {{ auth.user }}:{{ auth.pass }}
+{% endfor %}

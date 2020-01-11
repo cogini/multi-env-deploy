@@ -1,0 +1,87 @@
+---
+# defaults file for users
+
+# This user owns the app code
+# users_deploy_user: deploy
+# users_deploy_group: deploy
+
+# This user runs the app
+# users_app_user: foo
+# users_app_group: foo
+
+# User accounts and ssh keys for the people or other automated users.
+#
+# `user` is the name of the Unix account
+# `name` is the user's name, optional, just for documentation
+# `key` is a ssh public key file
+# `github` is the user's GitHub id
+#
+# users_users:
+#   - user: jake
+#     name: "Jake Morrison"
+#     github: reachfh
+#   - user: ci
+#     name: "CI server"
+#     key: ci.pub
+users_users: []
+
+# Legacy users users to delete
+# users_delete_users:
+#  - user: foo
+users_delete_users: []
+
+# Whether to remove the user's home directory when deleting the account
+# See http://docs.ansible.com/ansible/user_module.html 'remove'
+users_delete_remove: no
+
+# Whether to force removal user's home directory when deleting
+# See http://docs.ansible.com/ansible/user_module.html 'force'
+users_delete_force: no
+
+# Whether to remove authorized keys from system users like 'root' or 'ubuntu'
+users_remove_system_authorized_keys: false
+
+
+# Global admin users with a account, login and sudo permissions
+# users_global_admin_users:
+#   - jake
+users_global_admin_users: []
+
+# Unix groups that admin users should have, in addition to 'wheel' or 'admin'
+# users_admin_groups:
+#   - sshusers
+users_admin_groups: []
+
+# Project level admin users with account, login and sudo permissions
+users_admin_users: []
+
+
+# Project users with account and login, but no sudo permission
+# users_regular_users:
+#  - foo
+users_regular_users: []
+
+# Unix groups that regular users should have
+# users_regular_groups:
+#   - sshusers
+users_regular_groups: []
+
+# Unix groups that the app user should have
+# users_app_groups:
+#   - sshusers
+users_app_groups: []
+
+# Unix groups that deploy user should have
+# users_deploy_groups:
+#   - sshusers
+users_deploy_groups: []
+
+# These users (ssh keys) have access to the deploy user account
+# users_deploy_users:
+#   - jake
+users_deploy_users: []
+
+# These users (ssh keys) have access to the app user account
+# users_app_users:
+#   - jake
+users_app_users: []

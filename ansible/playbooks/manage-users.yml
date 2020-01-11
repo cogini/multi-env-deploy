@@ -1,0 +1,32 @@
+# Manage users
+#
+# Initial bootstrapping
+#
+# On a cloud server where the provisioning process adds a keypair to the root
+# user, the initial setup can be:
+#
+#   ansible-playbook -u root -v -l web-server-01 playbooks/manage-users.yml -D
+#
+# On a physical server where we start with a root account and no ssh keys, we
+# need to bootstrap the server the first time, specifying the password with -k.
+#
+#   ansible-playbook -k -u root -v -l web-server-01 playbooks/manage-users.yml
+#
+# Insead of `root`, the initial user might be `centos` or `ubuntu`.
+#
+# On macOS the -k command requires the askpass utility, which is not installed
+# by default, so it falls back to Paramiko, which doesn't understand
+# `.ssh/config`, so we need to set host's IP in the `ansible_host` variable.
+#
+#   ansible-playbook -k -u root -v -l web-server-01 playbooks/manage-users.yml --extra-vars "ansible_host=123.45.67.89"
+#
+#
+# On following runs, after the script has created an admin user for you, run:
+#
+#   ansible-playbook -u $USER -v -l web-server-01 playbooks/manage-users.yml
+#
+- name: Manage users
+  hosts: '*'
+  become: true
+  roles:
+    - cogini.users

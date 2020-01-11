@@ -1,0 +1,7 @@
+# Settings for dev environment
+
+# Name of EC2 keypair to use for instances
+# keypair_name: cogini-dev
+
+# If there is nothing in the file, YAML parsing fails
+{}

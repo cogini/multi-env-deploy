@@ -1,0 +1,13 @@
+---
+# defaults file for nginx-cert
+
+# Directory
+nginx_cert_dir: /etc/nginx/ssl
+
+# Target files
+nginx_cert_cert_path: "{{ nginx_cert_dir }}/server.crt"
+nginx_cert_key_path: "{{ nginx_cert_dir }}/server.crt"
+
+# Data for files, from the Ansible vault
+nginx_cert_cert_data: ""
+nginx_cert_key_data: ""

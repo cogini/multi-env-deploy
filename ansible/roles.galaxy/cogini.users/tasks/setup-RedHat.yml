@@ -1,0 +1,7 @@
+---
+# tasks file for RedHat
+
+- name: Install Ansible dependencies
+  yum:  name={{ item }} state=present
+  with_items:
+    - libselinux-python

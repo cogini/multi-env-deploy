@@ -1,0 +1,7 @@
+---
+# OS packages
+
+tools_other_packages: []
+
+# PIP packages
+tools_other_pip: []

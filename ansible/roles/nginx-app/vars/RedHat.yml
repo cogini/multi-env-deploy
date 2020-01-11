@@ -1,0 +1,5 @@
+# nginx vars/RedHat.yml
+---
+nginx_app_user: nginx
+nginx_app_root: /usr/share/nginx/html
+nginx_app_default_conf_path: /etc/nginx/conf.d/default.conf

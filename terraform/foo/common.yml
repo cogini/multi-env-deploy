@@ -1,0 +1,22 @@
+---
+# Common / default settings for all environments
+
+# Short name for organization, used to name/tag things
+org: cogini
+
+# Globally unique name for organization, used for things like S3 buckets
+org_unique: cogini
+
+# Name of the app
+app_name: foo
+
+# Region to build in
+# aws ec2 describe-regions
+aws_region: ap-northeast-1
+
+# Availiability zones
+# aws ec2 describe-availability-zones --region ap-northeast-1
+availability_zones: ["ap-northeast-1a", "ap-northeast-1c"]
+
+# Whether KMS is available (not supported in China)
+has_kms: true

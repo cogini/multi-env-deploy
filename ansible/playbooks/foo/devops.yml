@@ -1,0 +1,57 @@
+---
+# Configure devops instance
+#
+# The devops instance may be used as a build server for an app,
+# to run db admin commands or to run Ansible from inside the VPC.
+#
+# This is normally run against a standalone instance.
+#
+# First run, before users have been configured:
+#
+# ansible-playbook -vv -u ubuntu --extra-vars "env=$ENV" playbooks/$APP/devops.yml -DC
+#
+# Subsequent runs from an account with sudo:
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV" playbooks/$APP/devops.yml -D
+
+# ansible-playbook -v -i foo-dev-devops, playbooks/foo/devops.yml
+
+- name: Base setup
+  # Use dynamic inventory to find EC2 instances by tag
+  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}:&tag_comp_devops"
+  become: true
+  vars:
+    app_name: foo
+    # Install packages to manage postgres
+    tools_other_packages:
+      - python3-psycopg2
+      - postgresql-client
+      - postgresql-client-common
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/devops.yml
+  roles:
+    - common-minimal
+    - cogini.users
+    - {role: hostname, hostname_server_type: devops}
+
+- name: Install common utils
+  # hosts: "tag_Name_foo_{{ env | regex_replace('-', '_') }}_devops"
+  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}:&tag_comp_devops"
+  become: true
+  gather_facts: true
+  vars:
+    tools_other_packages:
+      - ack
+      - htop
+      - psmisc
+      - wget
+      - vim-enhanced
+      - tmux
+      - git
+  vars_files:
+    - ../../vars/foo/{{ env }}/common.yml
+    - ../../vars/foo/{{ env }}/devops.yml
+  roles:
+    - tools-other
+    - iptables

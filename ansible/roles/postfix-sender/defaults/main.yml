@@ -1,0 +1,24 @@
+---
+# defaults file for postfix-sender
+#
+# http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html
+
+postfix_enable_ipv6: true
+
+# Aliases
+# postfix_aliases:
+#   root: noc@cogini.com
+postfix_aliases: {}
+
+# All outbound mail will be forwarded here
+postfix_relayhost: ""
+
+# Authentication settings for outbound mail
+# postfix_smtp_auth:
+#   - host: '{{ postfix_relayhost }}'
+#     user: 'AAA'
+#     pass: 'XXX'
+
+# Domain name for sending mail
+# Used only on Debian, RedHat uses gethostname()
+postfix_mailname: ""

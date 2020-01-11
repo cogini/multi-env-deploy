@@ -1,0 +1,17 @@
+---
+# defaults file for asdf
+asdf_version: "v0.4.3"
+
+asdf_plugins: []
+# asdf_plugins:
+#   - name: "erlang"
+#     versions:
+#       - 18.3
+#       - 20.1
+#     global: 20.1
+
+asdf_user: "deploy"
+
+asdf_legacy_version_file: "yes"
+
+asdf_optional_dependencies: []

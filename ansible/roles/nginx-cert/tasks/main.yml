@@ -1,0 +1,28 @@
+---
+# tasks file for nginx-cert
+
+- name: Create SSL certificate dir
+  file:
+    path: "{{ nginx_cert_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Install SSL certificate
+  copy:
+    content: "{{ nginx_cert_cert_data }}"
+    dest: "{{ nginx_cert_cert_path }}"
+    owner: root
+    group: root
+    mode: 0640
+  no_log: true
+
+- name: Install SSL key
+  copy:
+    content: "{{ nginx_cert_key_data }}"
+    dest: "{{ nginx_cert_key_path }}"
+    owner: root
+    group: root
+    mode: 0640
+  no_log: true

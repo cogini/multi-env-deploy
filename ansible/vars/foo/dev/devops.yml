@@ -1,0 +1,14 @@
+# OS user account used to build the app
+users_deploy_user: deploy
+users_deploy_group: deploy
+
+# App git repo
+app_repo: https://github.com/cogini/elixir-deploy-template
+# App Version, can be branch name, SHA-1, tag name, default to HEAD
+# app_version: HEAD
+
+# Users who can ssh into the deploy account
+# This is needed to run the build and deploy scripts
+users_deploy_users: "{{ users_global_admin_users }}"
+# users_deploy_users:
+#   - jake

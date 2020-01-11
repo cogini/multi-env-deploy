@@ -1,0 +1,16 @@
+# all/vars.yml
+
+# These settings apply to all apps and envs
+
+# Globally unique organization name, used to name things like S3 buckets
+org_unique: cogini
+
+# Short internal name for the organization
+org: cogini
+
+# Primary region to deploy to
+aws_region: ap-northeast-1
+# aws_region: us-east-1
+
+# Specify SSH options per env
+# ansible_ssh_common_args: '-o ProxyCommand="ssh Y -W %h:%p -q {{ org }}-{{ app }}-{{ env }}-bastion" -o IdentityFile="~/.ssh/{{ org }}-{{ env }}.pem"'

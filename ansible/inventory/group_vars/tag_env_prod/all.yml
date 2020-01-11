@@ -1,0 +1,8 @@
+# env prod/all.yml
+
+env: prod # stage, prod, or <your name>
+# aws_region: us-east-1
+
+datadog_env: production
+delivery_network: prod
+rails_env: production

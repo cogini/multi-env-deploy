@@ -1,0 +1,5 @@
+set_env.sh                                                                                                                                                                                                     
+*/secrets/**/*.tfvars
+
+.terraform
+.terragrunt-cache

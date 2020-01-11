@@ -1,0 +1,14 @@
+asdf_plugin_dependencies:
+  - automake
+  - autoconf
+  - build-essential
+  - libreadline-dev
+  - libncurses-dev
+  - libssl-dev
+  - libyaml-dev
+  - libxslt-dev
+  - libffi-dev
+  - libtool
+  - unzip
+  - git
+  - curl

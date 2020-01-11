@@ -1,0 +1,46 @@
+---
+# Generate app config and upload to S3 bucket
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV" playbooks/$APP/config-app.yml -D
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV file_format=exs" playbooks/$APP/config-app.yml -D
+
+- name: Generate config file from template and upload to S3
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    app_name: foo
+    comp: app
+    file_format: toml
+    input_template: ../../templates/{{ app_name }}/{{ comp }}/config.{{ file_format }}.j2
+    output_file: config.{{ file_format }}
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/db-app.yml
+    - ../../vars/{{ app_name }}/{{ env }}/app.yml
+    - ../../vars/{{ app_name }}/{{ env }}/app-secrets.yml
+  tasks:
+    - name: Create tempfile
+      tempfile:
+        state: file
+      register: temp_file
+
+    # - debug: var=temp_file.path
+
+    - name: Fill template to tempfile
+      template:
+        src: "{{ input_template }}"
+        dest: "{{ temp_file.path }}"
+      no_log: true
+
+    - name: Put config to S3
+      aws_s3:
+        bucket: "{{ config_bucket }}"
+        object: "{{ config_bucket_prefix }}/{{ output_file }}"
+        src: "{{ temp_file.path }}"
+        mode: put
+
+    - name: Delete tempfile
+      file:
+        state: absent
+        path: "{{ temp_file.path }}"

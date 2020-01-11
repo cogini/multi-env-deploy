@@ -1,0 +1,22 @@
+use Mix.Config
+
+# In this file, we keep production configuration that
+# you'll likely want to automate and keep away from
+# your version control system.
+#
+# You should document the content of this
+# file or create a script for recreating it, since it's
+# kept out of version control and might be hard to recover
+# or recreate for your teammates (or yourself later on).
+
+# Configure your database
+config :{{ elixir_app_name }}, {{ elixir_app_module }}.Repo,
+  username: "{{ db_user }}",
+  password: "{{ db_pass }}",
+  database: "{{ db_name }}",
+  hostname: "{{ db_host }}",
+  ssl: {{ db_ssl }},
+  pool_size: {{ db_pool_size }}
+
+config :{{ elixir_app_name }}, {{ elixir_app_module }}Web.Endpoint,
+  secret_key_base: "{{ secret_key_base }}"

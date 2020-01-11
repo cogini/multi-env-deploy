@@ -1,0 +1,16 @@
+---
+# - name: list additional tools
+#   debug: msg='{{ tools }}'
+#   when: tools is defined and tools != []
+
+- name: Install packages
+  yum: name="{{ tools_other_packages }}" state="present"
+  when: tools_other_packages is defined and tools_other_packages != [] and ansible_os_family == "RedHat"
+
+- name: Install packages
+  apt: name="{{ tools_other_packages }}" state="present" update_cache="yes" cache_valid_time="3600"
+  when: tools_other_packages is defined and tools_other_packages != [] and ansible_os_family == "Debian"
+
+- name: Install pip packages
+  pip: name="{{ tools_other_pip }}" state=present
+  when: tools_other_pip is defined and tools_other_pip != []

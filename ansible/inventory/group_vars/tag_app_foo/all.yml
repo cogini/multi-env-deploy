@@ -1,0 +1,4 @@
+# app foo/all.yml
+
+# App level settings
+deploy_user: deploy

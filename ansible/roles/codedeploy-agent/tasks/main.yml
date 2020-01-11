@@ -1,0 +1,41 @@
+---
+- block:
+  # TODO: probably not needed, as RPM will pull in its own deps
+  - name: Install system dependencies (RedHat)
+    yum:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+        - ruby
+        - wget
+
+  - name: Install CodeDeploy rpm
+    yum:
+      name: "{{ codedeploy_agent_rpm_url }}"
+      state: present
+      update_cache: true
+
+  when: ansible_os_family == 'RedHat'
+
+- block:
+  - name: Install CodeDeploy deb
+    apt:
+      deb: "{{ codedeploy_agent_deb_url }}"
+      state: present
+
+  when: ansible_os_family == 'Debian'
+
+- name: Set max_revisions
+  lineinfile:
+    path: "/etc/codedeploy-agent/conf/codedeployagent.yml"
+    regexp: "^:max_revisions:"
+    line: ":max_revisions: {{ codedeploy_agent_max_revisions }}"
+  when: codedeploy_agent_max_revisions is defined
+
+- name: Start and enable CodeDeploy service
+  service:
+    name: codedeploy-agent
+    state: started
+    enabled: yes

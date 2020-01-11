@@ -1,0 +1,53 @@
+---
+# tasks file for nginx-app
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Create systemctl override directory
+  file:
+    path: /etc/systemd/system/nginx.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install systemctl override file
+  template:
+    src: "{{ nginx_app_systemd_override_template }}"
+    dest: /etc/systemd/system/nginx.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload systemctl
+
+- name: Install nginx.conf file
+  template:
+    src: "{{ nginx_app_nginx_conf_template }}"
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx
+
+- name: Install default.conf file
+  template:
+    src: "{{ nginx_app_default_conf_template }}"
+    dest: "{{ nginx_app_default_conf_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx
+
+- name: Install localhost.conf file
+  template:
+    src: "{{ nginx_app_localhost_conf_template }}"
+    dest: /etc/nginx/conf.d/localhost.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx

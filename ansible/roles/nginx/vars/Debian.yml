@@ -1,0 +1,3 @@
+# nginx vars/Debian.yml
+---
+nginx_user: www-data

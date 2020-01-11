@@ -1,0 +1,58 @@
+---
+# defaults file for iptables
+
+# Rate limit inbound ICMP (ping, etc)
+iptables_icmp_input_rate_limit_enabled: false
+
+# Ports that the firewall opens for SSH
+# If you are running ssh on a non-standard port, add it to the list here
+iptables_ssh_ports:
+  - 22
+# Whether to rate limit requests on the ssh ports
+iptables_ssh_rate_limit: false
+
+# Default head rules when policy = ACCEPT
+# iptables_default_head: |
+#   -P INPUT ACCEPT
+#   -P FORWARD ACCEPT
+#   -P OUTPUT ACCEPT
+#   -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+#   -A INPUT -i lo -j ACCEPT
+#   -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+#   -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+# Default head rules when policy = DROP
+# This is better but needs some care when setting it up to avoid locking yourself out
+iptables_default_head: |
+  -P INPUT DROP
+  -P FORWARD DROP
+  -P OUTPUT ACCEPT
+  -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+  -A INPUT -i lo -j ACCEPT
+
+# Custom rules, e.g. to allow special access from monitoring servers
+iptables_custom_rules: []
+# Example:
+# iptables_custom_rules:
+#   - name: open_port_12345 # 'iptables_custom_rules_' will be prepended to this
+#     rules: "-A INPUT -s 1.2.3.4 -j ACCEPT"
+#     state: present
+#     weight: 40
+#     ipversion: 4
+#     table: filter
+#
+# NOTE: 'name', 'rules' and 'state' are required, others are optional.
+
+iptables_delete_rules: []
+
+# By default this role deletes all iptables rules which are not managed by Ansible.
+# Set this to 'yes', if you want the role to keep unmanaged rules.
+iptables_keep_unmanaged: yes
+
+# Default tail rules when policy = DROP
+iptables_default_tail: ''
+
+# Default tail rules when policy = ACCEPT
+# iptables_default_tail: |
+#   -A INPUT -j REJECT
+#   -A FORWARD -j REJECT

@@ -1,0 +1,9 @@
+*.swp
+*.pyc
+.DS_Store
+
+/**/set_env.sh
+/**/secrets.sh
+tmp/
+.ackrc
+.terragrunt-cache/

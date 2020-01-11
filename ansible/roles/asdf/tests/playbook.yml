@@ -1,0 +1,11 @@
+---
+- hosts: all
+  roles:
+    - role: ansible-role-asdf
+      asdf_user: vagrant
+      asdf_plugins:
+        - name: "erlang"
+          versions: ["20.1"]
+          global: "20.1"
+        - name: "elixir"
+          versions: ["1.5.1", "1.4.1"]

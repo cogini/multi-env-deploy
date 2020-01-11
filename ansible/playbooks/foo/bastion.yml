@@ -1,0 +1,36 @@
+---
+# Configure bastion instance
+#
+# This is normally run against a standalone instance.
+#
+# First run, before users have been configured:
+#
+# ansible-playbook -vv -u ubuntu --extra-vars "env=$ENV" playbooks/$APP/bastion.yml -DC
+#
+# Subsequent runs from an account with sudo:
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV" playbooks/$APP/bastion.yml -D
+
+- name: Install packages
+  # Use dynamic inventory to find EC2 instances by tag
+  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}:&tag_comp_bastion"
+  # Run on anything
+  # hosts: '*'
+  become: true
+  vars:
+    app_name: foo
+    tools_other_packages:
+      # Python packages needed to run Ansible
+      - python3-psycopg2
+      - python3-boto3
+      # Command line utilities
+      - postgresql-client
+      - postgresql-client-common
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/bastion.yml
+  roles:
+    - common-minimal
+    - cogini.users
+    - tools-other
+    - {role: hostname, hostname_server_type: bastion}

@@ -1,0 +1,22 @@
+---
+# tasks file for roles/common-minimal
+
+- block:
+
+  - name: Install epel
+    # yum: name=epel-release state=present
+    yum: name=epel-release state=present update_cache=yes
+
+  # We sometimes have problems with old kernels filling up a small /boot
+  # partition on dedicated servers, reduce the number
+  - name: Limit number of previous kernels
+    lineinfile:
+      dest: /etc/yum.conf
+      regexp: '^installonly_limit='
+      line: "installonly_limit=2"
+
+  when: ansible_os_family == 'RedHat'
+
+# - name: Update packages
+#   apt: update_cache=yes
+#   when: ansible_os_family == 'Debian'

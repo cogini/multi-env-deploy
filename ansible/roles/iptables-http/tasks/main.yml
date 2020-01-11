@@ -1,0 +1,102 @@
+---
+# tasks file for iptables-http
+
+# Redirect HTTP to app port in firewall
+- block:
+  - name: Redirect HTTP public port to app port
+    iptables_raw:
+      name=app_redirect_http
+      weight=50
+      table=nat
+      rules='-A PREROUTING -p tcp --dport {{ iptables_http_external_port_http }} -j REDIRECT --to-ports {{ iptables_http_app_port_http }}'
+
+  - name: Allow traffic to app HTTP port with rate limit
+    iptables_raw:
+      name: app_http
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_app_port_http }} -m state --state NEW {{ iptables_http_rate_limit_options_http }} -j ACCEPT"
+    when:
+      - iptables_http_rate_limit_http | bool
+
+  - name: Allow traffic to app HTTP port without rate limit
+    iptables_raw:
+      name=app_http
+      weight=50
+      state=present
+      rules="-A INPUT -p tcp --dport {{ iptables_http_app_port_http }} -j ACCEPT"
+    when: not iptables_http_rate_limit_http | bool
+
+  when: iptables_http_redirect_http | bool
+
+# Redirect HTTPS to app port in firewall
+- block:
+  - name: Redirect HTTPS public port to app port
+    iptables_raw:
+      name=app_redirect_https
+      weight=50
+      table=nat
+      rules='-A PREROUTING -p tcp --dport {{ iptables_http_external_port_https }} -j REDIRECT --to-ports {{ iptables_http_app_port_https }}'
+
+  - name: Allow traffic to app HTTPS port with rate limit
+    iptables_raw:
+      name: app_https
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_app_port_https }} -m state --state NEW {{ iptables_http_rate_limit_options_https }} -j ACCEPT"
+    when:
+      - iptables_http_rate_limit_https | bool
+
+  - name: Allow traffic to app HTTPS port without rate limit
+    iptables_raw:
+      name=app_https
+      weight=50
+      state=present
+      rules="-A INPUT -p tcp --dport {{ iptables_http_app_port_https }} -j ACCEPT"
+    when: not iptables_http_rate_limit_https | bool
+
+  when: iptables_http_redirect_https | bool
+
+# Open HTTP port in firewall (no redirect)
+- block:
+  - name: Open HTTP port with rate limiting
+    iptables_raw:
+      name: http
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_external_port_http }} -m state --state NEW {{ iptables_http_rate_limit_options_http }} -j ACCEPT"
+    when:
+      - iptables_http_rate_limit_http | bool
+
+  - name: Open HTTP port without rate limiting
+    iptables_raw:
+      name: http
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_external_port_http }} -m state --state NEW -j ACCEPT"
+    when:
+      - not iptables_http_rate_limit_http | bool
+
+  when: iptables_http_open_http | bool
+
+# Open HTTPS port in firewall (no redirect)
+- block:
+  - name: Open HTTPS port with rate limiting
+    iptables_raw:
+      name: https
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_external_port_https }} -m state --state NEW {{ iptables_http_rate_limit_options_https }} -j ACCEPT"
+    when:
+      - iptables_http_rate_limit_https | bool
+
+  - name: Open HTTP port without rate limiting
+    iptables_raw:
+      name: https
+      weight: 50
+      state: present
+      rules: "-A INPUT -p tcp --dport {{ iptables_http_external_port_https }} -m state --state NEW -j ACCEPT"
+    when:
+      - not iptables_https_rate_limit_http | bool
+
+  when: iptables_http_open_https | bool

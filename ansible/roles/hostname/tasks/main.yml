@@ -1,0 +1,38 @@
+---
+- name: Update AWS-specific settings for hostname
+  lineinfile:
+    destfile: /etc/cloud/cloud.cfg
+    line: 'preserve_hostname: true'
+  when: hostname_is_aws
+
+- name: Update /etc/hosts with instance hostname
+  lineinfile:
+    destfile: /etc/hosts
+    line: "127.0.0.1 {{ hostname_instance_hostname }}"
+
+- name: Set hostname at OS level
+  hostname:
+    name: "{{ hostname_instance_hostname }}"
+
+- name: Update /etc/hosts with any custom hostnames
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ item.source }} {{ item.domain }}"
+    regexp: "^{{ item.source }}"
+  loop: "{{ hosts_entries }}"
+  when: hosts_entries is defined and item.source != "127.0.0.1"
+
+- name: Update /etc/hosts with blocked hostnames
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ item.source }} {{ item.domain }}"
+    insertafter: EOF
+  loop: "{{ hosts_entries }}"
+  when: hosts_entries is defined and item.source == "127.0.0.1"
+
+- name: Fix issue with Ubuntu 18.04 local domain resolution with route53
+  file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'

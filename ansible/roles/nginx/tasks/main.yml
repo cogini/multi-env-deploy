@@ -1,0 +1,62 @@
+# iptables tasks/main.yml
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- block:
+  - name: Install rpm key from nginx.org
+    rpm_key: state=present key=http://nginx.org/keys/nginx_signing.key
+
+  - name: Add yum repo for nginx.org
+    template: src=etc/yum.repos.d/nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo owner=root group=root mode=0644
+
+  - name: Install nginx
+    yum: name=nginx state={{ nginx_package_state }} update_cache=yes
+  when: ansible_os_family == 'RedHat'
+
+- block:
+  - name: Add Ubuntu PPA repo
+    apt_repository: repo='ppa:nginx/stable' state=present
+
+  - name: Install nginx package
+    apt: name=nginx state={{ nginx_package_state }} update_cache=yes
+  when: ansible_os_family == 'Debian'
+
+# - name: Install logrotate config
+#   copy: src=etc/logrotate.d/nginx dest=/etc/logrotate.d/nginx owner=root group=root mode=0644
+
+#- name: Check loaded SELinux modules
+#  shell: semodule -l
+#  register: selinuxmodules
+#  always_run: yes
+#  changed_when: False
+#  when: ansible_os_family == 'RedHat'
+#
+#- name: Upload SELinux module for nginx
+#  action: copy src=nginx_custom.pp dest=/tmp/nginx_custom.pp owner=root mode=600
+#  when: ("selinuxmodules.stdout.find('nginx_custom') == -1") and (ansible_os_family == 'RedHat') and ansible_distribution_major_version|int >= 7
+#
+#- name: Install SELinux module for nginx
+#  command: semodule -i /tmp/nginx_custom.pp
+#  when: ("selinuxmodules.stdout.find('nginx_custom') == -1") and (ansible_os_family == 'RedHat') and ansible_distribution_major_version|int >= 7
+
+- block:
+  - name: Set SELinux httpd_can_network_connect
+    seboolean: name=httpd_can_network_connect state={{ selinux_httpd_can_network_connect }} persistent=yes
+
+  - name: Set SELinux httpd_can_network_relay
+    seboolean: name=httpd_can_network_relay state={{ selinux_httpd_can_network_relay }} persistent=yes
+
+  - name: Set SELinux selinux_httpd_setrlimit
+    seboolean: name=httpd_setrlimit state={{ selinux_httpd_setrlimit }} persistent=yes
+
+  # Default root directory is /usr/share/nginx/html
+  # - name: Create /var/www
+  #   file: path=/var/www state=directory owner=root group=root mode=0755 recurse=false
+
+  # - name: Set SELinux context for /var/www
+  #   file: path=/var/www setype=httpd_sys_content_t state=directory recurse=yes
+  when: ansible_os_family == 'RedHat' and ansible_selinux['status'] != 'disabled'
+
+- name: Start and enable service
+  service: name=nginx state=started enabled=yes

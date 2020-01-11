@@ -1,0 +1,30 @@
+galaxy_info:
+  author: Jake Morrison
+  description: Install Nginx from the repo at nginx.org
+  company: Cogini
+  # If the issue tracker for your role is not on github, uncomment the
+  # next line and provide a value
+  # issue_tracker_url: http://example.com/issue/tracker
+  license: BSD-3-Clause
+  min_ansible_version: 2.4
+  # To view available platforms and versions (or releases), visit:
+  # https://galaxy.ansible.com/api/v1/platforms/
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Ubuntu
+    versions:
+     - brainy
+  #- name: Debian
+  #  versions:
+  #  - all
+  #  - etch
+  #  - jessie
+  #  - lenny
+  #  - squeeze
+  #  - wheezy
+  #
+  categories:
+  - web
+dependencies: []

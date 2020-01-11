@@ -1,0 +1,4 @@
+# env dev/all.yml
+
+env: dev # stage, prod, or <your name>
+aws_region: ap-northeast-1

@@ -1,0 +1,7 @@
+# iptables setup-RedHat.yml
+---
+- name: Install iptables-services
+  yum: name=iptables-services state=present
+
+- name: Enable iptables service
+  service: name=iptables state=started enabled=yes

@@ -1,0 +1,51 @@
+---
+# Create app db and user on an RDS database using the root user credentials
+#
+# This runs on an EC2 instance with a security group which allows it to talk to
+# the RDS database. That might be an app instance, bastion or devops.
+#
+# App on EC2 instance in VPC public subnet:
+#
+# ansible-playbook -v -u $USER -l tag_comp_app --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-mysql.yml -D
+#
+# For an app running in an ASG in the VPC private subnet, connect to the bastion host or a devops instance:
+#
+# ansible-playbook -v -u $USER -l tag_comp_bastion --extra-vars "env=$ENV" playbooks/$APP/bootstrap-db-mysql.yml -D
+# ansible-playbook -v -u $USER -l tag_comp_devops --extra-vars "env=$ENV" playbooks/$APP/bootstrap-db-mysql.yml -D
+
+- name: Bootstrap application user/database
+  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}"
+  become: true
+  vars:
+    app_name: foo
+    comp: app
+    tools_other_packages:
+      - mysql-client
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/{{ comp }}-db.yml
+  roles:
+    - tools-other
+  tasks:
+    - name: Create app db
+      run_once: true
+      mysql_db:
+        name: "{{ db_name }}"
+        encoding: "{{ db_encoding }}"
+        state: present
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_master_user }}"
+        login_password: "{{ db_master_pass }}"
+
+    - name: Create app user
+      run_once: true
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        # Give full rights on this db
+        priv: "{{ db_name }}.*:ALL"
+        host: "%"
+        state: present
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_master_user }}"
+        login_password: "{{ db_master_pass }}"

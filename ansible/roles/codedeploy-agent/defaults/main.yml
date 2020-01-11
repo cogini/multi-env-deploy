@@ -1,0 +1,10 @@
+---
+ansible_become: true
+aws_region: us-east-1
+codedeploy_agent_base_urls:
+  cn: "https://aws-codedeploy-{{ aws_region }}.s3.{{ aws_region }}.amazonaws.com.cn"
+  world: "https://aws-codedeploy-{{ aws_region }}.s3.amazonaws.com"
+codedeploy_agent_base_url: "{{ ('cn' in aws_region) | ternary(codedeploy_agent_base_urls.cn, codedeploy_agent_base_urls.world) }}"
+codedeploy_agent_rpm_url: "{{ codedeploy_agent_base_url }}/latest/codedeploy-agent.noarch.rpm"
+codedeploy_agent_deb_url: "{{ codedeploy_agent_base_url }}/latest/codedeploy-agent_all.deb"
+codedeploy_agent_max_revisions: 5

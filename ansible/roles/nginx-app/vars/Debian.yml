@@ -1,0 +1,5 @@
+# nginx vars/Debian.yml
+---
+nginx_app_user: www-data
+nginx_app_root: /var/www/html
+nginx_app_default_conf_path: /etc/nginx/sites-available/default

@@ -1,0 +1,56 @@
+---
+# Create app db and user on an RDS database using the root user credentials
+#
+# This runs on an EC2 instance with a security group which allows it to talk to
+# the RDS database. That might be an app instance, bastion or devops.
+#
+# App on EC2 instance in VPC public subnet:
+#
+# ansible-playbook -v -u $USER -l tag_comp_app --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-pg.yml -D
+#
+# App running in an ASG in the VPC private subnet, connect to bastion or devops:
+#
+# ansible-playbook -v -u $USER -l tag_comp_bastion --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-pg.yml -D
+# ansible-playbook -v -u $USER -l tag_comp_devops --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-pg.yml -D
+
+- name: Bootstrap application user/database
+  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}"
+  become: true
+  vars:
+    app_name: foo
+    comp: app
+    tools_other_packages:
+      # Python packages needed to run Ansible
+      - python3-psycopg2
+      - python3-boto3
+      # Command line utilities
+      # - postgresql-client
+      # - postgresql-client-common
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/{{ comp }}-db.yml
+  roles:
+    - tools-other
+  tasks:
+    - name: Create app db
+      run_once: true
+      postgresql_db:
+        name: "{{ db_name }}"
+        state: present
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_master_user }}"
+        login_password: "{{ db_master_pass }}"
+
+    - name: Create app user
+      run_once: true
+      # https://docs.ansible.com/ansible/latest/modules/postgresql_user_module.html
+      postgresql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        db: "{{ db_name }}"
+        role_attr_flags: 'LOGIN'
+        # Give full rights
+        priv: 'ALL'
+        login_host: "{{ db_host }}"
+        login_user: "{{ db_master_user }}"
+        login_password: "{{ db_master_pass }}"

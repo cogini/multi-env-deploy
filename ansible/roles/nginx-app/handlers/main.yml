@@ -1,0 +1,7 @@
+---
+# handlers file for nginx-app
+- name: reload systemctl
+  systemd: name=nginx daemon_reload=yes
+
+- name: restart nginx
+  service: name=nginx state=restarted

@@ -1,0 +1,79 @@
+---
+# postfix-sender tasks/main.yml
+# http://docs.aws.amazon.com/ses/latest/DeveloperGuide/postfix.html
+
+- block:
+  - block:
+    - name: Preset values in debconf
+      debconf: name={{ item.name }} question={{ item.question }} value={{ item.value }} vtype={{ item.vtype }}
+      with_items:
+      - {name: postfix, question: 'postfix/mailname', value: "{{ postfix_mailname }}", vtype: 'string'}
+      - {name: postfix, question: 'postfix/main_mailer_type', value: 'Satellite System', vtype: 'string'}
+      - {name: postfix, question: 'postfix/relayhost', value: "{{ postfix_relayhost }}", vtype: 'string'}
+
+    - name: Install os packages
+      apt: name={{ packages }} state=present
+      vars:
+        packages:
+        - postfix
+
+    - name: Create postfix config
+      template: src=etc/postfix/ubuntu_main.cf.j2 dest=/etc/postfix/main.cf
+      notify:
+        - restart postfix
+
+    when: ansible_os_family == 'Debian'
+
+  - block:
+    - name: Install os packages
+      yum: name={{ packages }} state=present
+      vars:
+        packages:
+        - postfix
+        - cyrus-sasl
+        - cyrus-sasl-plain
+        - cyrus-sasl-md5
+
+    - name: Create postfix config
+      template: src=etc/postfix/main.cf.j2 dest=/etc/postfix/main.cf
+      notify:
+        - restart postfix
+
+    when: ansible_os_family == 'RedHat'
+
+  - name: Create sasl_passwd
+    template: src=etc/postfix/sasl_passwd.j2 dest=/etc/postfix/sasl_passwd
+    register: update_sasl_passwd
+    notify:
+      - restart postfix
+
+  - name: Stat sasl_passwd
+    stat: path=/etc/postfix/sasl_passwd
+    register: sasl_passwd
+
+  - name: Generate sasl_passwd
+    command: /usr/sbin/postmap hash:/etc/postfix/sasl_passwd
+    #args:
+    #  creates: /etc/postfix/sasl_passwd.db
+    when: update_sasl_passwd is changed
+
+  - name: Restrict permissions
+    file: path={{ item }} state=file mode=0600 owner=root group=root
+    with_items:
+      - /etc/postfix/sasl_passwd
+      - /etc/postfix/sasl_passwd.db
+    when: sasl_passwd.stat.exists == true
+    ignore_errors: true
+
+  - name: Update aliases
+    template: src=etc/aliases.j2 dest=/etc/aliases
+    register: update_aliases
+
+  - name: Compile aliases
+    command: /usr/bin/newaliases
+    #args:
+    #  creates: /etc/aliases.db
+    when: update_aliases is changed
+
+  - name: Enable postfix
+    service: name=postfix enabled=yes

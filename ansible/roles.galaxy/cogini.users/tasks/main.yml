@@ -1,0 +1,199 @@
+---
+# tasks file for users
+
+- name: Include OS-specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "distribution-{{ ansible_distribution }}.yml"
+    - distribution-default.yml
+
+- name: Include OS-specific tasks
+  include_tasks: "setup-{{ ansible_os_family }}.yml"
+
+- name: Set admin_groups
+  set_fact: users_admin_groups={{ [users_admin_group] | union(users_admin_groups) }}
+
+- name: Create admin groups
+  group: name={{ item }} state=present
+  with_items: "{{ users_admin_groups }}"
+
+- name: Define admin users
+  set_fact:
+    admin_users: "{{ users_global_admin_users | union(users_admin_users) | unique}}"
+
+- name: Define authorized users
+  set_fact:
+    all_users: "{{ users_global_admin_users | union(users_admin_users) | union(users_regular_users) | unique}}"
+
+- name: Allow users in admin group to run sudo
+  template: src=etc/sudoers.d/00-admin dest=/etc/sudoers.d/00-admin owner=root group=root mode=0440
+  when: admin_users|length > 0
+
+- name: Retrieve existing users
+  shell: "cat /etc/passwd | awk -F ':' '$5 ~ /^ansible-/' | cut -d ':' -f 1"
+  register: existing_users
+  check_mode: no
+  changed_when: false
+
+- name: Define deleted users
+  set_fact:
+    deleted_users: "{{ existing_users.stdout_lines | difference(all_users) }}"
+
+- name: Remove deleted users
+  user:
+    name: "{{ item }}"
+    state: absent
+    remove: "{{ item.remove | default(users_delete_remove) }}"
+    force: "{{ item.force | default(users_delete_force) }}"
+  with_items: "{{ deleted_users }}"
+
+- name: Remove deleted legacy user accounts
+  user:
+    name: "{{ item.user }}"
+    state: absent
+    remove: "{{ item.remove | default(users_delete_remove) }}"
+    force: "{{ item.force | default(users_delete_force) }}"
+  with_items: "{{ users_delete_users }}"
+
+
+# http://docs.ansible.com/ansible/user_module.html
+- name: Add admin users
+  user:
+    name: "{{ item }}"
+    groups: "{{ users_admin_groups | join(',') }}"
+    comment: "ansible-{{ item }}"
+    shell: /bin/bash
+    append: no
+  with_items: "{{ users_global_admin_users | union(users_admin_users) }}"
+
+# http://docs.ansible.com/ansible/authorized_key_module.html
+- name: Set ssh keys for admin users from files
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ lookup('file', item.key) }}"
+    exclusive: yes
+  with_items: "{{ users_users }}"
+  when: "item.key is defined and item.user in admin_users"
+
+- name: Set ssh keys for admin users from GitHub
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "https://github.com/{{ item.github }}.keys"
+    exclusive: yes
+  with_items: "{{ users_users }}"
+  # with_items: "{{ users_global_admin_users | union(users_admin_users) | selectattr('github', 'defined') }}"
+  when: "item.github is defined and item.user in admin_users"
+
+- name: Create regular groups
+  group: name={{ item }} state=present
+  with_items: "{{ users_regular_groups }}"
+
+- name: Add regular users
+  user:
+    name: "{{ item }}"
+    groups: "{{ users_regular_groups | join(',') }}"
+    comment: "ansible-{{ item }}"
+    shell: /bin/bash
+  with_items: "{{ users_regular_users }}"
+
+- name: Set ssh keys for regular users from files
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ lookup('file', item.key) }}"
+    exclusive: yes
+  # with_items: "{{ users_regular_users | selectattr('key', 'defined') }}"
+  with_items: "{{ users_users }}"
+  when: item.key is defined and item.user in users_regular_users
+
+- name: Set ssh keys for regular users from GitHub
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "https://github.com/{{ item.github }}.keys"
+    exclusive: yes
+  # with_items: "{{ users_regular_users | selectattr('github', 'defined') }}"
+  with_items: "{{ users_users }}"
+  when: item.github is defined and item.user in users_regular_users
+
+- block:
+
+  - name: Add deploy group
+    group: name={{ users_deploy_group }} state=present
+
+  - name: Create deploy groups
+    group: name={{ item }} state=present
+    with_items: "{{ users_deploy_groups }}"
+
+  - name: Add deploy user
+    user:
+      name: "{{ users_deploy_user }}"
+      group: "{{ users_deploy_group }}"
+      groups: "{{ users_deploy_groups | join(',') }}"
+      shell: /bin/bash
+
+  - name: Remove deploy user ssh keys
+    file:
+      path: "/home/{{ users_deploy_user }}/.ssh/authorized_keys"
+      state: absent
+
+  - name: Add ssh keys for deploy users from files
+    authorized_key:
+      user: "{{ users_deploy_user }}"
+      key: "{{ lookup('file', item.key) }}"
+    with_items: "{{ users_users }}"
+    when: item.key is defined and item.user in users_deploy_users
+
+  - name: Add ssh keys for deploy users from GitHub
+    authorized_key:
+      user: "{{ users_deploy_user }}"
+      key: "https://github.com/{{ item.github }}.keys"
+    with_items: "{{ users_users }}"
+    when: item.github is defined and item.user in users_deploy_users and not ansible_check_mode
+
+  when: users_deploy_user is defined
+
+- block:
+
+  - name: Add app group
+    group: name={{ users_app_group }} state=present
+
+  - name: Create app groups
+    group: name={{ item }} state=present
+    with_items: "{{ users_app_groups }}"
+
+  - name: Add app user
+    user:
+      name: "{{ users_app_user }}"
+      group: "{{ users_app_group }}"
+      groups: "{{ users_app_groups | join(',') }}"
+      shell: /bin/bash
+
+  - name: Remove app user ssh keys
+    file:
+      path: "/home/{{ users_app_user }}/.ssh/authorized_keys"
+      state: absent
+
+  - name: Add ssh keys for app users from files
+    authorized_key:
+      user: "{{ users_app_user }}"
+      key: "{{ lookup('file', item.key) }}"
+    with_items: "{{ users_users }}"
+    when: item.key is defined and item.user in users_app_users
+
+  - name: Add ssh keys for app users from GitHub
+    authorized_key:
+      user: "{{ users_app_user }}"
+      key: "https://github.com/{{ item.github }}.keys"
+    with_items: "{{ users_users }}"
+    when: item.github is defined and item.user in users_app_users and not ansible_check_mode
+
+  when: users_app_user is defined
+
+- name: Remove authorized_keys for system accounts
+  file:
+    path: "{{ item }}/.ssh/authorized_keys"
+    state: absent
+  with_items:
+    - /root
+    - /home/ubuntu
+    - /home/centos
+  when: users_remove_system_authorized_keys | bool

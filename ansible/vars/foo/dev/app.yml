@@ -1,0 +1,14 @@
+# OS user account that the app runs under
+users_app_user: "{{ app_name }}"
+users_app_group: "{{ app_name }}"
+
+# Database
+db_ssl: "true"
+db_pool_size: 15
+
+# elixir_app_name: "{{ app_name }}"
+elixir_app_name: "mix_deploy_example"
+elixir_app_module: "{{ elixir_app_name.title().replace('_', '') }}"
+
+config_bucket: "{{ org_unique }}-{{ app_name }}-{{ env }}-{{ comp }}-config"
+config_bucket_prefix: "{{ comp }}"

@@ -1,0 +1,4 @@
+packer 1.5.1
+python 3.7.4
+terraform 0.12.19
+terragrunt 0.21.10

@@ -1,0 +1,49 @@
+---
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_os_family }}.yml"
+    - "../vars/os_defaults.yml"
+
+- name: "get users HOME"
+  getent:
+    database: passwd
+    key: "{{ asdf_user }}"
+    split: ":"
+
+- name: "set asdf_user_home variable"
+  set_fact:
+    "asdf_user_home": "{{ getent_passwd[asdf_user][4] }}"
+
+- name: "install plugin dependencies with apt"
+  apt:
+    pkg: "{{ item }}"
+    install_recommends: no
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+  with_items:
+    - "{{ asdf_plugin_dependencies }}"
+    - "{{ asdf_optional_dependencies }}"
+  when: ansible_os_family == "Debian"
+
+- name: "install plugin dependencies with yum"
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - "{{ asdf_plugin_dependencies }}"
+    - "{{ asdf_optional_dependencies }}"
+  when: ansible_os_family == "RedHat"
+
+- name: "install asdf"
+  git:
+    repo: "https://github.com/asdf-vm/asdf.git"
+    dest: "{{ asdf_user_home }}/.asdf"
+    version: "{{ asdf_version }}"
+  become_user: "{{ asdf_user }}"
+
+- name: "source asdf script"
+  template:
+    src: "asdf.sh.j2"
+    dest: "/etc/profile.d/asdf.sh"
+    owner: "root"
+    group: "root"
+    mode: 0755

@@ -1,0 +1,5 @@
+# nginx handlers/main.yml
+---
+- name: restart nginx
+  service: name=nginx state=restarted enabled=yes
+  become: true

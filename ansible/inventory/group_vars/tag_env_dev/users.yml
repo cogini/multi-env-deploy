@@ -1,0 +1,6 @@
+# env dev users.yml
+
+# Users with sudo permission who should be set up on all servers.
+# This overrides all/users.yml.
+# users_global_admin_users:
+#  - jake

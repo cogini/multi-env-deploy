@@ -1,0 +1,14 @@
+
+module nginx 1.0;
+
+require {
+	type httpd_t;
+	type unreserved_port_t;
+	class tcp_socket name_connect;
+}
+
+#============= httpd_t ==============
+
+#!!!! This avc can be allowed using one of the these booleans:
+#     nis_enabled, httpd_can_network_connect
+allow httpd_t unreserved_port_t:tcp_socket name_connect;

@@ -1,0 +1,30 @@
+# users.yml
+
+# This file defines a global list of user accounts and admins.
+# The goal is that it is the same between all projects, so we can copy
+# it unmodified. Put project-level config in `vars.yml` or other files.
+
+# See [the documentation for the role](https://galaxy.ansible.com/cogini/users/)
+# for more details about options, e.g. using ssh keys from files.
+
+# This variable lists all the users in the organization.
+# Other variables, e.g. users_admin_users or users_app_users, in specific
+# apps / environments actually make the users active.
+# users_users:
+#   - user: jake
+#     name: 'Jake Morrison'
+#     github: reachfh
+#   - user: ci
+#     name: "CI server"
+#     key: ci.pub
+
+# The `github` field specifies a github id. The user management script
+# will read the user's ssh keys from github when deploying users.
+#
+# The `key` field specifies a key file in the `ansible/playbooks/files`
+# directory.
+
+# Define admin users who will be added to every machine
+# with sudo rights, e.g. for your ops team or senior tech leads.
+# users_global_admin_users:
+#  - jake

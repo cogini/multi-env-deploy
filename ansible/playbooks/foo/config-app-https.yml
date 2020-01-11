@@ -1,0 +1,129 @@
+---
+# Get app https config from vault and upload to S3 bucket
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV" playbooks/$APP/config-app-https.yml -D
+
+- name: Generate config file from template and upload to S3
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    app_name: foo
+    comp: app
+    filename: "{{ comp }}-https"
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/app.yml
+    - ../../vars/{{ app_name }}/{{ env }}/app-https.yml
+  tasks:
+    - block:
+      - name: Create key tempfile
+        tempfile:
+          state: file
+        register: key_temp
+
+      # - debug: var=key_temp.path
+
+      - name: Write key data
+        copy:
+          content: "{{ https_key }}"
+          dest: "{{ key_temp.path }}"
+        no_log: true
+
+      - name: Put key file to S3
+        aws_s3:
+          bucket: "{{ config_bucket }}"
+          object: "{{ config_bucket_prefix }}/ssl/{{ filename }}.key"
+          src: "{{ key_temp.path }}"
+          mode: put
+
+      - name: Delete key tempfile
+        file:
+          state: absent
+          path: "{{ key_temp.path }}"
+
+      when: https_key is defined
+
+    - block:
+      - name: Create cert tempfile
+        tempfile:
+          state: file
+        register: cert_temp
+
+      # - debug: var=cert_temp.path
+
+      - name: Write cert data
+        copy:
+          content: "{{ https_cert }}"
+          dest: "{{ cert_temp.path }}"
+        no_log: true
+
+      - name: Put cert file to S3
+        aws_s3:
+          bucket: "{{ config_bucket }}"
+          object: "{{ config_bucket_prefix }}/ssl/{{ filename }}.cert.pem"
+          src: "{{ cert_temp.path }}"
+          mode: put
+
+      - name: Delete cert tempfile
+        file:
+          state: absent
+          path: "{{ cert_temp.path }}"
+
+      when: https_cert is defined
+
+    - block:
+      - name: Create cacert tempfile
+        tempfile:
+          state: file
+        register: cacert_temp
+
+      # - debug: var=cacert_temp.path
+
+      - name: Write cacert data
+        copy:
+          content: "{{ https_cacert }}"
+          dest: "{{ cacert_temp.path }}"
+        no_log: true
+
+      - name: Put cacert file to S3
+        aws_s3:
+          bucket: "{{ config_bucket }}"
+          object: "{{ config_bucket_prefix }}/ssl/{{ filename }}.cacert.pem"
+          src: "{{ cacert_temp.path }}"
+          mode: put
+
+      - name: Delete cacert tempfile
+        file:
+          state: absent
+          path: "{{ cacert_temp.path }}"
+
+      when: https_cacert is defined
+
+    - block:
+      - name: Create dh tempfile
+        tempfile:
+          state: file
+        register: dh_temp
+
+      # - debug: var=dh_temp.path
+
+      - name: Write dh data
+        copy:
+          content: "{{ https_dh }}"
+          dest: "{{ dh_temp.path }}"
+        no_log: true
+
+      - name: Put dh file to S3
+        aws_s3:
+          bucket: "{{ config_bucket }}"
+          object: "{{ config_bucket_prefix }}/ssl/{{ filename }}.dh.pem"
+          src: "{{ dh_temp.path }}"
+          mode: put
+
+      - name: Delete dh tempfile
+        file:
+          state: absent
+          path: "{{ dh_temp.path }}"
+
+      when: https_dh is defined

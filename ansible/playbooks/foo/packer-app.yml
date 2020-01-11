@@ -1,0 +1,36 @@
+---
+# Configure the app instance
+#
+# This is normally run from Packer, but could be run against a regular instance.
+#
+# ansible-playbook -u $USER -v -l app-server playbooks/$APP/packer-$COMP.yml --skip-tags deploy -D
+
+- name: Install base
+  # remote_user: ubuntu
+  hosts: '*'
+  become: true
+  vars:
+    app_name: foo
+    comp: app
+    tools_other_packages:
+      # Parse cloud-init
+      - jq
+      # Sync config from S3
+      - awscli
+      # Use HTTPS in Erlang
+      - openssl
+    # tools_other_pip:
+    #   - paramiko
+    #   - ansible
+  vars_files:
+    - vars/{{ app_name }}/{{ env }}/common.yml
+    - vars/{{ app_name }}/{{ env }}/app.yml
+    # - "vars/foo/{{ env }}/elixir-release.yml"
+  roles:
+    - common-minimal
+    - tools-other
+    - cogini.users
+    # - iptables
+    # - iptables-http
+    - codedeploy-agent
+    # - cogini.elixir-release

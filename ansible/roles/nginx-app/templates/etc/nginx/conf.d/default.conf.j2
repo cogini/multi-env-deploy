@@ -1,0 +1,74 @@
+{% if nginx_app_proxy_ports|length > 1 %}
+upstream backend {
+    # ip_hash;
+{% for port in nginx_app_proxy_ports %}
+    server 127.0.0.1:{{ port }};
+{% endfor %}
+}
+{% endif %}
+
+server {
+{% if nginx_app_ssl_on -%}
+    listen      443 ssl default_server;
+    listen [::]:443 ssl default_server;
+{% else %}
+    listen      80 default_server;
+    listen [::]:80 default_server;
+{% endif %}
+    server_name _;
+
+    root    {{ nginx_app_root }};
+
+    error_page      500 502 503 504 /50x.html;
+    # error_page    404             /404.html;
+
+{% if nginx_app_ssl_on -%}
+    ssl_certificate     {{ nginx_app_ssl_certificate_path }};
+    ssl_certificate_key {{ nginx_app_ssl_certificate_key_path }};
+{% endif %}
+
+
+    location / {
+        index   index.html;
+        # first attempt to serve request as file, then fall back to app
+        try_files $uri @app;
+        # expires max;
+        # access_log off;
+    }
+
+    location @app {
+        proxy_set_header Host               $host;
+        proxy_set_header X-Real-IP          $remote_addr;
+        proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+        proxy_set_header Refrerer           $http_referer;
+        proxy_set_header User-Agent         $http_user_agent;
+
+        proxy_intercept_errors on;
+        proxy_buffering on;
+        proxy_buffer_size 128k;
+        proxy_buffers 256 16k;
+        proxy_busy_buffers_size 256k;
+        proxy_temp_file_write_size 256k;
+        proxy_max_temp_file_size 0;
+        proxy_connect_timeout 300;
+        proxy_read_timeout 300;
+        proxy_send_timeout 300;
+
+{% if nginx_app_limit_req_on -%}
+        limit_req {{ limit_req }};
+{% endif %}
+
+{% if nginx_app_proxy_ports|length > 1 %}
+        proxy_pass http://backend;
+{% else %}
+        proxy_pass http://127.0.0.1:{{ nginx_app_proxy_ports|first }};
+{% endif %}
+    }
+}
+
+{% if nginx_app_ssl_on -%}
+server {
+  listen    80;
+  return    301 https://$host$request_uri;
+}
+{%- endif %}

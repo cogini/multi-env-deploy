@@ -1,0 +1,8 @@
+---
+# You can define static hosts here
+all:
+  hosts:
+    localhost:
+      ansible_sudo: false
+      ansible_connection: local
+      ansible_python_interpreter: python

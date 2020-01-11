@@ -1,0 +1,4 @@
+---
+# defaults file for cronic
+
+cronic_install_dir: /opt/bin

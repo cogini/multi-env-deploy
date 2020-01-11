@@ -1,0 +1,32 @@
+---
+# requirements.yml
+
+# Install roles from Ansible galaxy (https://galaxy.ansible.com/)
+# to the project roles.galaxy directory.
+#
+#   ansible-galaxy install --roles-path roles.galaxy -r requirements.yml
+#
+# We normally check the downloaded roles into source control to snapshot
+# a working version and ensure availability.
+
+# - src: cogini.users
+- src: https://github.com/cogini/ansible-role-users
+  name: cogini.users
+
+# - src: cogini.elixir-release
+# - src: https://github.com/cogini/ansible-role-elixir-release
+#   name: cogini.elixir-release
+
+# - src: datadog.datadog
+# - src: elastic.elasticsearch
+# - src: geerlingguy.certbot
+# - src: geerlingguy.elasticsearch-curator
+# - src: geerlingguy.filebeat
+# - src: geerlingguy.kibana
+# - src: geerlingguy.memcached
+# - src: geerlingguy.ntp
+# - src: geerlingguy.pip
+# - src: geerlingguy.redis
+# - src: michaelpporter.certbot_cloudflare
+# - src: oefenweb.percona-server
+# - src: zzet.rbenv

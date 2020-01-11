@@ -1,0 +1,55 @@
+---
+# Set SSM Parameter Store entries for app db
+#
+# This reads values from the Ansible vault and sets corresponding etries in
+# AWS SSM Parameter Store.
+#
+# It runs locally on the Ansible machine
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-ssm.yml -D
+
+- name: Create SSM parameter store entries
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    app_name: foo
+    comp: app
+    key_prefix: /cogini
+  vars_files:
+    - ../../vars/{{ app_name }}/{{ env }}/common.yml
+    - ../../vars/{{ app_name }}/{{ env }}/{{ comp }}-db.yml
+  tasks:
+    - name: Create SSM parameter store entry for app db name
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/name"
+        description: "Username for app db name"
+        string_type: "String"
+        value: "{{ db_name }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app db host
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/host"
+        description: "Username for app db name"
+        string_type: "String"
+        value: "{{ db_host }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app db user
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/user"
+        description: "Username for app db user"
+        string_type: "String"
+        value: "{{ db_user }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app db password
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/pass"
+        description: "Password for app db user"
+        value: "{{ db_pass }}"
+        string_type: "SecureString"
+        key_id: "{{ aws_key_id }}"
+        region: "{{ aws_region }}"
+        # overwrite_value: "always"
