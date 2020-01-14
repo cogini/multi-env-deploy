@@ -61,12 +61,7 @@ export APP=foo
 export ENV=prod
 
 ssh -F ssh.config 10.10.2.52
-ssh -F ssh.config 10.10.x.x
-
-
-
-
-
+```
 
 In the cloud, we don't have many fixed servers, mostly just
 the bastion host used to access servers in the private part of the VPC.
