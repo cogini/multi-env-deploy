@@ -16,7 +16,6 @@ include {
 inputs = {
   comp = "worker"
 
-  # image_id = "ami-0b991cb0ad895627f"
   image_id = "ami-03c363c16a1c450a9"
 
   # Ubuntu 18.04
@@ -30,10 +29,6 @@ inputs = {
 
   # root_block_device = [{ volume_size = "60" }]
 
-  instance_type = "t3.micro"
-
-  use_default_instance_profile = false
-
   min_size = 1
   max_size = 3
   desired_capacity = 1
@@ -43,10 +38,6 @@ inputs = {
   # health_check_type = "ELB"
   health_check_type = "EC2"
 
-  # Scheduled scaling
-  # scheduled_scaling = true
-  # scale_up_max_size = 2
-  # scale_up_min_size = 1
   subnets = dependency.vpc.outputs.subnets["private"]
 
   launch_template_id = dependency.lt.outputs.launch_template_id
