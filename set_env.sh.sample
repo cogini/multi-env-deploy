@@ -34,6 +34,7 @@ export TF_VAR_keypair_name=$ORG-$ENV
 
 # Set Terraform vars matching the env vars
 export TF_VAR_env=$ENV
+# export TF_VAR_org=$ORG
 export TF_VAR_app_name=$APP
 # Create versions of app name with different conventions
 # Default name is expected to be hyphen
