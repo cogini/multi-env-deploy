@@ -52,14 +52,14 @@ include {
 inputs = {
   comp = "worker"
 
-  # environment_variables = {
-  #   BUCKET_ASSETS = dependency.s3.outputs.buckets["assets"].id
-  #   BUCKET_CONFIG = dependency.s3.outputs.buckets["config"].id
-  #   # If the build process needs to invalidate the CDN cache
-  #   # CLOUDFRONT_DISTRIBUTION_ID = dependency.cloudfront.outputs.id
-  #   # If the build process needs to know where the assets will be deployed
-  #   # DNS_DOMAIN = dependency.route53.outputs.name
-  # }
+  environment_variables = {
+    # BUCKET_ASSETS = dependency.s3.outputs.buckets["assets"].id
+    BUCKET_CONFIG = dependency.s3.outputs.buckets["config"].id
+    # If the build process needs to invalidate the CDN cache
+    # CLOUDFRONT_DISTRIBUTION_ID = dependency.cloudfront.outputs.id
+    # If the build process needs to know where the assets will be deployed
+    # DNS_DOMAIN = dependency.route53.outputs.name
+  }
 
   # Source
   source_provider = "GitHub"
