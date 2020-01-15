@@ -38,7 +38,7 @@ inputs = {
 
   launch_template_id = dependency.lt.outputs.launch_template_id
   launch_template_version = "$Latest" # $Latest, or $Default
-  # spot_max_price = ""
+  spot_max_price = ""
 
   force_delete = true
 }
