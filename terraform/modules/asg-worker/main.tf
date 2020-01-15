@@ -1,11 +1,43 @@
 # Create ASG for "headless" worker instances to handle background jobs.
 
+# Example config
+# terraform {
+#   source = "${get_terragrunt_dir()}/../../../modules//asg-worker"
+# }
+# dependency "vpc" {
+#   config_path = "../vpc"
+# }
+# dependency "lt" {
+#   config_path = "../launch-template-app"
+# }
+# include {
+#   path = find_in_parent_folders()
+# }
+#
+# inputs = {
+#   comp = "worker"
+#
+#   min_size = 1
+#   max_size = 3
+#   desired_capacity = 1
+#   wait_for_capacity_timeout = "2m"
+#
+#   health_check_grace_period = 30
+#   health_check_type = "EC2"
+#
+#   subnets = dependency.vpc.outputs.subnets["private"]
+#
+#   launch_template_id = dependency.lt.outputs.launch_template_id
+#   launch_template_version = "$Latest" # $Latest, or $Default
+#   # spot_max_price = ""
+#
+#   force_delete = true
+# }
 
 locals {
   name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
   deploy_hook = var.deploy_hook == "" ? local.name : var.deploy_hook
 }
-
 
 # https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html
 resource "aws_autoscaling_group" "this" {
@@ -21,39 +53,53 @@ resource "aws_autoscaling_group" "this" {
 
   default_cooldown          = var.default_cooldown
 
-  # List of policies to decide how the instances in the auto scale group should be terminated.
-  termination_policies = ["OldestLaunchTemplate", "Default"]
+  termination_policies      = var.termination_policies
 
   health_check_grace_period = var.health_check_grace_period
   health_check_type         = var.health_check_type
 
   # initial_lifecycle_hook
 
-  launch_template {
-    id      = var.launch_template_id
-    version = "$Latest" # $Latest, or $Default
+  dynamic "launch_template" {
+    for_each = var.spot_max_price == null ? list(1) : []
+    content {
+      id      = var.launch_template_id
+      version = "$Latest" # $Latest, or $Default
+    }
   }
 
+  dynamic "mixed_instances_policy" {
+    for_each = var.spot_max_price == null ? [] : list(1)
+    content {
+      instances_distribution {
+        on_demand_allocation_strategy = var.on_demand_allocation_strategy
+        on_demand_base_capacity = var.on_demand_base_capacity
+        on_demand_percentage_above_base_capacity = var.on_demand_percentage_above_base_capacity
+        spot_allocation_strategy = var.spot_allocation_strategy
+        spot_instance_pools = var.spot_instance_pools
+        spot_max_price = var.spot_max_price
+      }
+
+      launch_template {
+        launch_template_specification {
+          launch_template_id = var.launch_template_id
+          version = var.launch_template_version
+        }
+
+        dynamic "override" {
+          for_each = var.override_instance_types
+          content {
+            instance_type = override.value
+            # weighted_capacity
+          }
+        }
+      }
+    }
+  }
+
+  # target_group_arns = var.target_group_arns
+
   vpc_zone_identifier = var.subnets
-
-  # mixed_instances_policy {
-  #   launch_template {
-  #     launch_template_specification {
-  #       id      = var.launch_template_id
-  #       version = "$Latest" # $Latest, or $Default
-  #     }
-  #
-  #     override {
-  #       instance_type = "c4.large"
-  #     }
-  #
-  #     override {
-  #       instance_type = "c3.large"
-  #     }
-  #   }
-  # }
-
-  target_group_arns = var.target_group_arns
 
   # suspended_processes
 
