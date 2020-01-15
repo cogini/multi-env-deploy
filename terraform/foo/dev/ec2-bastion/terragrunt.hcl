@@ -27,7 +27,8 @@ inputs = {
   dns_health_check = true
 
   # Create one per az
-  instance_count = 0
+  # instance_count = 0
+  instance_count = 1
 
   # Ubuntu 18.04
   ami = "ami-0f63c02167ca94956"
