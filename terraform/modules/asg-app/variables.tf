@@ -70,7 +70,7 @@ variable "termination_policies" {
 }
 
 variable "on_demand_allocation_strategy" {
-  description = "Strategy to use when launching on-demand instances. Valid values: prioritized. Default: prioritized."
+  description = "Strategy to use when launching on-demand instances. Valid values: prioritized. Default: prioritized"
   default = null
 }
 
@@ -80,12 +80,12 @@ variable "on_demand_base_capacity" {
 }
 
 variable "on_demand_percentage_above_base_capacity" {
-  description = "Percentage split between on-demand and Spot instances above the base on-demand capacity. Default: 100."
+  description = "Percentage split between on-demand and Spot instances above the base on-demand capacity. Default: 100"
   default = null
 }
 
 variable "spot_allocation_strategy" {
-  description = "How to allocate capacity across the Spot pools. Valid values: lowest-price, capacity-optimized. Default: lowest-price."
+  description = "How to allocate capacity across the Spot pools. Valid values: lowest-price, capacity-optimized. Default: lowest-price"
   default = null
 }
 
@@ -95,8 +95,13 @@ variable "spot_instance_pools" {
 }
 
 variable "spot_max_price" {
-  description = "Maximum price per unit hour that the user is willing to pay for the Spot instances. Default: an empty string which means the on-demand price."
+  description = "Maximum price per unit hour that the user is willing to pay for the Spot instances. Default: an empty string which means the on-demand price"
   default = null
+}
+
+variable "override_instance_types" {
+  description = "Override the instance type in the Launch Template"
+  default = []
 }
 
 variable "subnets" {
@@ -113,6 +118,11 @@ variable "health_check_grace_period" {
   description = "Time in seconds after instance comes into service before checking health, default 300"
   default     = null
 }
+
+# variable "metrics_granularity" {
+#   description = "Granularity to associate with the metrics to collect"
+#   default     = null
+# }
 
 variable "enabled_metrics" {
   description = "List of metrics to collect"

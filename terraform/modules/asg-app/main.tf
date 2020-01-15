@@ -32,37 +32,16 @@
 # inputs = {
 #   comp = "app"
 #
-#   instance_type = "t3.nano"
-#
-#   # image_id = "ami-0b991cb0ad895627f"
-#   image_id = "ami-03c363c16a1c450a9"
-#
-#   # Ubuntu 18.04
-#   # image_id = "ami-0f63c02167ca94956"
-#
-#   # CentOS 7
-#   # image_id = "ami-8e8847f1"
-#
-#   # Amazon Linux 2
-#   # image_id = "ami-0d7ed3ddb85b521a6"
-#
-#   # root_block_device = [{ volume_size = "60" }]
-#
 #   min_size = 1
 #   max_size = 3
 #   desired_capacity = 1
 #   wait_for_capacity_timeout = "2m"
-#   wait_for_elb_capacity = 1
 #
 #   health_check_grace_period = 30
-#   # health_check_type = "ELB"
 #   health_check_type = "EC2"
 #
-#   # Scheduled scaling
-#   # scheduled_scaling = true
-#   # scale_up_max_size = 2
-#   # scale_up_min_size = 1
-#
+#   # health_check_type = "ELB"
+#   wait_for_elb_capacity = 1
 #   target_group_arns = [dependency.tg.outputs.arn]
 #
 #   subnets = dependency.vpc.outputs.subnets["private"]
@@ -103,24 +82,37 @@ resource "aws_autoscaling_group" "this" {
   dynamic "launch_template" {
     for_each = var.spot_max_price == null ? list(1) : []
     content {
-     id      = var.launch_template_id
-     version = var.launch_template_version
+      id      = var.launch_template_id
+      version = "$Latest" # $Latest, or $Default
     }
   }
 
   dynamic "mixed_instances_policy" {
     for_each = var.spot_max_price == null ? [] : list(1)
     content {
-     instances_distribution {
-       on_demand_percentage_above_base_capacity = var.on_demand_percentage_above_base_capacity
-     }
+      instances_distribution {
+        on_demand_allocation_strategy = var.on_demand_allocation_strategy
+        on_demand_base_capacity = var.on_demand_base_capacity
+        on_demand_percentage_above_base_capacity = var.on_demand_percentage_above_base_capacity
+        spot_allocation_strategy = var.spot_allocation_strategy
+        spot_instance_pools = var.spot_instance_pools
+        spot_max_price = var.spot_max_price
+      }
 
-     launch_template {
-       launch_template_specification {
-         launch_template_id = var.launch_template_id
-         version = var.launch_template_version
-       }
-     }
+      launch_template {
+        launch_template_specification {
+          launch_template_id = var.launch_template_id
+          version = var.launch_template_version
+        }
+
+        dynamic "override" {
+          for_each = var.override_instance_types
+          content {
+            instance_type = override.value
+            # weighted_capacity
+          }
+        }
+      }
     }
   }
 
