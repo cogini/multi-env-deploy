@@ -2,7 +2,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg-app"
+#   source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg"
 # }
 # dependency "iam" {
 #   config_path = "../iam-codepipeline"
