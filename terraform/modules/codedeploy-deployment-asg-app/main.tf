@@ -38,9 +38,20 @@
 #
 #   target_group_name = dependency.target-group.outputs.name
 #
+#   # Blue/Green
+#   deployment_type   = "BLUE_GREEN"
+#   deployment_option = "WITH_TRAFFIC_CONTROL"
+#   provisioning_action = "DISCOVER_EXISTING"
+#   # provisioning_action = "COPY_AUTO_SCALING_GROUP"
+#
+#   # In place
+#   # deployment_type   = "IN_PLACE"
+#   # deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+#
 #   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
 #   codedeploy_service_role_arn = dependency.iam.outputs.codedeploy_service_role_arn
 #
+#   # On success, deploy immediately
 #   deployment_ready_option_action_on_timeout = "CONTINUE_DEPLOYMENT"
 #   deployment_ready_option_wait_time_in_minutes = 0
 #
@@ -84,30 +95,36 @@ resource "aws_codedeploy_deployment_group" "this" {
 
   autoscaling_groups = var.provisioning_action == "COPY_AUTO_SCALING_GROUP" ? [data.aws_autoscaling_groups.selected.names[0]] : data.aws_autoscaling_groups.selected.names
 
-  load_balancer_info {
-    target_group_info {
-      name = var.target_group_name
+  dynamic "load_balancer_info" {
+    for_each = var.target_group_name == null ? [] : list(1)
+    content {
+      target_group_info {
+        name = var.target_group_name
+      }
     }
   }
 
   deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-    deployment_type   = "BLUE_GREEN"
+    deployment_option = var.deployment_option
+    deployment_type   = var.deployment_type
   }
 
-  blue_green_deployment_config {
-    deployment_ready_option {
-      action_on_timeout    = var.deployment_ready_option_action_on_timeout
-      wait_time_in_minutes = var.deployment_ready_option_wait_time_in_minutes
-    }
+  dynamic "blue_green_deployment_config" {
+    for_each = var.deployment_type == "BLUE_GREEN" ? list(1) : []
+    content {
+      deployment_ready_option {
+        action_on_timeout    = var.deployment_ready_option_action_on_timeout
+        wait_time_in_minutes = var.deployment_ready_option_wait_time_in_minutes
+      }
 
-    green_fleet_provisioning_option {
-      action = var.provisioning_action
-    }
+      green_fleet_provisioning_option {
+        action = var.provisioning_action
+      }
 
-    terminate_blue_instances_on_deployment_success {
-      action                           = var.termination_action
-      termination_wait_time_in_minutes = var.termination_wait_time_in_minutes
+      terminate_blue_instances_on_deployment_success {
+        action                           = var.termination_action
+        termination_wait_time_in_minutes = var.termination_wait_time_in_minutes
+      }
     }
   }
 

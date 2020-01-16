@@ -31,6 +31,11 @@
 #
 #   # Tag to find the ASG
 #   deploy_hook = "foo-worker"
+#
+#   # In place
+#   deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+#   deployment_type   = "IN_PLACE"
+#
 #   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
 #   codedeploy_service_role_arn = dependency.iam.outputs.codedeploy_service_role_arn
 #
@@ -78,9 +83,37 @@ resource "aws_codedeploy_deployment_group" "this" {
 
   autoscaling_groups = [data.aws_autoscaling_groups.selected.names[0]]
 
+  dynamic "load_balancer_info" {
+    for_each = var.target_group_name == null ? [] : list(1)
+    content {
+      target_group_info {
+        name = var.target_group_name
+      }
+    }
+  }
+
   deployment_style {
-    deployment_option = "WITHOUT_TRAFFIC_CONTROL"
-    deployment_type   = "IN_PLACE"
+    deployment_option = var.deployment_option
+    deployment_type   = var.deployment_type
+  }
+
+  dynamic "blue_green_deployment_config" {
+    for_each = var.deployment_type == "BLUE_GREEN" ? list(1) : []
+    content {
+      deployment_ready_option {
+        action_on_timeout    = var.deployment_ready_option_action_on_timeout
+        wait_time_in_minutes = var.deployment_ready_option_wait_time_in_minutes
+      }
+
+      green_fleet_provisioning_option {
+        action = var.provisioning_action
+      }
+
+      terminate_blue_instances_on_deployment_success {
+        action                           = var.termination_action
+        termination_wait_time_in_minutes = var.termination_wait_time_in_minutes
+      }
+    }
   }
 
   # Rollback when deployment fails or monitoring threshold is met

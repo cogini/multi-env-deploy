@@ -14,6 +14,7 @@ variable "deploy_hook" {
 
 variable "target_group_name" {
   description = "Target group name"
+  default     = null
 }
 
 variable "codedeploy_app_name" {
@@ -24,31 +25,46 @@ variable "codedeploy_service_role_arn" {
   description = "CodeDeploy IAM service role"
 }
 
+variable "deployment_type" {
+  description = "BLUE_GREEN or IN_PLACE"
+  default     = "BLUE_GREEN"
+}
+
+variable "deployment_option" {
+  description = "WITH_TRAFFIC_CONTROL or WITHOUT_TRAFFIC_CONTROL"
+  default     = "WITH_TRAFFIC_CONTROL"
+}
+
 variable "deployment_config_name" {
   description = "Deployment config name"
   default     = "CodeDeployDefault.AllAtOnce"
 }
 
+# Blue/Green
 variable "deployment_ready_option_action_on_timeout" {
   description = "When to reroute traffic from original environment to replacement environment: CONTINUE_DEPLOYMENT (auto) or STOP_DEPLOYMENT (manual)"
   default     = "STOP_DEPLOYMENT"
 }
 
+# Blue/Green
 variable "deployment_ready_option_wait_time_in_minutes" {
   description = "Minutes to wait before the status of a blue/green deployment changed to Stopped if rerouting is not started manually. Applies only when action is STOP_DEPLOYMENT"
   default     = 5
 }
 
+# Blue/Green
 variable "provisioning_action" {
   description = "Method used to add instances to a replacement environment: DISCOVER_EXISTING or COPY_AUTO_SCALING_GROUP"
-  default     = "COPY_AUTO_SCALING_GROUP"
+  default     = "DISCOVER_EXISTING"
 }
 
+# Blue/Green
 variable "termination_action" {
   description = "Action to take on instances in the original environment after a successful blue/green deployment: TERMINATE or KEEP_ALIVE"
   default     = "TERMINATE"
 }
 
+# Blue/Green
 variable "termination_wait_time_in_minutes" {
   description = "How long to wait to terminate the instances after a successful deployment"
   default     = 5
