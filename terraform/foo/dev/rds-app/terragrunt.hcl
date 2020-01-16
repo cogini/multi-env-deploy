@@ -3,9 +3,9 @@
 terraform {
   source = "${get_terragrunt_dir()}/../../../modules//rds"
 }
-dependency "kms" {
-  config_path = "../kms"
-}
+# dependency "kms" {
+#   config_path = "../kms"
+# }
 dependency "vpc" {
   config_path = "../vpc"
 }
@@ -30,15 +30,15 @@ inputs = {
   # apply_immediately = true
 
   # Micro doesn't support encryption, only small
-  storage_encrypted = true
-  instance_class = "db.t2.small"
+  # storage_encrypted = true
+  # instance_class = "db.t2.small"
 
   subnet_ids = dependency.vpc.outputs.subnets["database"]
   security_group_ids = [dependency.sg.outputs.security_group_id]
   dns_domain = dependency.vpc.outputs.private_dns_domain
   dns_zone_id = dependency.vpc.outputs.private_dns_zone_id
 
-  kms_key_id = dependency.kms.outputs.key_arn
+  # kms_key_id = dependency.kms.outputs.key_arn
 
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   engine = "postgres"
