@@ -50,7 +50,7 @@ variable "deployment_ready_option_wait_time_in_minutes" {
 # Blue/Green
 variable "provisioning_action" {
   description = "Method used to add instances to a replacement environment: DISCOVER_EXISTING or COPY_AUTO_SCALING_GROUP"
-  default     = "COPY_AUTO_SCALING_GROUP"
+  default     = "DISCOVER_EXISTING"
 }
 
 # Blue/Green
