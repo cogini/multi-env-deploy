@@ -16,7 +16,7 @@ include {
 inputs = {
   comp = "app"
 
-  image_id = "ami-0389d9497c8262770"
+  image_id = "ami-0d2c61276077f361c"
   instance_type = "t3.nano"
 
   enable_monitoring = true
