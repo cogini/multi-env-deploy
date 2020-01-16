@@ -60,7 +60,8 @@ locals {
 
 # https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html
 resource "aws_autoscaling_group" "this" {
-  name_prefix = "${local.name}-"
+  # name_prefix = "${local.name}-"
+  name = local.name
 
   max_size                  = var.max_size
   min_size                  = var.min_size
