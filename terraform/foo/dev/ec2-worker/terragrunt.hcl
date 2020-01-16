@@ -27,7 +27,7 @@ inputs = {
   # Create a single instance
   instance_count = 1
 
-  ami = "ami-026475e7ed8dde60d"
+  ami = "ami-0d2c61276077f361c"
 
   # Ubuntu 18.04
   # ami = "ami-0f63c02167ca94956"

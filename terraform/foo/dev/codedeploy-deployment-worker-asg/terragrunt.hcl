@@ -1,7 +1,7 @@
 # Create CodeDeploy deployment for headless worker component in ASG
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg-worker"
+  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -27,6 +27,10 @@ inputs = {
 
   # Name of deployment group
   name = "foo-worker-asg"
+
+  deployment_type = "IN_PLACE"
+  deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+  deployment_config_name = "CodeDeployDefault.OneAtATime"
 
   # Tag to find the ASG
   deploy_hook = "foo-worker"

@@ -26,7 +26,7 @@ inputs = {
   desired_capacity = 1
   wait_for_capacity_timeout = "2m"
   # Wait for this number of healthy instances in load balancer
-  wait_for_elb_capacity = 1
+  # wait_for_elb_capacity = 1
 
   health_check_grace_period = 30
   # health_check_type = "ELB"
