@@ -1,5 +1,4 @@
-# Create an ASG for an app component which responds to client requests
-# via the load balancer.
+# Create an ASG for an app component
 #
 # In a simple application, there is a load balancer which routes
 # requests from the public internet to a single app component running
@@ -38,11 +37,14 @@
 #   wait_for_capacity_timeout = "2m"
 #
 #   health_check_grace_period = 30
-#   health_check_type = "EC2"
 #
-#   # health_check_type = "ELB"
+#   # Respond to client requests via load balancer
+#   health_check_type = "ELB"
 #   wait_for_elb_capacity = 1
 #   target_group_arns = [dependency.tg.outputs.arn]
+#
+#   # Worker
+#   # health_check_type = "EC2"
 #
 #   subnets = dependency.vpc.outputs.subnets["private"]
 #

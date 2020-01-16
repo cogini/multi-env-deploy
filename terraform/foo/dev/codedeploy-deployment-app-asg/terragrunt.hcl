@@ -38,14 +38,15 @@ inputs = {
   target_group_name = dependency.target-group.outputs.name
 
   # Blue/Green
-  deployment_type   = "BLUE_GREEN"
+  # deployment_type   = "BLUE_GREEN"
   deployment_option = "WITH_TRAFFIC_CONTROL"
   provisioning_action = "DISCOVER_EXISTING"
   # provisioning_action = "COPY_AUTO_SCALING_GROUP"
-  deployment_config_name = "CodeDeployDefault.AllAtOnce"
+  # deployment_config_name = "CodeDeployDefault.AllAtOnce"
+  deployment_config_name = "CodeDeployDefault.OneAtATime"
 
   # In place
-  # deployment_type   = "IN_PLACE"
+  deployment_type   = "IN_PLACE"
   # deployment_option = "WITHOUT_TRAFFIC_CONTROL"
   # deployment_config_name = "CodeDeployDefault.OneAtATime"
 

@@ -1,7 +1,7 @@
 # Create an ASG for an app component which handles background jobs
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg-worker"
+  source = "${get_terragrunt_dir()}/../../../modules//asg-app"
 }
 dependency "vpc" {
   config_path = "../vpc"
@@ -19,6 +19,7 @@ inputs = {
   min_size = 1
   max_size = 3
   desired_capacity = 1
+
   wait_for_capacity_timeout = "2m"
 
   health_check_grace_period = 30
@@ -29,7 +30,7 @@ inputs = {
 
   launch_template_id = dependency.lt.outputs.launch_template_id
   launch_template_version = "$Latest" # $Latest, or $Default
-  # spot_max_price = ""
+  spot_max_price = ""
 
   force_delete = true
 }

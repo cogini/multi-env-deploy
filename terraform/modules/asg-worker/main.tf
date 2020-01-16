@@ -41,15 +41,16 @@ locals {
 
 # https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html
 resource "aws_autoscaling_group" "this" {
-  name_prefix = "${local.name}-"
+  # name_prefix = "${local.name}-"
+  name = local.name
 
   max_size                  = var.max_size
   min_size                  = var.min_size
   desired_capacity          = var.desired_capacity
   wait_for_capacity_timeout = var.wait_for_capacity_timeout
 
-  # min_elb_capacity          = var.min_elb_capacity
-  # wait_for_elb_capacity     = var.wait_for_elb_capacity
+  min_elb_capacity          = var.min_elb_capacity
+  wait_for_elb_capacity     = var.wait_for_elb_capacity
 
   default_cooldown          = var.default_cooldown
 
@@ -97,7 +98,7 @@ resource "aws_autoscaling_group" "this" {
     }
   }
 
-  # target_group_arns = var.target_group_arns
+  target_group_arns = var.target_group_arns
 
   vpc_zone_identifier = var.subnets
 

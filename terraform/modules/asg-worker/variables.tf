@@ -33,6 +33,21 @@ variable "wait_for_capacity_timeout" {
   default     = null
 }
 
+variable "wait_for_elb_capacity" {
+  description = "Wait for this number of healthy instances in all attached load balancers on both create and update operations. (Takes precedence over min_elb_capacity) "
+  default     = null
+}
+
+variable "min_elb_capacity" {
+  description = "Wait for at least the requested number of instances to show up InService in all attached ELBs"
+  default     = null
+}
+
+variable "target_group_arns" {
+  description = "Target Group ARNs"
+  type = list
+  default = []
+}
 
 variable "default_cooldown" {
   description = "Time in seconds after a scaling activity completes before another can start"
