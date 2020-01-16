@@ -1,7 +1,7 @@
 # Create an ASG for an app component which handles background jobs
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg-app"
+  source = "${get_terragrunt_dir()}/../../../modules//asg"
 }
 dependency "vpc" {
   config_path = "../vpc"

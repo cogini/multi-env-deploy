@@ -2,7 +2,7 @@
 # via the load balancer.
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg-app"
+  source = "${get_terragrunt_dir()}/../../../modules//asg"
 }
 dependency "vpc" {
   config_path = "../vpc"
