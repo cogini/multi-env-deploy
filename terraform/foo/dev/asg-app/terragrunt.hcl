@@ -21,9 +21,9 @@ include {
 inputs = {
   comp = "app"
 
-  min_size = 1
+  min_size = 0
   max_size = 3
-  desired_capacity = 2
+  desired_capacity = 1
 
   wait_for_capacity_timeout = "2m"
   # Wait for this number of healthy instances in load balancer

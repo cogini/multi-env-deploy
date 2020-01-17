@@ -16,7 +16,7 @@ include {
 inputs = {
   comp = "worker"
 
-  min_size = 1
+  min_size = 0
   max_size = 3
   desired_capacity = 1
 
@@ -31,6 +31,9 @@ inputs = {
   launch_template_id = dependency.lt.outputs.launch_template_id
   launch_template_version = "$Latest" # $Latest, or $Default
   spot_max_price = ""
+  on_demand_base_capacity = 0
+  on_demand_percentage_above_base_capacity = 0
+  override_instance_types = ["t3.nano", "t3a.nano"]
 
   force_delete = true
 }
