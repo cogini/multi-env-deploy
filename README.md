@@ -181,8 +181,8 @@ work with external DNS, certs and other CDNs like CloudFlare.
 
 ## Getting started
 
-* Install tools and libraries, see [doc/tools.md](doc/tools.md)
-* Configure the system, see [doc/setup.md](doc/setup.md)
+* Install tools and libraries, see [doc/install.md](doc/install.md)
+* Configure the system, see [doc/config.md](doc/config.md)
 * Create infastructure with Terraform, see [terraform/README.md](terraform/README.md)
   and [terraform/building.md](terraform/building.md)
 * Create configuration with Ansible, see [ansible/README.md](ansible/README.md)
