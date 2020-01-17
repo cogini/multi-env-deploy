@@ -181,12 +181,12 @@ work with external DNS, certs and other CDNs like CloudFlare.
 
 ## Getting started
 
-* Install tools and libraries, see `doc/tools.md`
-* Configure the system, see `doc/setup.md`.
-* Create infastructure with Terraform, see `terraform/README.md`
-  and `terraform/building.md`
-* Create configuration with Ansible, see `ansible/README.md`
-* Create AMIs with Ansible and Packer, see `packer/README`
+* Install tools and libraries, see [doc/tools.md](doc/tools.md)
+* Configure the system, see [doc/setup.md](doc/setup.md)
+* Create infastructure with Terraform, see [terraform/README.md](terraform/README.md)
+  and [terraform/building.md](terraform/building.md)
+* Create configuration with Ansible, see [ansible/README.md](ansible/README.md)
+* Create AMIs with Ansible and Packer, see [packer/README.md](packer/README.md)
 * Have fun!
 
 [Contact Us](https://www.cogini.com/contact/) if you would like help deploying
