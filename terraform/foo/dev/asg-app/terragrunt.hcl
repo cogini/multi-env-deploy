@@ -43,7 +43,8 @@ inputs = {
   launch_template_version = "$Latest" # $Latest, or $Default
   spot_max_price = ""
   on_demand_base_capacity = 0
-  on_demand_percentage_above_base_capacity = 100
+  on_demand_percentage_above_base_capacity = 0
+  override_instance_types = ["t3.nano", "t3a.nano"]
 
   force_delete = true
 }

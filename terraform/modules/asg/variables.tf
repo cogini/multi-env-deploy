@@ -4,12 +4,12 @@ variable "comp" {
 
 variable "name" {
   description = "Name tag of instance, var.app_name-var.comp if empty"
-  default = ""
+  default     = ""
 }
 
 variable "deploy_hook" {
   description = "Tag used by deployment group to find current ASG, var.name if empty"
-  default = ""
+  default     = ""
 }
 
 variable "min_size" {
@@ -45,8 +45,8 @@ variable "min_elb_capacity" {
 
 variable "target_group_arns" {
   description = "Target Group ARNs"
-  type = list
-  default = []
+  type        = list
+  default     = []
 }
 
 variable "default_cooldown" {
@@ -60,53 +60,54 @@ variable "launch_template_id" {
 
 variable "launch_template_version" {
   description = "Launch Template version: $Latest, or $Default"
-  default = "$Latest"
+  default     = "$Latest"
 }
 
 variable "termination_policies" {
   description = "List of policies to decide how the instances in the auto scale group should be terminated"
-  type = list(string)
-  default = ["OldestLaunchTemplate", "Default"]
+  type        = list(string)
+  default     = ["OldestLaunchTemplate", "Default"]
 }
 
 variable "on_demand_allocation_strategy" {
   description = "Strategy to use when launching on-demand instances. Valid values: prioritized. Default: prioritized"
-  default = null
+  default     = null
 }
 
 variable "on_demand_base_capacity" {
   description = "Absolute minimum amount of desired capacity that must be fulfilled by on-demand instances: default 0"
-  default = null
+  default     = null
 }
 
 variable "on_demand_percentage_above_base_capacity" {
   description = "Percentage split between on-demand and Spot instances above the base on-demand capacity. Default: 100"
-  default = null
+  default     = null
 }
 
 variable "spot_allocation_strategy" {
   description = "How to allocate capacity across the Spot pools. Valid values: lowest-price, capacity-optimized. Default: lowest-price"
-  default = null
+  default     = null
 }
 
 variable "spot_instance_pools" {
   description = "Number of Spot pools per availability zone to allocate capacity. EC2 Auto Scaling selects the cheapest Spot pools and evenly allocates Spot capacity across the number of Spot pools that you specify. Default: 2."
-  default = null
+  default     = null
 }
 
 variable "spot_max_price" {
   description = "Maximum price per unit hour that the user is willing to pay for the Spot instances. Default: an empty string which means the on-demand price"
-  default = null
+  default     = null
 }
 
 variable "override_instance_types" {
-  description = "Override the instance type in the Launch Template"
-  default = []
+  description = "Override the instance types in the Launch Template"
+  type        = list(string)
+  default     = []
 }
 
 variable "subnets" {
   description = "Subnet ids"
-  type = list
+  type        = list
 }
 
 variable "health_check_type" {

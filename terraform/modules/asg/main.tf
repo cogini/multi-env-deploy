@@ -86,7 +86,7 @@ resource "aws_autoscaling_group" "this" {
     for_each = var.spot_max_price == null ? list(1) : []
     content {
       id      = var.launch_template_id
-      version = "$Latest" # $Latest, or $Default
+      version = var.launch_template_version
     }
   }
 
