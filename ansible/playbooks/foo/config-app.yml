@@ -6,7 +6,7 @@
 
 - name: Generate config file from template and upload to S3
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   connection: local
   vars:
     app_name: foo
@@ -16,7 +16,7 @@
     output_file: config.{{ file_format }}
   vars_files:
     - ../../vars/{{ app_name }}/{{ env }}/common.yml
-    - ../../vars/{{ app_name }}/{{ env }}/db-app.yml
+    - ../../vars/{{ app_name }}/{{ env }}/app-db.yml
     - ../../vars/{{ app_name }}/{{ env }}/app.yml
     - ../../vars/{{ app_name }}/{{ env }}/app-secrets.yml
   tasks:
