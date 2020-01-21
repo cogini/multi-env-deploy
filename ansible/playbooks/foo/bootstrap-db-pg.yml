@@ -12,9 +12,12 @@
 #
 # ansible-playbook -v -u $USER -l tag_comp_bastion --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-pg.yml -D
 # ansible-playbook -v -u $USER -l tag_comp_devops --extra-vars "env=$ENV comp=app" playbooks/$APP/bootstrap-db-pg.yml -D
+# ansible-playbook -v -u $USER -i 18.179.35.132, --extra-vars "env=$ENV comp=app ansible_python_interpreter=/usr/bin/python3" playbooks/$APP/bootstrap-db-pg.yml -D
 
 - name: Bootstrap application user/database
-  hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}"
+  # hosts: "tag_app_{{ app_name }}:&tag_env_{{ env }}"
+  # hosts: localhost
+  hosts: '*'
   become: true
   vars:
     app_name: foo
@@ -32,6 +35,13 @@
   roles:
     - tools-other
   tasks:
+    # - debug: msg="db_host {{ db_host }}"
+    # - debug: msg="db_master_user {{ db_master_user }}"
+    # - debug: msg="db_master_pass {{ db_master_pass }}"
+    # - debug: msg="db_name {{ db_name }}"
+    # - debug: msg="db_user {{ db_user }}"
+    # - debug: msg="db_pass {{ db_pass }}"
+
     - name: Create app db
       run_once: true
       postgresql_db:
