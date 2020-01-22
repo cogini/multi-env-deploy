@@ -1,4 +1,4 @@
-# Give CodePipeline service roles access to S3 buckets for app component
+# Configure IAM permissions for CodePipeline components
 
 terraform {
   source = "${get_terragrunt_dir()}/../../../modules//iam-codepipeline-app"
