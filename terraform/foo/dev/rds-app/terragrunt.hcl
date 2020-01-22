@@ -43,7 +43,7 @@ inputs = {
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   engine = "postgres"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].EngineVersion'
-  engine_version = "10.6"
+  engine_version = "10.10"
   port = "5432"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].DBParameterGroupFamily'
   # family = "postgres9.6"
@@ -53,6 +53,8 @@ inputs = {
   # major_engine_version = "10"
   rds_master_user = "postgresql"
   # Set rds_master_pass via environment var
+
+  ca_cert_identifier = "rds-ca-2019"
 
   # parameters = [
   #   {
