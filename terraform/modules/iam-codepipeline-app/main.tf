@@ -28,7 +28,7 @@
 #   # Give acess to all SSM Parameter Store params under /org/app/env/comp
 #   # ssm_ps_params = ["*"]
 #   # Specify prefix and params
-#   ssm_ps_param_prefix = "/cogini/foo/test"
+#   ssm_ps_param_prefix = "cogini/foo/test"
 #   ssm_ps_params = ["app/*", "worker/*"]
 #
 #   artifacts_bucket_arn = dependency.s3-codepipeline.outputs.buckets["deploy"].arn
@@ -49,6 +49,7 @@ data "terraform_remote_state" "s3" {
   }
 }
 
+# Give access to S3 buckets
 locals {
   bucket_names = {
     for comp, buckets in var.s3_buckets:
@@ -60,8 +61,7 @@ locals {
     comp => {
       for name, attrs in buckets:
         name => {
-          # Give read write access sufficient to run "aws s3 sync"
-          actions = lookup(attrs, "actions", ["s3:DeleteObject", "s3:Get*", "s3:List*", "s3:ListBucket", "s3:PutObject*"])
+          actions = lookup(attrs, "actions", ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"])
           bucket = data.terraform_remote_state.s3[comp].outputs.buckets[name]
         }
         if lookup(data.terraform_remote_state.s3[comp].outputs.buckets, name, "missing") != "missing"
@@ -253,7 +253,7 @@ resource "aws_iam_role_policy" "codebuild-s3-assets" {
   policy = data.aws_iam_policy_document.codebuild-s3-assets.json
 }
 
-# Allow access to SSM
+# Allow access to SSM Parameter Store
 data "aws_iam_policy_document" "ssm" {
   count = local.configure_ssm ? 1 : 0
 
@@ -264,7 +264,7 @@ data "aws_iam_policy_document" "ssm" {
       actions = [
         "ssm:DescribeParameters",
         "ssm:GetParameters",
-        # "ssm:GetParameter*"
+        "ssm:GetParameter*"
       ]
       resources = local.ssm_ps_resources
     }
@@ -276,4 +276,10 @@ resource "aws_iam_policy" "codebuild-ssm" {
   name        = "${var.app_name}-${var.comp}-codebuild-ssm"
   description = "Enable instances to access SSM"
   policy      = data.aws_iam_policy_document.ssm[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "codebuild-ssm" {
+  count      = local.configure_ssm ? 1 : 0
+  role       = var.codebuild_service_role_id
+  policy_arn = aws_iam_policy.codebuild-ssm[0].arn
 }
