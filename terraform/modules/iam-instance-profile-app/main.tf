@@ -299,7 +299,7 @@ data "aws_iam_policy_document" "ssm" {
       actions = [
         "ssm:DescribeParameters",
         "ssm:GetParameters",
-        # "ssm:GetParameter*"
+        "ssm:GetParameter*"
       ]
       resources = local.ssm_ps_resources
     }
