@@ -24,6 +24,12 @@ variable "engine_version" {
   type        = string
 }
 
+variable "ca_cert_identifier" {
+  description = "Identifier of the CA certificate for the DB instance"
+  type        = string
+  default     = null
+}
+
 variable "port" {
   description = "The port on which the DB accepts connections, 5432 for postgres, 3306 for mysql"
   type        = string
