@@ -28,6 +28,7 @@ module "db" {
   engine_version = var.engine_version
   port           = var.port
   instance_class = var.instance_class
+  ca_cert_identifier = var.ca_cert_identifier
 
   allocated_storage = var.allocated_storage
   storage_type      = var.storage_type
