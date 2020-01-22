@@ -20,13 +20,10 @@ include {
 inputs = {
   comp = "devops"
 
-  instance_type = "t3.micro"
-
-  # Increase root volume size, necessary when building large apps
-  # root_volume_size = 400
-
   # Single instance
   instance_count = 1
+
+  instance_type = "t3.micro"
 
   # Ubuntu 18.04
   ami = "ami-0f63c02167ca94956"
@@ -36,6 +33,9 @@ inputs = {
 
   # Amazon Linux 2
   # ami = "ami-0d7ed3ddb85b521a6"
+
+  # Increase root volume size, necessary when building large apps
+  # root_volume_size = 400
 
   subnet_ids = dependency.vpc.outputs.subnets["public"]
   security_group_ids = [dependency.sg.outputs.security_group_id]
