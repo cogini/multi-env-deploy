@@ -74,6 +74,7 @@ data "terraform_remote_state" "s3" {
   }
 }
 
+# Give access to S3 buckets
 locals {
   bucket_names = {
     for comp, buckets in var.s3_buckets:
