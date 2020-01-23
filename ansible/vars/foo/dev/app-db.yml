@@ -1,4 +1,5 @@
 db_host: "db.{{ comp }}.{{ app_name }}.internal"
+db_port: 5432
 db_name: "{{ app_name }}_{{ comp }}"
 db_user: "{{ app_name }}_{{ comp }}"
 db_pass: !vault |

@@ -22,7 +22,7 @@
   tasks:
     - name: Create SSM parameter store entry for app db name
       aws_ssm_parameter_store:
-        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/name"
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/db/name"
         description: "Username for app db name"
         string_type: "String"
         value: "{{ db_name }}"
@@ -30,7 +30,7 @@
 
     - name: Create SSM parameter store entry for app db host
       aws_ssm_parameter_store:
-        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/host"
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/db/host"
         description: "Username for app db name"
         string_type: "String"
         value: "{{ db_host }}"
@@ -38,7 +38,7 @@
 
     - name: Create SSM parameter store entry for app db user
       aws_ssm_parameter_store:
-        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/user"
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/db/user"
         description: "Username for app db user"
         string_type: "String"
         value: "{{ db_user }}"
@@ -46,10 +46,20 @@
 
     - name: Create SSM parameter store entry for app db password
       aws_ssm_parameter_store:
-        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/database/pass"
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/db/pass"
         description: "Password for app db user"
         value: "{{ db_pass }}"
         string_type: "SecureString"
         key_id: "{{ aws_key_id }}"
         region: "{{ aws_region }}"
         # overwrite_value: "always"
+
+    - name: Create SSM parameter store entry for app db url
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/db/url"
+        description: "db url"
+        # value: "ecto://{{db_user}}:{{db_pass}}@{{db_host}}:{{db_port}}/{{db_name}}?ssl=true"
+        value: "ecto://{{db_user}}:{{db_pass}}@{{db_host}}:{{db_port}}/{{db_name}}"
+        string_type: "SecureString"
+        key_id: "{{ aws_key_id }}"
+        region: "{{ aws_region }}"
