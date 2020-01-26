@@ -232,7 +232,7 @@ Generate a master RDS password.
 
     pwgen -s 16
 
-Put it in [Ansible](https://www.cogini.com/blog/managing-app-secrets-with-ansible/):
+Put it in Ansible (see [Managing app secrets with Ansible](https://www.cogini.com/blog/managing-app-secrets-with-ansible/)):
 
     echo -n XXX | ansible-vault encrypt_string --stdin-name 'db_master_pass'
 
