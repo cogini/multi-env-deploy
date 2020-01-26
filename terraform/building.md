@@ -45,15 +45,12 @@ In this example we assume that the wildcard domain (e.g. `*.example.com`) points
 to the load balancer, which directs traffic to the primary app by default, e.g.
 Ruby on Rails.
 
-We can use a static site generator to manage the public website, putting the
+We can also can use a static site generator to manage the public website, putting the
 resulting files in an S3 bucket which is served by CloudFront CDN.  In this
 example, the `public-web` resources do this. We then set up DNS entries
 to point `www.example.com` and the bare domain to CloudFront.
 
 We can also run a separate server like WordPress for the public website.
-If it's a standalone EC2 instance, then assign the `www.example.com` name to
-it using the `route53-public-www` module.
-
 Additional servers running behind the same load balancer each get their own
 Target Group, and a routing rule directs traffic based on subdomain or URL.
 This lets you use e.g. Elixir to handle API traffic and put it on
@@ -77,6 +74,14 @@ Update the DNS registrar for the domain to use these name servers.
 Create the Route53 zone for the public domain:
 
     route53-public
+
+Create Route53 alias records for public DNS, i.e. `www.example.com`, pointing
+to either load balancer or CloudFront.
+
+    route53-public-www
+
+The `ec2-app` module can also optionally set up public DNS records for
+standalone EC2 instances.
 
 Create a SSL cert for the public domain using ACM:
 
