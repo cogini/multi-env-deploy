@@ -34,7 +34,7 @@ terraform
 ```
 
 For many apps, the recommended Terragrunt structure in [Keep your Terraform
-code DRY](https://terragrunt.gruntwork.io/use-cases/keep-your-terraform-code-dry/
+code DRY](https://terragrunt.gruntwork.io/use-cases/keep-your-terraform-code-dry/)
 and [example](https://github.com/gruntwork-io/terragrunt-infrastructure-live-example)
 works fine. It uses a directory hierarchy like:
 

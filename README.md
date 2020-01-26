@@ -47,7 +47,7 @@ Store app assets like JavaScript and CSS in CloudFront for performance
 
 Whenever code changes, pull from git, build in CodeBuild, run tests and deploy
 automatically using CodeDeploy. Run tests against resources such
-as RDS or Redis.
+as RDS or Redis. Supports both GitHub and Codecommit.
 
 ## Auto Scaling Group and Load Balancer
 
@@ -55,7 +55,6 @@ as RDS or Redis.
 * Blue/Green deployment
 * SSL using Amazon Certificate Manager
 * Spot instances to reduce cost
-* GitHub and Codecommit support
 * Multiple deploy targets
 * Manual approval process
 * Notifications
