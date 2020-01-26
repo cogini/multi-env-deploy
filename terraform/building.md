@@ -119,7 +119,7 @@ CodeDeploy:
 
     s3-codepipeline-app
 
-Create bucket for LB and CloudFront logs:
+Create bucket for Load Balancer and CloudFront logs:
 
     s3-request-logs
 
@@ -244,7 +244,7 @@ Create RDS database for app component:
 
     rds-app
 
-## LB
+## Load Balancer
 
 Give ALB service write access to request logs S3 bucket:
 
@@ -276,8 +276,15 @@ Copy app config to S3 bucket with `ansible/playbooks/foo/config-app.yml` and
 
 ## Build and deploy component
 
-https://stephenmann.io/post/speeding-up-aws-codebuild-using-custom-build-containers/
-https://aws.amazon.com/blogs/devops/extending-aws-codebuild-with-custom-build-environments/
+You can build using the default AWS images, but creating a custom image at the
+beginning will save you a lot of time waiting as you iterate on getting your system
+running. See [Extending AWS CodeBuild with Custom Build Environments](https://aws.amazon.com/blogs/devops/extending-aws-codebuild-with-custom-build-environments/)
+and [Speeding up AWS CodeBuild with Custom Build Environments](https://stephenmann.io/post/speeding-up-aws-codebuild-using-custom-build-containers/)
+
+You can also run CodeBuild on your local machine. This speeds things up even
+more, though it has differences from the real environment. See
+[Announcing Local Build Support for AWS CodeBuild](https://aws.amazon.com/blogs/devops/announcing-local-build-support-for-aws-codebuild/)
+and [Test and Debug Locally with the CodeBuild Agent](https://docs.aws.amazon.com/codebuild/latest/userguide/use-codebuild-agent.html).
 
 Create Elastic Container Registry for custom CodeBuild image:
 
@@ -296,7 +303,7 @@ Create CodeDeploy "app" for component:
 
     codedeploy-app
 
-Create CodeDeploy deployment for app component running in ASG behind LB:
+Create CodeDeploy deployment for app component running in ASG behind a Load Balancer:
 
     codedeploy-deployment-app-asg
 
@@ -304,7 +311,7 @@ Create CodeDeploy deployment for app component running in EC2 instances:
 
     codedeploy-deployment-app-ec2
 
-Generate github access token:
+Generate GitHub access token:
 
 1. While logged into GitHub, click your profile photo in the top right, then click Settings.
 2. On the left, click Developer settings.
@@ -319,7 +326,7 @@ Create CodePipeline for app component:
     source secrets.sh # for GITHUB_TOKEN
     codepipeline-app
 
-## Public web from static site in CloudFront (optional)
+## Public web from static site in CloudFront
 
 Set up lambda edge functions for CloudFront:
 
