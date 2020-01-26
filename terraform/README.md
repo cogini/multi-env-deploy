@@ -47,8 +47,8 @@ aws-account
 e.g.
 
 ```
-prod
-    prod
+dev
+    stage
         us-east-1
             asg
 ```
@@ -76,7 +76,7 @@ and set the region it will run in.
 
 Next configure the resources for the environment, e.g. `dev`.  Each resource
 has a directory which defines its name and a `terragrunt.hcl` which sets
-dependencises and variables.
+dependencies and variables.
 
 For example, this defines a single web app ASG behind a public load balancer,
 SSL cert, Route53 domain, RDS database, CodePipeline building in a custom
@@ -123,15 +123,15 @@ it by name. This loose coupling is a key advantage of Terraform over
 CloudFormation. When CloudFormation config gets large, it becomes hard to
 manage and extend.
 
-The Terraform code under `modules` generates default names based on org, app,
-env, and component. You can generally override names to match an existing
+The Terraform code under `modules` generates default names based on `org`, `app`,
+`env`, and `comp`. You can generally override names to match an existing
 system, though, and import existing resources if necessary.
 
 The naming convention for Terraform modules is that an "app" is something that
 receives web requests, and a "worker" is a headless component that runs
 background processes. The `foo` example names resources the same way, `app` and
 `worker`, but it doesn't have to be that way. A more complex system might name
-components `client`, `admin`, `api`, etc.
+components `public`, `admin`, `api`, etc.
 
 ## Resources
 
@@ -144,17 +144,16 @@ The `asg-api` config would be as follows:
 
 ```terraform
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg-app"
+  source = "${get_terragrunt_dir()}/../../../modules//asg"
 }
 dependency "vpc" {
   config_path = "../vpc"
 }
 dependency "lt" {
-  config_path = "../launch-template-app"
+  config_path = "../launch-template-api"
 }
 dependency "tg" {
-  # config_path = "../target-group-default"
-  config_path = "../target-group-app"
+  config_path = "../target-group-api"
 }
 include {
   path = find_in_parent_folders()
@@ -162,23 +161,36 @@ include {
 
 inputs = {
   comp = "api"
+
   min_size = 1
   max_size = 3
   desired_capacity = 1
+
   wait_for_capacity_timeout = "2m"
+  # Wait for this number of healthy instances in load balancer
   wait_for_elb_capacity = 1
 
   health_check_grace_period = 30
   health_check_type = "ELB"
 
+  # wait_for_capacity_timeout = "0"
+  # health_check_type = "EC2"
+
   target_group_arns = [dependency.tg.outputs.arn]
+
   subnets = dependency.vpc.outputs.subnets["private"]
+
   launch_template_id = dependency.lt.outputs.launch_template_id
   launch_template_version = "$Latest" # $Latest, or $Default
+
+  spot_max_price = ""
+  on_demand_base_capacity = 0
+  on_demand_percentage_above_base_capacity = 0
+  override_instance_types = ["t3a.nano", "t3.nano"]
 }
 ```
 
-The `source` identifies the Terraform code, in this case `modules/asg-app`.
+The `source` identifies the Terraform code, in this case `modules/asg`.
 `dependency` lines reference other resources. Resources have input and
 output variables, defined in `variables.tf` and `outputs.tf`.
 
