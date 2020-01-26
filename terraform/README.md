@@ -206,9 +206,9 @@ shares a common dev db. In prod, it would use an ASG.
 
 ## Set environment vars
 
-`set_env.sh` sets environment vars that tell Terrform. Copy the file from
-the root into the app directory, e.g. `terraform/foo`.  Before running
-Terraform, set up the environment:
+`set_env.sh` sets environment vars that configure Terraform for the app and
+environment. Copy the file from the root into the app directory, e.g.
+`terraform/foo`.  Before running Terraform, set up the environment:
 
 ```shell
 export ENV=dev
@@ -229,12 +229,12 @@ source secrets.sh
 
 ## Managing state
 
-During execution, Terragrunt uses DynamoDB to lock the system, preventing
-simultaneous updates. Sometimes if you interrupt execution, the lock will not
-get cleared. Edit DynamoDB via the AWS Console, deleting the line manually.
-
 Terragrunt has low level utilities for manipulating the state.
 
 This lets you import existing assets or delete them, e.g.:
 
     terragrunt import 'aws_s3_bucket.buckets["assets"]' cogini-foo-dev-app-assets
+
+During execution, Terragrunt uses DynamoDB to lock the system, preventing
+simultaneous updates. Sometimes if you interrupt execution, the lock will not
+get cleared. Edit DynamoDB via the AWS Console, deleting the line manually.
