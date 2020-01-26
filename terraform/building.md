@@ -48,14 +48,16 @@ Ruby on Rails.
 We can use a static site generator to manage the public website, putting the
 resulting files in an S3 bucket which is served by CloudFront CDN.  In this
 example, the `public-web` resources do this. We then set up DNS entries
-to point www.example.com and the bare domain to CloudFront.
+to point `www.example.com` and the bare domain to CloudFront.
 
-We can also run WordPress for the public website and Elixir to handle
-API traffic. Those instances would generally get a DNS name like
-`api.example.com`. They optionally get the `www.example.com` name, set using
-`route53-public-www`. If they are running behind the load balancer, they
-get a Target Group and a routing rule which directs traffic based on
-subdomain or URL.
+We can also run a separate server like WordPress for the public website.
+If it's a standalone EC2 instance, then assign the `www.example.com` name to
+it using the `route53-public-www` module.
+
+Additional servers running behind the same load balancer each get their own
+Target Group, and a routing rule directs traffic based on subdomain or URL.
+This lets you use e.g. Elixir to handle API traffic and put it on
+`api.example.com` or `example.com/api`.
 
 We normally use Amazon Certificate Manager to handle SSL certs. They are free,
 but only if you are using a load balancer or CloudFront. Otherwise you can use
