@@ -347,8 +347,8 @@ Create CodePipeline to build and deploy:
 
 ## Public Web
 
-Create Route53 alias records for public DNS, i.e. www.example.com, pointing to either
-load balancer or CloudFront.
+Create Route53 alias records for public DNS, i.e. `www.example.com`, pointing
+to either CloudFront.
 
     route53-public-www
 
