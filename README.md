@@ -3,7 +3,7 @@ This is an example of how to deploy a real-world complex web app to AWS.
 Full-featured apps in languages like Ruby on Rails have multiple components,
 e.g. web front end, background job handler, periodic jobs, maybe a separate
 server to handle API traffic or web sockets. They use a relational database,
-Redis or Memcached, Elaisticsearch, CDN for static assets, SSL, S3 buckets,
+Redis or Memcached, Elasticsearch, CDN for static assets, SSL, S3 buckets,
 encryption.  They need logging, metrics, and alerting.
 
 They run in an autoscaling group and use a CI/CD pipeline to handle blue/green
@@ -47,7 +47,7 @@ Store app assets like JavaScript and CSS in CloudFront for performance
 
 Whenever code changes, pull from git, build in CodeBuild, run tests and deploy
 automatically using CodeDeploy. Run tests against resources such
-as RDS or Redis. Supports both GitHub and Codecommit.
+as RDS or Redis. Supports both GitHub and CodeCommit.
 
 ## Auto Scaling Group and Load Balancer
 
@@ -86,7 +86,7 @@ Add Elasticache Redis or Memcached for app caching.
 
 Add Elasticsearch for the app.
 
-## Devops
+## DevOps
 
 Add a DevOps instance to handle deployment and management tasks.
 
@@ -182,7 +182,7 @@ work with external DNS, certs and other CDNs like CloudFlare.
 
 * Install tools and libraries, see [doc/install.md](doc/install.md)
 * Configure the system, see [doc/config.md](doc/config.md)
-* Create infastructure with Terraform, see [terraform/README.md](terraform/README.md)
+* Create infrastructure with Terraform, see [terraform/README.md](terraform/README.md)
   and [terraform/building.md](terraform/building.md)
 * Create configuration with Ansible, see [ansible/README.md](ansible/README.md)
 * Create AMIs with Ansible and Packer, see [packer/README.md](packer/README.md)

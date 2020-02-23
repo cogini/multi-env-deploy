@@ -20,11 +20,11 @@ allowing multiple users to work on it at the same time.
 
 ## Structure
 
-Using Terragrunt, we separate the configuration into common modules, app
-configuration and environment-specific variables.
+Using Terragrunt, we separate the configuration into common modules,
+app configuration and environment-specific variables.
 
-Under the `terraform` directory is the common `modules` directory and a
-directory for each app, e.g. `foo`:
+Under the `terraform` directory is the `modules` directory and a directory for
+each app, e.g. `foo`:
 
 ```
 terraform
@@ -78,6 +78,7 @@ Next configure the resources for the environment, e.g. `dev`.  Each resource
 has a directory which defines its name and a `terragrunt.hcl` which sets
 dependencies and variables.
 
+Dirs for each environment define which modules will be used.
 For example, this defines a single web app ASG behind a public load balancer,
 SSL cert, Route53 domain, RDS database, CodePipeline building in a custom
 container image, deploying with CodeDeploy, using KMS encryption keys:
