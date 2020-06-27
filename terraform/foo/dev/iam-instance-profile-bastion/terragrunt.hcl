@@ -12,7 +12,4 @@ include {
 
 inputs = {
   comp = "bastion"
-
-
-
 }
