@@ -89,20 +89,22 @@
 
 locals {
   name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  codebuild_cache_location = var.codebuild_cache_type == "S3" ? "${var.cache_bucket_id}/${local.name}" : null
 }
+
+data "aws_caller_identity" "current" {}
 
 # https://www.terraform.io/docs/providers/aws/r/codebuild_project.html
 # https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli
 # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage
 resource "aws_codebuild_project" "this" {
-  name         = local.name
-  description  = "Build ${local.name}"
-  service_role = var.codebuild_service_role_arn
+  name          = local.name
+  description   = "Build ${local.name}"
+  service_role  = var.codebuild_service_role_arn
   build_timeout = var.build_timeout
 
   artifacts {
-    type = "CODEPIPELINE" # CODEPIPELINE, NO_ARTIFACTS, S3
-    # artifact_identifier
+    type = "CODEPIPELINE"
   }
 
   source {
@@ -111,8 +113,9 @@ resource "aws_codebuild_project" "this" {
   }
 
   cache {
-    type     = "S3"
-    location = "${var.cache_bucket_id}/${local.name}"
+    type      = var.codebuild_cache_type
+    location  = local.codebuild_cache_location
+    modes     = var.codebuild_cache_modes
   }
 
   # logs_config {
@@ -139,11 +142,11 @@ resource "aws_codebuild_project" "this" {
   }
 
   environment {
-    type         = "LINUX_CONTAINER"
-    compute_type = var.codebuild_compute_type
-    image        = var.build_image
-
-    # image_pull_credentials_type = var.codebuild_image_pull_credentials_type
+    type                        = var.codebuild_type
+    compute_type                = var.codebuild_compute_type
+    image                       = var.codebuild_image
+    privileged_mode             = var.codebuild_privileged_mode
+    image_pull_credentials_type = var.codebuild_image_pull_credentials_type
 
     # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html
 
@@ -165,6 +168,11 @@ resource "aws_codebuild_project" "this" {
     environment_variable {
       name  = "COMPONENT_NAME"
       value = var.comp
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = data.aws_caller_identity.current.account_id
     }
 
     dynamic "environment_variable" {
@@ -195,11 +203,11 @@ resource "aws_codepipeline" "this" {
   role_arn = var.codepipeline_service_role_arn
 
   artifact_store {
-    location = var.artifacts_bucket_id
     type     = "S3"
+    location = var.artifacts_bucket_id
 
     dynamic "encryption_key" {
-      for_each = (var.kms_key_arn != null) ? list(1) : []
+      for_each = var.kms_key_arn == null ? [] : list(1)
       content {
         id   = var.kms_key_arn
         type = "KMS"
@@ -207,11 +215,12 @@ resource "aws_codepipeline" "this" {
     }
   }
 
-  dynamic "stage" {
-    for_each = var.source_provider == "CodeCommit" ? list(1) : []
-    content {
-      name = "Source"
-      action {
+  stage {
+    name = "Source"
+
+    dynamic "action" {
+      for_each = var.source_provider == "CodeCommit" ? list(1) : []
+      content {
         name             = "Git"
         category         = "Source"
         owner            = "AWS"
@@ -226,13 +235,10 @@ resource "aws_codepipeline" "this" {
         }
       }
     }
-  }
 
-  dynamic "stage" {
-    for_each = var.source_provider == "GitHub" ? list(1) : []
-    content {
-      name = "Source"
-      action {
+    dynamic "action" {
+      for_each = var.source_provider == "GitHub" ? list(1) : []
+      content {
         name             = "Git"
         category         = "Source"
         owner            = "ThirdParty"
@@ -292,25 +298,75 @@ resource "aws_codepipeline" "this" {
     }
   }
 
-  dynamic "stage" {
-    for_each = length(var.codedeploy_deployment_groups) > 0 ? list(1) : []
-    content {
-      name = "Deploy"
-      dynamic "action" {
-        for_each = var.codedeploy_deployment_groups
-        content {
-          name            = "Deploy-${action.value}"
-          category        = "Deploy"
-          owner           = "AWS"
-          provider        = "CodeDeploy"
-          version         = "1"
-          input_artifacts = ["Build"]
-          configuration = {
-            ApplicationName     = var.codedeploy_app_name
-            DeploymentGroupName = action.value
-          }
+  # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html
+
+  stage {
+    name = "Deploy"
+
+    dynamic "action" {
+      for_each = var.codedeploy_deployment_groups
+      content {
+        name            = "Deploy-${action.value}"
+        category        = "Deploy"
+        owner           = "AWS"
+        provider        = "CodeDeploy"
+        version         = "1"
+        input_artifacts = ["Build"]
+        configuration = {
+          ApplicationName     = var.codedeploy_app_name
+          DeploymentGroupName = action.value
+        }
+      }
+    }
+
+    dynamic "action" {
+      for_each = var.ecs_deployments
+      content {
+        name            = lookup(action.value, "Name")
+        category        = "Deploy"
+        owner           = "AWS"
+        provider        = "ECS"
+        version         = "1"
+        input_artifacts = ["Build"]
+        configuration = {
+          ClusterName = lookup(action.value, "ClusterName", null)
+          ServiceName = lookup(action.value, "ServiceName", null)
+          FileName = lookup(action.value, "FileName", "imagedefinitions.json")
+          DeploymentTimeout = lookup(action.value, "DeploymentTimeout", null)
+        }
+      }
+    }
+
+    dynamic "action" {
+      for_each = var.codedeploy_ecs_deployments
+      content {
+        name            = lookup(action.value, "Name")
+        category        = "Deploy"
+        owner           = "AWS"
+        provider        = "CodeDeployToECS"
+        version         = "1"
+        input_artifacts = ["Build"]
+        configuration = {
+          ApplicationName = lookup(action.value, "ApplicationName", var.codedeploy_app_name)
+          DeploymentGroupName = lookup(action.value, "DeploymentGroupName")
+          TaskDefinitionTemplateArtifact = lookup(action.value, "TaskDefinitionTemplateArtifact", "Build")
+          TaskDefinitionTemplatePath = lookup(action.value, "TaskDefinitionTemplatePath", "taskdef.json")
+          AppSpecTemplateArtifact = lookup(action.value, "AppSpecTemplateArtifact", "Build")
+          AppSpecTemplatePath = lookup(action.value, "AppSpecTemplatePath", "appspec.yml")
+          Image1ArtifactName = "Build"
+          Image1ContainerName = "IMAGE1_NAME"
+          # Image2ArtifactName
+          # Image2ContainerName
+          # Image3ArtifactName
+          # Image3ContainerName
+          # Image4ArtifactName
+          # Image4ContainerName
         }
       }
     }
   }
+  # https://dev.classmethod.jp/articles/codepipeline-ecs-codedeploy/
+  # https://qiita.com/keroxp/items/7ae472bf7344c1efa021
+
+  # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#action-requirements
 }
