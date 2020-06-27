@@ -95,10 +95,20 @@ variable "monitoring_interval" {
   default     = 0
 }
 
-# variable "monitoring_role_arn" {
-#   description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Must be specified if monitoring_interval is non-zero."
-#   default = ""
-# }
+variable "create_monitoring_role" {
+  description = "Whether to create monitoring role"
+  default     = null
+}
+
+variable "monitoring_role_name" {
+  description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Must be specified if monitoring_interval is non-zero."
+  default = "rds-monitoring-role"
+}
+
+variable "monitoring_role_arn" {
+  description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Must be specified if monitoring_interval is non-zero."
+  default = ""
+}
 
 # variable "iam_database_authentication_enabled" {
 #   default = true
@@ -169,6 +179,7 @@ variable "family" {
 
 variable "parameters" {
   description = "A list of DB parameters (map) to apply"
+  type        = list(map(string))
   default     = []
 }
 

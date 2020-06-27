@@ -21,7 +21,7 @@ locals {
 # https://github.com/terraform-aws-modules/terraform-aws-rds
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  # version = "~> 1.0"
+  version = "~> 2.14.0"
 
   identifier     = local.name
   engine         = var.engine
@@ -53,9 +53,8 @@ module "db" {
   # password = data.aws_secretsmanager_secret.db_master_password
 
   monitoring_interval = var.monitoring_interval
-
-  # monitoring_role_name = "rds-monitoring-role"
-  # create_monitoring_role = true
+  monitoring_role_name = var.monitoring_role_name
+  create_monitoring_role = var.create_monitoring_role
 
   # Snapshot name upon DB deletion
   skip_final_snapshot       = var.skip_final_snapshot
