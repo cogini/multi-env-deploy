@@ -25,6 +25,6 @@
 resource "aws_lb_target_group_attachment" "this" {
   count            = length(var.ips)
   target_group_arn = var.target_group_arn
-  target_id        = var.ips[count.index]
+  target_id        = element(var.ips, count.index)
   port             = var.port
 }
