@@ -42,6 +42,10 @@ dependency "codedeploy-deployment-asg" {
 dependency "codedeploy-deployment-ec2" {
   config_path = "../codedeploy-deployment-app-ec2"
 }
+# dependency "zone" {
+#   config_path = "../route53-public"
+#   # config_path = "../route53-cdn" # separate CDN domain
+# }
 dependencies {
   paths = [
     "../iam-codepipeline-app",
@@ -80,7 +84,8 @@ inputs = {
   # Build image, either AWS standard or custom from ECR
   # codebuild_image = "ubuntu:bionic"
   # codebuild_image = "centos:7"
-  codebuild_image = "${dependency.ecr.outputs.repository_url}:latest"
+  codebuild_image = "${dependency.ecr-build.outputs.repository_url}:latest"
+  # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
   # Deploy
   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
