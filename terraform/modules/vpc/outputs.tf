@@ -102,6 +102,18 @@ output "igw_id" {
   value       = module.vpc.igw_id
 }
 
+# VPN Gateway
+output "vgw_id" {
+  description = "The ID of the VPN Gateway"
+  value = module.vpc.vgw_id
+}
+
+# Customer Gateway
+output "cgw_ids" {
+  description = "List of IDs of Customer Gateway"
+  value       = module.vpc.cgw_ids
+}
+
 # VPC Endpoints
 output "vpc_endpoint_s3_id" {
   description = "The ID of VPC endpoint for S3"
@@ -121,4 +133,9 @@ output "private_dns_zone_id" {
 output "private_dns_domain" {
   description = "Route53 domain name for the private zone"
   value       = join("", aws_route53_zone.this.*.name)
+}
+
+output "private_dns_domain_nodot" {
+  description = "Route53 domain name for the private zone"
+  value       = replace(join("", aws_route53_zone.this.*.name), "/\\.$/", "")
 }

@@ -72,6 +72,22 @@ variable "single_nat_gateway" {
   default     = false
 }
 
+variable "enable_vpn_gateway" {
+  description = "To create a new VPN Gateway resource and attach it to the VPC"
+  default     = false
+}
+
+variable "amazon_side_asn" {
+  description = "The Autonomous System Number (ASN) for the Amazon side of the gateway. By default the virtual private gateway is created with the current default Amazon ASN"
+  default     = 64620
+}
+
+variable "customer_gateways" {
+  description = "Maps of Customer Gateway's attributes (BGP ASN and Gateway's Internet-routable external IP address)"
+  type        = map(map(any))
+  default     = {}
+}
+
 #variable "enable_dynamodb_endpoint" {
 #  description = "Provision a DynamoDB endpoint to the VPC"
 #  default     = false

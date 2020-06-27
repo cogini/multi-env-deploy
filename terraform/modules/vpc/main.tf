@@ -30,6 +30,10 @@ module "vpc" {
   enable_s3_endpoint       = true
   enable_dynamodb_endpoint = false
 
+  enable_vpn_gateway = var.enable_vpn_gateway
+  amazon_side_asn    = var.amazon_side_asn
+  customer_gateways = var.customer_gateways
+
   tags = merge(
     {
       "Name"  = var.app_name
