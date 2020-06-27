@@ -47,7 +47,7 @@ inputs = {
 
   # In place
   deployment_type   = "IN_PLACE"
-  # deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+  # deployment_option = "WITH_TRAFFIC_CONTROL"
   # deployment_config_name = "CodeDeployDefault.OneAtATime"
 
   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
