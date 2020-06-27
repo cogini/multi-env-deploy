@@ -19,6 +19,17 @@ variable "cloudwatch_logs" {
   default     = []
 }
 
+variable "cloudwatch_metrics_namespace" {
+  description = "CloudWatch metrics namespace, * for any"
+  default     = ""
+}
+
+variable "xray" {
+  description = "Allow sending traces to X-Ray"
+  type        = bool
+  default     = false
+}
+
 variable "enable_ssm_management" {
   description = "Allow instance to be managed via SSM"
   default     = false
@@ -42,6 +53,11 @@ variable "enable_codedeploy" {
 
 variable "enable_ec2_readonly" {
   description = "Allow instance to read EC2 details from other instances"
+  default     = false
+}
+
+variable "enable_ecs_readonly" {
+  description = "Allow instance to read ECS details"
   default     = false
 }
 

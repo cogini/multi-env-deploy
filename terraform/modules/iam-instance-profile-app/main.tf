@@ -125,6 +125,12 @@ locals {
   configure_ssm = length(local.ssm_ps_resources) > 0 || var.enable_ssm_management
 }
 
+# Configure access to CloudWatch metrics
+locals {
+  configure_cloudwatch_metrics = var.cloudwatch_metrics_namespace != ""
+  cloudwatch_metrics_namespaces = var.cloudwatch_metrics_namespace == "*" ? [] : [var.cloudwatch_metrics_namespace]
+}
+
 # Configure access to CloudWatch Logs
 locals {
   cloudwatch_logs_prefix = var.cloudwatch_logs_prefix == "" ? "arn:${var.aws_partition}:logs:*:*" : var.cloudwatch_logs_prefix
@@ -142,6 +148,35 @@ locals {
   # The * after log-stream can be replaced with a log stream name to grant
   # access only to the named stream.
   configure_cloudwatch_logs = length(local.cloudwatch_logs) > 0
+}
+
+# Allow writing to CloudWatch metrics
+# https://docs.aws.amazon.com/IAM/latest/UserGuide/list_amazoncloudwatch.html
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/iam-cw-condition-keys-namespace.html
+data "aws_iam_policy_document" "cloudwatch-metrics" {
+  count = local.configure_cloudwatch_metrics ? 1 : 0
+
+  statement {
+    actions = [
+      "cloudwatch:PutMetricData",
+    ]
+    resources = ["*"]
+    dynamic "condition" {
+      for_each = local.cloudwatch_metrics_namespaces
+      content {
+        test     = "StringEquals"
+        variable = "cloudwatch:namespace"
+        values = [condition.value]
+      }
+    }
+  }
+}
+
+resource "aws_iam_policy" "cloudwatch-metrics" {
+  count       = local.configure_cloudwatch_metrics ? 1 : 0
+  name_prefix = "${var.app_name}-${var.comp}-cloudwatch-metrics-"
+  description = "Enable logging to CloudWatch metrics"
+  policy      = data.aws_iam_policy_document.cloudwatch-metrics[0].json
 }
 
 # Allow writing to CloudWatch Logs
@@ -423,11 +458,26 @@ resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
   policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
 }
 
+# Allow use of CloudWatch metrics
+resource "aws_iam_role_policy_attachment" "cloudwatch-metrics" {
+  count      = local.configure_cloudwatch_metrics ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.cloudwatch-metrics[0].arn
+}
+
 # Allow management via SSM
 resource "aws_iam_role_policy_attachment" "ssm" {
   count      = local.configure_ssm ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.ssm[0].arn
+}
+
+# Allow uploading segment documents and telemetry to the X-Ray API
+# https://docs.aws.amazon.com/xray/latest/devguide/security_iam_id-based-policy-examples.html
+resource "aws_iam_role_policy_attachment" "xray" {
+  count      = var.xray ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "kms" {
@@ -451,6 +501,27 @@ resource "aws_iam_role_policy_attachment" "ec2-read-only" {
   count      = var.enable_ec2_readonly ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+}
+
+data "aws_iam_policy_document" "ecs-read-only" {
+  count       = var.enable_ecs_readonly ? 1 : 0
+  statement {
+    actions   = ["ecs:Describe*", "ecs:List*"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "ecs-read-only" {
+  count       = var.enable_ecs_readonly ? 1 : 0
+  name        = "ECSReadOnly"
+  description = "Needed for ECS Prometheus discovery plugin"
+  policy      = data.aws_iam_policy_document.ecs-read-only[count.index].json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-read-only" {
+  count      = var.enable_ecs_readonly ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.ecs-read-only[count.index].arn
 }
 
 # Allow instances to query metadata of other instances
