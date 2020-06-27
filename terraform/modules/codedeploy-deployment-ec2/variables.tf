@@ -7,10 +7,6 @@ variable "name" {
   default = ""
 }
 
-variable "codedeploy_service_role_arn" {
-  description = "CodeDeploy IAM service role"
-}
-
 variable "codedeploy_app_name" {
   description = "CodeDeploy app name"
 }
@@ -31,15 +27,31 @@ variable "trigger_events" {
   type        = list(string)
 }
 
-variable "ec2_tag_set" {
-  description = "Set of tags used to find instances to deploy to (EC2)"
-  default     = []
-}
+#variable "ec2_tag_set" {
+#  description = "Set of tags used to find instances to deploy to (EC2)"
+#  default     = []
+#}
 
 variable "ec2_tag_filter" {
   description = "Tags used to find instances to deploy to (EC2)"
   type        = list
   default     = []
+}
+
+variable "codedeploy_service_role_arn" {
+  description = "CodeDeploy IAM service role"
+}
+
+variable "deployment_type" {
+  description = "BLUE_GREEN or IN_PLACE"
+  # default     = null
+  default     = "IN_PLACE"
+}
+
+variable "deployment_option" {
+  description = "WITH_TRAFFIC_CONTROL or WITHOUT_TRAFFIC_CONTROL"
+  # default     = null
+  default     = "WITHOUT_TRAFFIC_CONTROL"
 }
 
 variable "on_premises_instance_tag_filter" {
