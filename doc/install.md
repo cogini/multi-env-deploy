@@ -63,9 +63,9 @@ path to point to the specified versions.
 First install the plugins for the tools:
 
 ```shell
-asdf plugin-add terraform
-asdf plugin-add terragrunt
-asdf plugin-add packer
+asdf plugin add terraform
+asdf plugin add terragrunt
+asdf plugin add packer
 ```
 
 Install pacackages:
@@ -77,7 +77,7 @@ asdf install
 ## Install Python using ASDF
 
 ```shell
-asdf plugin-add python
+asdf plugin add python
 asdf install
 ```
 
