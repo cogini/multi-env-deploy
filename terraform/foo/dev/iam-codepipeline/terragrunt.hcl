@@ -9,4 +9,5 @@ include {
 }
 inputs = {
   kms_key_id = dependency.kms.outputs.key_id
+  codebuild_ecr = true
 }
