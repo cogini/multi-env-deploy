@@ -25,6 +25,7 @@ inputs = {
     # App assets such as CSS and JS published via CDN
     assets = {
       encrypt = false
+      cors = true
     }
     # Config files
     config = {
