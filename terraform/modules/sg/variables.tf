@@ -17,6 +17,30 @@ variable "ingress_ports" {
   default     = []
 }
 
+variable "ingress_protocols" {
+  description = "Specify protocol for ingress_ports"
+  type        = list(string)
+  default     = ["tcp"]
+}
+
+variable "custom_ports" {
+  description = "Allow traffic from anyone on these ports"
+  type        = list(number)
+  default     = []
+}
+
+variable "custom_protocols" {
+  description = "Specify protocol for ingress_ports"
+  type        = list(string)
+  default     = ["tcp"]
+}
+
+variable "custom_cidr_blocks" {
+  description = "Specify protocol for ingress_ports"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
 variable "app_ports" {
   description = "Ports that the application listens on"
   type        = list(number)

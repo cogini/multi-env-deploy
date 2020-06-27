@@ -68,15 +68,38 @@ resource "aws_security_group" "this" {
   name   = local.name
   vpc_id = var.vpc_id
 
-  # Allow traffic from anyone on these ports
+  # Allow traffic from anyone on these ports, protocols
   dynamic "ingress" {
-    iterator = port
-    for_each = var.ingress_ports
+    #iterator = port
+    for_each = {
+      for i in setproduct(var.ingress_ports, var.ingress_protocols) : "${i[0]}/${i[1]}" => {
+        port = i[0]
+        protocol = i[1]
+      }
+    }
     content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
       cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  # Allow traffic from custom ip address on these ports, protocols
+  dynamic "ingress" {
+    #iterator = port
+    for_each = {
+      for i in setproduct(var.custom_ports, var.custom_protocols, var.custom_cidr_blocks) : "${i[0]}/${i[1]}/$i[2]" => {
+        port = i[0]
+        protocol = i[1]
+        cidr_block = i[2]
+      }
+    }
+    content {
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+      cidr_blocks = [ingress.value.cidr_block]
     }
   }
 
