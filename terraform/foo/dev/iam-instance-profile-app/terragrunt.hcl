@@ -29,7 +29,9 @@ inputs = {
       config = {
         actions = ["s3:ListBucket", "s3:List*", "s3:Get*"]
       }
-      data = {}
+      data = {
+        actions = ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"]
+      }
       logs = {}
       # protected_web = {}
       # public_web = {}
@@ -43,6 +45,14 @@ inputs = {
   cloudwatch_logs = ["*"]
   # cloudwatch_logs = ["log-group:*"]
   # cloudwatch_logs = ["log-group:*:log-stream:*"]
+
+  # Enable writing metrics to any namespace
+  cloudwatch_metrics_namespace = "*"
+  # Allow writing to specific namespace
+  # cloudwatch_metrics_namespace = "Foo"
+
+  # Enable writing to AWS X-Ray
+  xray = true
 
   # Give access to CodeDeploy S3 buckets
   enable_codedeploy = true
