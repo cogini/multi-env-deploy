@@ -13,7 +13,8 @@ include {
 inputs = {
   comp = "prometheus"
 
-  enable_ec2_describe_instances = true
+  enable_ec2_readonly = true
+  enable_ecs_readonly = true
 
   # Allow writing to any log group and stream
   cloudwatch_logs = ["*"]
