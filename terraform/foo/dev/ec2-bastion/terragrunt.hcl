@@ -44,6 +44,6 @@ inputs = {
   instance_profile_name = dependency.iam.outputs.instance_profile_name
 
   create_dns = true
-  dns_domain = dependency.route53.outputs.name
+  dns_domain = dependency.route53.outputs.name_nodot
   dns_zone_id = dependency.route53.outputs.zone_id
 }
