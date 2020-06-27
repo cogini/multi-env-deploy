@@ -22,9 +22,15 @@ resource "aws_iam_role" "codedeploy-service-role" {
 EOF
 }
 
+# https://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-service-role.html
 resource "aws_iam_role_policy_attachment" "codedeploy-service-role" {
   role       = aws_iam_role.codedeploy-service-role.name
   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/service-role/AWSCodeDeployRole"
+}
+
+resource "aws_iam_role_policy_attachment" "codedeploy-service-role-ecs" {
+  role       = aws_iam_role.codedeploy-service-role.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AWSCodeDeployRoleForECS"
 }
 
 # Add permissions needed for CodeDeploy to work with Launch Templates
@@ -74,6 +80,11 @@ resource "aws_kms_grant" "codepipeline" {
   operations        = ["Encrypt", "Decrypt", "GenerateDataKey"]
 }
 
+resource "aws_iam_role_policy_attachment" "codepipeline-codedeploy-ecs" {
+  role       = aws_iam_role.codepipeline-service-role.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AWSCodeDeployRoleForECS"
+}
+
 resource "aws_iam_policy" "codebuild-codedeploy" {
   name        = "${var.app_name}-codepipeline-service-role"
   description = "Give CodePipeline rights to run CodeCommit, CodeBuild and CodeDeploy"
@@ -92,10 +103,11 @@ resource "aws_iam_policy" "codebuild-codedeploy" {
     },
     {
       "Action": [
+        "codedeploy:GetApplication",
         "codedeploy:CreateDeployment",
-        "codedeploy:GetApplicationRevision",
         "codedeploy:GetDeployment",
         "codedeploy:GetDeploymentConfig",
+        "codedeploy:GetApplicationRevision",
         "codedeploy:RegisterApplicationRevision"
       ],
       "Resource": "*",
@@ -111,6 +123,13 @@ resource "aws_iam_policy" "codebuild-codedeploy" {
       ],
       "Resource": "*",
       "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ecs:RegisterTaskDefinition"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
     }
   ]
 }
@@ -121,6 +140,7 @@ resource "aws_iam_role_policy_attachment" "codepipeline" {
   role       = aws_iam_role.codepipeline-service-role.name
   policy_arn = aws_iam_policy.codebuild-codedeploy.arn
 }
+
 
 # https://docs.aws.amazon.com/codebuild/latest/userguide/setting-up.html
 resource "aws_iam_role" "codebuild-service-role" {
@@ -201,4 +221,13 @@ resource "aws_iam_policy" "codebuild-vpc" {
 resource "aws_iam_role_policy_attachment" "codebuild-vpc" {
   role       = aws_iam_role.codebuild-service-role.name
   policy_arn = aws_iam_policy.codebuild-vpc.arn
+}
+
+# Give CodeBuild access to ECR repositories
+# https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-cd-pipeline.html
+# https://docs.aws.amazon.com/AmazonECR/latest/userguide/ecr_managed_policies.html
+resource "aws_iam_role_policy_attachment" "codebuild-ecr" {
+  count      = var.codebuild_ecr ? 1 : 0
+  role       = aws_iam_role.codebuild-service-role.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
