@@ -87,19 +87,49 @@ data "aws_autoscaling_groups" "selected" {
 
 # https://www.terraform.io/docs/providers/aws/r/codedeploy_deployment_group.html
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name              = var.codedeploy_app_name
-  deployment_group_name = local.name
-  service_role_arn      = var.codedeploy_service_role_arn
-
-  deployment_config_name = var.deployment_config_name
+  app_name                = var.codedeploy_app_name
+  deployment_group_name   = local.name
+  deployment_config_name  = var.deployment_config_name
+  service_role_arn        = var.codedeploy_service_role_arn
 
   autoscaling_groups = var.provisioning_action == "COPY_AUTO_SCALING_GROUP" ? [data.aws_autoscaling_groups.selected.names[0]] : data.aws_autoscaling_groups.selected.names
 
+  dynamic "ecs_service" {
+    for_each = var.ecs_service_name == null ? [] : list(1)
+    content {
+      cluster_name = var.ecs_cluster_name
+      service_name = var.ecs_service_name
+    }
+  }
+
+  # ASG
   dynamic "load_balancer_info" {
     for_each = var.target_group_name == null ? [] : list(1)
     content {
       target_group_info {
         name = var.target_group_name
+      }
+    }
+  }
+
+  # ECS
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-blue-green.html
+  # https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-create-load-balancer-for-ecs.html
+  dynamic "load_balancer_info" {
+    for_each = length(var.target_group_names) > 0 ? list(1) : []
+    content {
+      target_group_pair_info {
+        prod_traffic_route {
+          listener_arns = var.listener_arns
+        }
+
+        dynamic "target_group" {
+          for_each = var.target_group_names
+          iterator = target_group_name
+          content {
+            name = target_group_name.value
+          }
+        }
       }
     }
   }
@@ -117,8 +147,11 @@ resource "aws_codedeploy_deployment_group" "this" {
         wait_time_in_minutes = var.deployment_ready_option_wait_time_in_minutes
       }
 
-      green_fleet_provisioning_option {
-        action = var.provisioning_action
+      dynamic "green_fleet_provisioning_option" {
+        for_each = var.provisioning_action == null ? [] : list(1)
+        content {
+          action = var.provisioning_action
+        }
       }
 
       terminate_blue_instances_on_deployment_success {

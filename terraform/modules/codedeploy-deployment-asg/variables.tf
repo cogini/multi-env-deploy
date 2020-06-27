@@ -14,11 +14,37 @@ variable "deploy_hook" {
 
 variable "target_group_name" {
   description = "Target group name"
+  type        = string
   default     = null
+}
+
+# ECS
+variable "ecs_cluster_name" {
+  description = "ECS cluster name"
+  default = null
+}
+
+variable "ecs_service_name" {
+  description = "ECS service name"
+  type        = string
+  default     = null
+}
+
+variable "target_group_names" {
+  description = "ECS target group names"
+  type        = list(string)
+  default     = []
+}
+
+variable "listener_arns" {
+  description = "ECS load balancer listener ARNs"
+  type        = list(string)
+  default     = []
 }
 
 variable "codedeploy_app_name" {
   description = "CodeDeploy app name"
+  type        = string
 }
 
 variable "codedeploy_service_role_arn" {
@@ -27,12 +53,12 @@ variable "codedeploy_service_role_arn" {
 
 variable "deployment_type" {
   description = "BLUE_GREEN or IN_PLACE"
-  default     = "BLUE_GREEN"
+  default     = null
 }
 
 variable "deployment_option" {
   description = "WITH_TRAFFIC_CONTROL or WITHOUT_TRAFFIC_CONTROL"
-  default     = "WITH_TRAFFIC_CONTROL"
+  default     = null
 }
 
 variable "deployment_config_name" {
@@ -55,7 +81,7 @@ variable "deployment_ready_option_wait_time_in_minutes" {
 # Blue/Green
 variable "provisioning_action" {
   description = "Method used to add instances to a replacement environment: DISCOVER_EXISTING or COPY_AUTO_SCALING_GROUP"
-  default     = "DISCOVER_EXISTING"
+  default     = null
 }
 
 # Blue/Green
