@@ -41,7 +41,7 @@ locals {
 # data sources are placed directly into the modules.
 inputs = merge(
   yamldecode(
-    # Default and common settings 
+    # Default and common settings
     file("${get_terragrunt_dir()}/${find_in_parent_folders("common.yml", local.default_yaml_path)}"),
   ),
   yamldecode(

@@ -4,10 +4,6 @@ terraform {
 dependency "vpc" {
   config_path = "../vpc"
 }
-# dependency "zone" {
-#   config_path = "../route53-public"
-#   # config_path = "../route53-cdn" # separate CDN domain
-# }
 include {
   path = find_in_parent_folders()
 }

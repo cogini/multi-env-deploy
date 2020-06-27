@@ -21,9 +21,12 @@ dependency "s3" {
 dependency "s3-codepipeline" {
   config_path = "../s3-codepipeline-app"
 }
-dependency "ecr" {
+dependency "ecr-build" {
   config_path = "../ecr-build-app"
 }
+# dependency "ecr" {
+#   config_path = "../ecr-app"
+# }
 # dependency "cloudfront" {
 #   config_path = "../cloudfront-app-assets"
 # }
@@ -73,12 +76,13 @@ inputs = {
   # repo_branch = dependency.codecommit-repo.outputs.default_branch
   # codecommit_repository_name = dependency.codecommit-repo.outputs.repository_name
 
+  # Build
   # Build image, either AWS standard or custom from ECR
-  # build_image = "ubuntu:bionic"
-  # build_image = "centos:7"
-  build_image = "${dependency.ecr.outputs.repository_url}:latest"
+  # codebuild_image = "ubuntu:bionic"
+  # codebuild_image = "centos:7"
+  codebuild_image = "${dependency.ecr.outputs.repository_url}:latest"
 
-  # Deployment
+  # Deploy
   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
   codedeploy_deployment_groups = [
     dependency.codedeploy-deployment-asg.outputs.deployment_group_name,
