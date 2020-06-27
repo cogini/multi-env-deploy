@@ -1,4 +1,4 @@
-# Give CodePipeline service roles access to S3 buckets for app component
+# Give CodePipeline service roles access to app resources
 
 # Example config:
 # terraform {
@@ -25,9 +25,9 @@
 #     }
 #   }
 #
-#   # Give acess to all SSM Parameter Store params under /org/app/env/comp
+#   # Give access to all SSM Parameter Store params under /org/app/env/comp
 #   # ssm_ps_params = ["*"]
-#   # Specify prefix and params
+#   # Give access to specific params under prefix
 #   ssm_ps_param_prefix = "cogini/foo/test"
 #   ssm_ps_params = ["app/*", "worker/*"]
 #
@@ -49,7 +49,7 @@ data "terraform_remote_state" "s3" {
   }
 }
 
-# Give access to S3 buckets
+# Configure access to S3 buckets
 locals {
   bucket_names = {
     for comp, buckets in var.s3_buckets:
@@ -90,7 +90,7 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-# Configure access to SSM Parameter Store parameters
+# Configure access to SSM Parameter Store
 locals {
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
   ssm_ps_arn = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
