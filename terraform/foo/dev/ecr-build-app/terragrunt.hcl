@@ -1,5 +1,5 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ecr"
+  source = "${get_terragrunt_dir()}/../../../modules//ecr-build"
 }
 dependencies {
   paths = []
