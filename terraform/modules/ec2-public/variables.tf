@@ -85,6 +85,11 @@ variable "root_volume_size" {
   default     = 8
 }
 
+variable "root_volume_delete_on_termination" {
+  description = "Whether the volume should be destroyed on instance termination"
+  default     = true
+}
+
 variable "assign_eip" {
   description = "Assign an EIP"
   default     = false
