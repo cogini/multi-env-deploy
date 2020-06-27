@@ -7,7 +7,7 @@ dependency "vpc" {
   config_path = "../vpc"
 }
 dependency "sg" {
-  config_path = "../sg-app-public"
+  config_path = "../sg-app-private"
 }
 dependency "tg" {
   config_path = "../target-group-app-ecs-1"
@@ -28,7 +28,7 @@ include {
 inputs = {
   comp = "app"
   cluster = dependency.cluster.outputs.arn
-  task_definition = dependency.task.outputs.family
+  task_definition = dependency.task.outputs.arn
 
   load_balancer = [
     {
@@ -38,21 +38,21 @@ inputs = {
     }
   ]
 
-  # launch_type = "FARGATE"
+  # launch_type = "EC2" # default "FARGATE"
 
   capacity_provider_strategy = [
     {
-      capacity_provider = "FARGATE_SPOT"
+      capacity_provider = "FARGATE"
       weight = 1
       base = 1
     },
     {
-      capacity_provider = "FARGATE"
+      capacity_provider = "FARGATE_SPOT"
       weight = 1
     }
   ]
 
-  # deployment_controller_type = "CODE_DEPLOY"
+  deployment_controller_type = "CODE_DEPLOY"
 
   # deployment_maximum_percent = 200
   # deployment_minimum_healthy_percent = 0
@@ -64,7 +64,7 @@ inputs = {
   network_configuration = {
     subnets = dependency.vpc.outputs.subnets["private"]
     security_groups = [dependency.sg.outputs.security_group_id]
-    assign_public_ip = false
+    assign_public_ip = false # true when running in public subnet
   }
 
   enable_ecs_managed_tags = true
