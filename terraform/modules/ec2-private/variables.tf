@@ -78,9 +78,19 @@ variable "user_data" {
   default     = ""
 }
 
+variable "ebs_optimized" {
+  description = "For EBS optimized instances"
+  default     = false
+}
+
 variable "root_volume_size" {
   description = "Size of root block device (in GiB)"
   default     = 8
+}
+
+variable "root_volume_delete_on_termination" {
+  description = "Whether the volume should be destroyed on instance termination"
+  default     = true
 }
 
 variable "create_dns" {

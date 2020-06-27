@@ -62,16 +62,17 @@ resource "aws_instance" "this" {
   user_data     = var.user_data
   key_name      = var.keypair_name
   monitoring    = var.monitoring
-  subnet_id     = var.subnet_ids[count.index]
+  subnet_id     = element(distinct(compact(var.subnet_ids)), count.index)
   vpc_security_group_ids      = var.security_group_ids
   iam_instance_profile        = var.instance_profile_name
-  availability_zone           = var.availability_zones[count.index]
+  # availability_zone           = var.availability_zones[count.index]
   associate_public_ip_address = false
   disable_api_termination     = var.disable_api_termination
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
-
+  ebs_optimized = var.ebs_optimized
   root_block_device {
     volume_size = var.root_volume_size
+    delete_on_termination = var.root_volume_delete_on_termination
   }
 
   tags = merge(
