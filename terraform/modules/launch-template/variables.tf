@@ -46,9 +46,15 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "block_device_mappings" {
-  description = "Volumes to attach to the instance besides the volumes specified by the AMI"
-  type        = list(string)
-  default     = []
+  description = "Specify volumes to attach to the instance besides the volumes specified by the AMI"
+  type = list(object({
+    device_name  = string
+    ebs = object({
+      volume_size = number
+    })
+  }))
+
+  default = []
 }
 
 variable "capacity_reservation_specification" {

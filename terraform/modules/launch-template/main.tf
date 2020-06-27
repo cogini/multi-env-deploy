@@ -12,19 +12,19 @@ resource "aws_launch_template" "this" {
     for_each = var.block_device_mappings
     content {
       device_name  = lookup(block_device_mappings.value, "device_name", null)
-      no_device    = lookup(block_device_mappings.value, "no_device", null)
-      virtual_name = lookup(block_device_mappings.value, "virtual_name", null)
+      # no_device    = lookup(block_device_mappings.value, "no_device", null)
+      # virtual_name = lookup(block_device_mappings.value, "virtual_name", null)
 
       dynamic "ebs" {
-        for_each = lookup(block_device_mappings.value, "ebs", [])
+        for_each = flatten(list(lookup(block_device_mappings.value, "ebs", [])))
         content {
-          delete_on_termination = lookup(ebs.value, "delete_on_termination", null)
-          encrypted             = lookup(ebs.value, "encrypted", null)
-          iops                  = lookup(ebs.value, "iops", null)
-          kms_key_id            = lookup(ebs.value, "kms_key_id", null)
-          snapshot_id           = lookup(ebs.value, "snapshot_id", null)
+          # delete_on_termination = lookup(ebs.value, "delete_on_termination", null)
+          # encrypted             = lookup(ebs.value, "encrypted", null)
+          # iops                  = lookup(ebs.value, "iops", null)
+          # kms_key_id            = lookup(ebs.value, "kms_key_id", null)
+          # snapshot_id           = lookup(ebs.value, "snapshot_id", null)
           volume_size           = lookup(ebs.value, "volume_size", null)
-          volume_type           = lookup(ebs.value, "volume_type", null)
+          # volume_type           = lookup(ebs.value, "volume_type", null)
         }
       }
     }
