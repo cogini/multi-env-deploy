@@ -18,6 +18,30 @@ variable "force_destroy" {
   default     = false
 }
 
+variable "cors_allowed_headers" {
+  type    = list
+  default = ["*"]
+}
+
+variable "cors_allowed_methods" {
+  type    = list
+  default = ["GET"]
+}
+
+variable "cors_allowed_origins" {
+  type    = list
+  default = ["*"]
+}
+
+variable "cors_expose_headers" {
+  type    = list
+  default = ["ETag"]
+}
+
+variable "cors_max_age_seconds" {
+  default = "3600"
+}
+
 variable "kms_key_id" {
   description = "Custom KMS key ARN"
   default     = null

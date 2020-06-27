@@ -69,6 +69,7 @@ locals {
     key => {
       name = lookup(bucket, "name", "${local.bucket_prefix}-${replace(key, "_", "-")}")
       encrypt = lookup(bucket, "encrypt", false)
+      cors = lookup(bucket, "cors", false)
       website = lookup(bucket, "website", false)
       # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
       acl = lookup(bucket, "acl", "private")
@@ -97,13 +98,16 @@ resource "aws_s3_bucket" "buckets" {
     }
   }
 
-  # cors_rule {
-  #   allowed_headers = var.cors_allowed_headers
-  #   allowed_methods = var.cors_allowed_methods
-  #   allowed_origins = var.cors_allowed_origins
-  #   expose_headers  = var.cors_expose_headers
-  #   max_age_seconds = var.cors_max_age_seconds
-  # }
+  dynamic "cors_rule" {
+    for_each = each.value.cors ? list(1) : []
+    content {
+      allowed_headers = var.cors_allowed_headers
+      allowed_methods = var.cors_allowed_methods
+      allowed_origins = var.cors_allowed_origins
+      expose_headers  = var.cors_expose_headers
+      max_age_seconds = var.cors_max_age_seconds
+    }
+  }
 
   dynamic "website" {
     for_each = each.value.website ? list(1) : []
