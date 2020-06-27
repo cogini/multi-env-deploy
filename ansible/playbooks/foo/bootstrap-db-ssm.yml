@@ -1,7 +1,7 @@
 ---
 # Set SSM Parameter Store entries for app db
 #
-# This reads values from the Ansible vault and sets corresponding etries in
+# This reads values from the Ansible vault and sets corresponding entries in
 # AWS SSM Parameter Store.
 #
 # It runs locally on the Ansible machine
@@ -10,7 +10,7 @@
 
 - name: Create SSM parameter store entries
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   connection: local
   vars:
     app_name: foo
