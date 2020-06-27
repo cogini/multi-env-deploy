@@ -8,6 +8,18 @@ locals {
 # https://www.terraform.io/docs/providers/aws/r/ecr_repository.html
 resource "aws_ecr_repository" "this" {
   name = local.name
+
+  tags = merge(
+    {
+      "Name"  = local.name
+      "org"   = var.org
+      "app"   = var.app_name
+      "env"   = var.env
+      "comp"  = var.comp
+      "owner" = var.owner
+    },
+    var.extra_tags,
+  )
 }
 
 # Give CodeBuild access to repository
