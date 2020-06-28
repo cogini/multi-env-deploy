@@ -31,8 +31,8 @@ inputs = {
 
   # Give acess to all SSM Parameter Store params under /org/app/env/comp
   # ssm_ps_params = ["*"]
-  # Specify prefix and params
-  ssm_ps_param_prefix = "cogini/foo/test"
+  # Give access to specific params under prefix
+  ssm_ps_param_prefix = "cogini/foo/dev"
   # ssm_ps_params = ["app/*", "worker/*"]
   ssm_ps_params = ["app/*"]
 
