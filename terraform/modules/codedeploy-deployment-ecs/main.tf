@@ -13,6 +13,7 @@ resource "aws_codedeploy_deployment_group" "this" {
   deployment_config_name  = var.deployment_config_name
   service_role_arn        = var.codedeploy_service_role_arn
 
+  # ECS
   dynamic "ecs_service" {
     for_each = var.ecs_service_name == null ? [] : list(1)
     content {
