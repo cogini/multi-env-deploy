@@ -1,3 +1,4 @@
+wheel
 ansible
 awscli
 boto
