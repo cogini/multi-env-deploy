@@ -34,7 +34,7 @@ inputs = {
     {
       target_group_arn = dependency.tg.outputs.arn
       container_name = "foo-app"
-      container_port = 80
+      container_port = 4000
     }
   ]
 
