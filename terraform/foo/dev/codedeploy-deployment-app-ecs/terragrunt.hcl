@@ -10,7 +10,7 @@ dependency "sns" {
   config_path = "../sns-codedeploy-app"
 }
 dependency "codedeploy-app" {
-  config_path = "../codedeploy-app"
+  config_path = "../codedeploy-app-ecs"
 }
  dependency "lb" {
    config_path = "../lb-public"
@@ -40,8 +40,8 @@ inputs = {
   # Name of component we are deploying
   comp = "app"
 
-  # Name of deployment group
-  name = "foo-app-ecs"
+  # Name of deployment group, default app-comp-ecs
+  # name = "foo-app-ecs"
 
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-blue-green.html
   target_group_names = [
