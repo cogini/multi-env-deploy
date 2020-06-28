@@ -84,6 +84,9 @@ inputs = {
   # Build image, either AWS standard or custom from ECR
   # codebuild_image = "ubuntu:bionic"
   # codebuild_image = "centos:7"
+  # codebuild_image = "aws/codebuild/standard:2.0"
+  # codebuild_image = "aws/codebuild/docker:18.09.0"
+  # codebuild_image = "aws/codebuild/docker:19.03.11"
   codebuild_image = "${dependency.ecr-build.outputs.repository_url}:latest"
   # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
