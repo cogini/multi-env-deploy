@@ -54,9 +54,10 @@ inputs = {
   # Give acess to all SSM Parameter Store params under /org/app/env/comp
   ssm_ps_params = ["*"]
   # Specify prefix and params
+  # Give acess to all SSM Parameter Store params under /org/app/env
   # ssm_ps_param_prefix = "cogini/foo/dev"
+  # Give acess to specific params under prefix
   # ssm_ps_params = ["app/*", "worker/*"]
-
 
   # Give access to KMS CMK
   kms_key_arn = dependency.kms.outputs.key_arn
