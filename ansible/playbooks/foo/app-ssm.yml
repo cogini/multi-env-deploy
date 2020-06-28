@@ -1,7 +1,7 @@
 ---
 # Set SSM parameter store entries for app
 #
-# This reads values from the Ansible vault and sets corresponding etries in
+# This reads values from the Ansible vault and sets corresponding entries in
 # AWS SSM Parameter Store.
 #
 # It runs locally on the Ansible machine
@@ -10,11 +10,12 @@
 
 - name: Create SSM parameter store entries
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   connection: local
   vars:
+    org_unique: cogini
     app_name: foo
-    key_prefix: /cogini
+    key_prefix: "/{{ org_unique }}"
   vars_files:
     - "../../vars/{{ app_name }}/{{ env }}/common.yml"
     - "../../vars/{{ app_name }}/{{ env }}/app-secrets.yml"
