@@ -4,4 +4,4 @@ app_name: foo
 env: dev
 
 aws_region: ap-northeast-1
-aws_key_id: "alias/{{ app_name }}-{{ env }}-key"
+aws_key_id: "alias/{{ app_name }}-{{ env }}"
