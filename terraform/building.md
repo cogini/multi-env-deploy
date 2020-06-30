@@ -468,3 +468,41 @@ Create Elasticsearch domain:
 
     sg-memcached-app
     memcached-app
+
+## ECS
+
+* iam-ecs
+    Import if it already exists
+* iam-ecs-task-execution
+* iam-ecs-task-role-app
+* ecs-cluster
+* ecr-app
+
+    export REPO_URI=$(terragrunt output repository_url)
+    aws ecr get-login --no-include-email | bash
+    pushd ~/work/phoenix_container_example
+    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.alpine .
+    docker push $REPO_URI
+    popd
+
+* ecr-build-app-ecs
+
+    export REPO_URI=$(terragrunt output repository_url)
+    aws ecr get-login --no-include-email | bash
+    pushd ~/work/phoenix_container_example
+    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.codebuild .
+    docker push $REPO_URI
+    popd
+
+* ecs-task-app
+
+* target-group-app-ecs-1
+* target-group-app-ecs-2
+
+* ecs-service-app
+
+* codedeploy-app-ecs
+* codedeploy-deployment-app-ecs
+* codepipeline-app-ecs
+
+* route53-public-lb-app-ecs
