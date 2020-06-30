@@ -1,0 +1,56 @@
+---
+# Set SSM parameter store entries for app SMTP
+#
+# This reads values from the Ansible vault and sets corresponding entries in
+# AWS SSM Parameter Store.
+#
+# It runs locally on the Ansible machine
+#
+# ansible-playbook -v -u $USER --extra-vars "env=$ENV comp=app" playbooks/$APP/config-app-ssm-smtp.yml -D
+
+- name: Create SSM parameter store entries
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    org_unique: cogini
+    app_name: foo
+    key_prefix: "/{{ org_unique }}"
+  vars_files:
+    - "../../vars/{{ app_name }}/{{ env }}/common.yml"
+    - "../../vars/{{ app_name }}/{{ env }}/smtp.yml"
+    - "../../vars/{{ app_name }}/{{ env }}/smtp-secrets.yml"
+  tasks:
+    - name: Create SSM parameter store entry for app SMTP host
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/smtp/host"
+        description: "Hostname for outbound SMTP mail"
+        string_type: "String"
+        value: "{{ smtp_host }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app SMTP port
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/smtp/port"
+        description: "Port for outbound SMTP mail"
+        string_type: "String"
+        value: "{{ smtp_port }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app SMTP user
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/smtp/user"
+        description: "Username for app to authenticate with SMTP host"
+        string_type: "String"
+        value: "{{ smtp_user }}"
+        region: "{{ aws_region }}"
+
+    - name: Create SSM parameter store entry for app SMTP pass
+      aws_ssm_parameter_store:
+        name: "{{ key_prefix }}/{{ app_name }}/{{ env }}/{{ comp }}/smtp/pass"
+        description: "Password for app to authenticate with SMTP host"
+        value: "{{ smtp_pass }}"
+        string_type: "SecureString"
+        key_id: "{{ aws_key_id }}"
+        region: "{{ aws_region }}"
+        # overwrite_value: "always"
