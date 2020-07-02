@@ -109,10 +109,10 @@ inputs = {
   # codebuild_image = "centos:7"
   # codebuild_image = "aws/codebuild/standard:2.0"
   # codebuild_image = "aws/codebuild/docker:18.09.0"
-  # codebuild_image = "aws/codebuild/docker:19.03.11"
+  # codebuild_image = "aws/codebuild/standard:4.0"
   codebuild_image = "${dependency.ecr-build.outputs.repository_url}:latest"
   buildspec = "ecs/buildspec.yml"
-  codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
+  # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
   # codebuild_cache_type = "LOCAL"
   # codebuild_cache_modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"]
