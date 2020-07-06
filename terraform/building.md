@@ -479,7 +479,8 @@ Create Elasticsearch domain:
 * ecr-app
 
     export REPO_URI=$(terragrunt output repository_url)
-    aws ecr get-login --no-include-email | bash
+    # aws ecr get-login --no-include-email | bash
+    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URI
     pushd ~/work/phoenix_container_example
     DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.alpine .
     docker push $REPO_URI
@@ -490,9 +491,12 @@ Create Elasticsearch domain:
     export REPO_URI=$(terragrunt output repository_url)
     aws ecr get-login --no-include-email | bash
     pushd ~/work/phoenix_container_example
-    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.codebuild .
-    docker push $REPO_URI
+    # DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.codebuild .
+    # docker push $REPO_URI
+    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --push -t $REPO_URI -f deploy/Dockerfile.codebuild .
     popd
+
+    https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/4.0/Dockerfile
 
 * ecs-task-app
 
