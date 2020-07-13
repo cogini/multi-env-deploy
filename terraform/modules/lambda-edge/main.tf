@@ -16,7 +16,7 @@ resource "aws_lambda_function" "index_html" {
   role             = var.service_role_arn
   handler          = "index.handler"
   source_code_hash = data.archive_file.index_html.output_base64sha256
-  runtime          = "nodejs8.10"
+  runtime          = "nodejs12.x"
 
   publish = true
 
