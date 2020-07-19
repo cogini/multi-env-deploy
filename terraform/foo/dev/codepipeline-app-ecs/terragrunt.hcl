@@ -106,6 +106,7 @@ inputs = {
   # Build
   # Build image, either AWS standard or custom from ECR
   # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html
+  # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
   # codebuild_image = "ubuntu:bionic"
   # codebuild_image = "centos:7"
   # codebuild_image = "aws/codebuild/standard:2.0"
@@ -115,8 +116,10 @@ inputs = {
   buildspec = "ecs/buildspec.yml"
   # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
+  # ARM
+  # codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard"
   # codebuild_type = "ARM_CONTAINER"
-  # codebuild_compute_type = "BUILD_GENERAL1_LARGE" # Required for ARM
+  # codebuild_compute_type = "BUILD_GENERAL1_LARGE"
 
   # codebuild_cache_type = "LOCAL"
   # codebuild_cache_modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"]
