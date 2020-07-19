@@ -42,11 +42,11 @@ locals {
 inputs = merge(
   yamldecode(
     # Default and common settings
-    file("${get_terragrunt_dir()}/${find_in_parent_folders("common.yml", local.default_yaml_path)}"),
+    file("${find_in_parent_folders("common.yml", local.default_yaml_path)}"),
   ),
   yamldecode(
     # Settings for environment
-    file("${get_terragrunt_dir()}/${find_in_parent_folders("${local.env}.yml", local.default_yaml_path)}"),
+    file("${find_in_parent_folders("${local.env}.yml", local.default_yaml_path)}"),
   ),
   # Use a directory hierarchy to load config files:
   # yamldecode(

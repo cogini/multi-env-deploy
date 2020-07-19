@@ -145,12 +145,6 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-  custom_error_response {
-    error_code    = 502
-    response_code = 503
-    response_page_path = "/50x.html"
-  }
-
   # custom_error_response {
   #   error_code    = 404
   #   response_code = 200

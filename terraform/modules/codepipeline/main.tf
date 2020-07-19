@@ -92,6 +92,10 @@ locals {
   codebuild_cache_location = var.codebuild_cache_type == "S3" ? "${var.cache_bucket_id}/${local.name}" : null
 }
 
+locals {
+  deploy_actions = [var.codedeploy_deployment_groups, var.ecs_deployments, var.codedeploy_ecs_deployments]
+}
+
 data "aws_caller_identity" "current" {}
 
 # https://www.terraform.io/docs/providers/aws/r/codebuild_project.html
@@ -300,12 +304,11 @@ resource "aws_codepipeline" "this" {
 
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html
 
-  stage {
-    name = "Deploy"
-
-    dynamic "action" {
-      for_each = var.codedeploy_deployment_groups
-      content {
+  dynamic "stage" {
+    for_each = var.codedeploy_deployment_groups
+    content {
+      name = "Deploy"
+      action {
         name            = "Deploy-${action.value}"
         category        = "Deploy"
         owner           = "AWS"
@@ -318,10 +321,13 @@ resource "aws_codepipeline" "this" {
         }
       }
     }
+  }
 
-    dynamic "action" {
-      for_each = var.ecs_deployments
-      content {
+  dynamic "stage" {
+    for_each = var.ecs_deployments
+    content {
+      name = "Deploy"
+      action {
         name            = lookup(action.value, "Name")
         category        = "Deploy"
         owner           = "AWS"
@@ -336,10 +342,13 @@ resource "aws_codepipeline" "this" {
         }
       }
     }
+  }
 
-    dynamic "action" {
-      for_each = var.codedeploy_ecs_deployments
-      content {
+  dynamic "stage" {
+    for_each = var.codedeploy_ecs_deployments
+    content {
+      name = "Deploy"
+      action {
         name            = lookup(action.value, "Name")
         category        = "Deploy"
         owner           = "AWS"
@@ -365,8 +374,9 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
+
+}
   # https://dev.classmethod.jp/articles/codepipeline-ecs-codedeploy/
   # https://qiita.com/keroxp/items/7ae472bf7344c1efa021
 
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#action-requirements
-}
