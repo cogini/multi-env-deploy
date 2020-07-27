@@ -317,7 +317,7 @@ resource "aws_codepipeline" "this" {
         input_artifacts = ["Build"]
         configuration = {
           ApplicationName     = var.codedeploy_app_name
-          DeploymentGroupName = action.value
+          DeploymentGroupName = stage.value
         }
       }
     }
@@ -335,10 +335,10 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ClusterName = lookup(action.value, "ClusterName", null)
-          ServiceName = lookup(action.value, "ServiceName", null)
-          FileName = lookup(action.value, "FileName", "imagedefinitions.json")
-          DeploymentTimeout = lookup(action.value, "DeploymentTimeout", null)
+          ClusterName = lookup(stage.value, "ClusterName", null)
+          ServiceName = lookup(stage.value, "ServiceName", null)
+          FileName = lookup(stage.value, "FileName", "imagedefinitions.json")
+          DeploymentTimeout = lookup(stage.value, "DeploymentTimeout", null)
         }
       }
     }
@@ -356,12 +356,12 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ApplicationName = lookup(action.value, "ApplicationName", var.codedeploy_app_name)
-          DeploymentGroupName = lookup(action.value, "DeploymentGroupName")
-          TaskDefinitionTemplateArtifact = lookup(action.value, "TaskDefinitionTemplateArtifact", "Build")
-          TaskDefinitionTemplatePath = lookup(action.value, "TaskDefinitionTemplatePath", "taskdef.json")
-          AppSpecTemplateArtifact = lookup(action.value, "AppSpecTemplateArtifact", "Build")
-          AppSpecTemplatePath = lookup(action.value, "AppSpecTemplatePath", "appspec.yml")
+          ApplicationName = lookup(stage.value, "ApplicationName", var.codedeploy_app_name)
+          DeploymentGroupName = lookup(stage.value, "DeploymentGroupName")
+          TaskDefinitionTemplateArtifact = lookup(stage.value, "TaskDefinitionTemplateArtifact", "Build")
+          TaskDefinitionTemplatePath = lookup(stage.value, "TaskDefinitionTemplatePath", "taskdef.json")
+          AppSpecTemplateArtifact = lookup(stage.value, "AppSpecTemplateArtifact", "Build")
+          AppSpecTemplatePath = lookup(stage.value, "AppSpecTemplatePath", "appspec.yml")
           Image1ArtifactName = "Build"
           Image1ContainerName = "IMAGE1_NAME"
           # Image2ArtifactName
