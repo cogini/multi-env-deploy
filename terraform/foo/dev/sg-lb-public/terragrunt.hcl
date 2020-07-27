@@ -12,7 +12,7 @@ include {
 
 inputs = {
   comp = "lb-public"
-  ingress_ports = [80, 433]
+  ingress_ports = [80, 443]
 
   vpc_id = dependency.vpc.outputs.vpc_id
 }
