@@ -12,7 +12,7 @@ include {
 
 inputs = {
   comp = "app-public"
-  ingress_ports = [22, 80, 433]
+  ingress_ports = [22, 80, 443]
 
   vpc_id = dependency.vpc.outputs.vpc_id
 }
