@@ -89,7 +89,7 @@ resource "aws_security_group" "this" {
   dynamic "ingress" {
     #iterator = port
     for_each = {
-      for i in setproduct(var.custom_ports, var.custom_protocols, var.custom_cidr_blocks) : "${i[0]}/${i[1]}/$i[2]" => {
+      for i in setproduct(var.custom_ports, var.custom_protocols, var.custom_cidr_blocks) : "${i[0]}/${i[1]}/${i[2]}" => {
         port = i[0]
         protocol = i[1]
         cidr_block = i[2]
