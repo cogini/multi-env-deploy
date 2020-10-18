@@ -28,6 +28,11 @@ output "container_definitions" {
   value       = aws_ecs_task_definition.this.container_definitions
 }
 
+output "container_definitions_jsondecode" {
+  description = "JSON for container definitions"
+  value       = jsondecode(aws_ecs_task_definition.this.container_definitions)
+}
+
 output "ssm_ps_arn_param_prefix" {
   description = "Prefix for SSM Parameter Store ARN and parameters"
   value       = local.ssm_ps_arn_param_prefix
