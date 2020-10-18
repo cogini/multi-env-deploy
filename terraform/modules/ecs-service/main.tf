@@ -111,4 +111,14 @@ resource "aws_ecs_service" "this" {
   # lifecycle {
   #   ignore_changes = ["desired_count"]
   # }
+
+  lifecycle {
+    # create_before_destroy = true
+    ignore_changes        = [
+      # Updated when deploying
+      task_definition,
+      # Blue/Green
+      load_balancer
+    ]
+  }
 }
