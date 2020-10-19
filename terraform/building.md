@@ -488,8 +488,10 @@ Create Elasticsearch domain:
 
 * ecr-build-app-ecs
 
+    cd terraform/foo/dev/ecr-build-app-ecs
     export REPO_URI=$(terragrunt output repository_url)
-    aws ecr get-login --no-include-email | bash
+    # aws ecr get-login --no-include-email | bash
+    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URI
     pushd ~/work/phoenix_container_example
     # DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.codebuild .
     # docker push $REPO_URI
