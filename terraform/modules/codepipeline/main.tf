@@ -92,10 +92,6 @@ locals {
   codebuild_cache_location = var.codebuild_cache_type == "S3" ? "${var.cache_bucket_id}/${local.name}" : null
 }
 
-locals {
-  deploy_actions = [var.codedeploy_deployment_groups, var.ecs_deployments, var.codedeploy_ecs_deployments]
-}
-
 data "aws_caller_identity" "current" {}
 
 # https://www.terraform.io/docs/providers/aws/r/codebuild_project.html
@@ -304,11 +300,12 @@ resource "aws_codepipeline" "this" {
 
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html
 
-  dynamic "stage" {
-    for_each = var.codedeploy_deployment_groups
-    content {
-      name = "Deploy"
-      action {
+  stage {
+    name = "Deploy"
+
+    dynamic "action" {
+      for_each = var.codedeploy_deployment_groups
+      content {
         name            = "Deploy-${action.value}"
         category        = "Deploy"
         owner           = "AWS"
@@ -317,17 +314,14 @@ resource "aws_codepipeline" "this" {
         input_artifacts = ["Build"]
         configuration = {
           ApplicationName     = var.codedeploy_app_name
-          DeploymentGroupName = stage.value
+          DeploymentGroupName = action.value
         }
       }
     }
-  }
 
-  dynamic "stage" {
-    for_each = var.ecs_deployments
-    content {
-      name = "Deploy"
-      action {
+    dynamic "action" {
+      for_each = var.ecs_deployments
+      content {
         name            = lookup(action.value, "Name")
         category        = "Deploy"
         owner           = "AWS"
@@ -335,20 +329,17 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ClusterName = lookup(stage.value, "ClusterName", null)
-          ServiceName = lookup(stage.value, "ServiceName", null)
-          FileName = lookup(stage.value, "FileName", "imagedefinitions.json")
-          DeploymentTimeout = lookup(stage.value, "DeploymentTimeout", null)
+          ClusterName = lookup(action.value, "ClusterName", null)
+          ServiceName = lookup(action.value, "ServiceName", null)
+          FileName = lookup(action.value, "FileName", "imagedefinitions.json")
+          DeploymentTimeout = lookup(action.value, "DeploymentTimeout", null)
         }
       }
     }
-  }
 
-  dynamic "stage" {
-    for_each = var.codedeploy_ecs_deployments
-    content {
-      name = "Deploy"
-      action {
+    dynamic "action" {
+      for_each = var.codedeploy_ecs_deployments
+      content {
         name            = lookup(action.value, "Name")
         category        = "Deploy"
         owner           = "AWS"
@@ -356,12 +347,12 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ApplicationName = lookup(stage.value, "ApplicationName", var.codedeploy_app_name)
-          DeploymentGroupName = lookup(stage.value, "DeploymentGroupName")
-          TaskDefinitionTemplateArtifact = lookup(stage.value, "TaskDefinitionTemplateArtifact", "Build")
-          TaskDefinitionTemplatePath = lookup(stage.value, "TaskDefinitionTemplatePath", "taskdef.json")
-          AppSpecTemplateArtifact = lookup(stage.value, "AppSpecTemplateArtifact", "Build")
-          AppSpecTemplatePath = lookup(stage.value, "AppSpecTemplatePath", "appspec.yml")
+          ApplicationName = lookup(action.value, "ApplicationName", var.codedeploy_app_name)
+          DeploymentGroupName = lookup(action.value, "DeploymentGroupName")
+          TaskDefinitionTemplateArtifact = lookup(action.value, "TaskDefinitionTemplateArtifact", "Build")
+          TaskDefinitionTemplatePath = lookup(action.value, "TaskDefinitionTemplatePath", "taskdef.json")
+          AppSpecTemplateArtifact = lookup(action.value, "AppSpecTemplateArtifact", "Build")
+          AppSpecTemplatePath = lookup(action.value, "AppSpecTemplatePath", "appspec.yml")
           Image1ArtifactName = "Build"
           Image1ContainerName = "IMAGE1_NAME"
           # Image2ArtifactName
@@ -374,9 +365,8 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
-
-}
   # https://dev.classmethod.jp/articles/codepipeline-ecs-codedeploy/
   # https://qiita.com/keroxp/items/7ae472bf7344c1efa021
 
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#action-requirements
+}
