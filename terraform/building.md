@@ -478,24 +478,26 @@ Create Elasticsearch domain:
 * ecs-cluster
 * ecr-app
 
-    export REPO_URI=$(terragrunt output repository_url)
+    export REGISTRY=$(terragrunt output registry_id)
+    export REPO_URL=$(terragrunt output repository_url)
     # aws ecr get-login --no-include-email | bash
-    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URI
+    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URL
     pushd ~/work/phoenix_container_example
-    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.alpine .
-    docker push $REPO_URI
+    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URL -f deploy/Dockerfile.alpine .
+    docker push $REPO_URL
     popd
 
 * ecr-build-app-ecs
 
     cd terraform/foo/dev/ecr-build-app-ecs
-    export REPO_URI=$(terragrunt output repository_url)
+    export REGISTRY=$(terragrunt output registry_id)
+    export REPO_URL=$(terragrunt output repository_url)
     # aws ecr get-login --no-include-email | bash
-    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URI
+    aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_URL
     pushd ~/work/phoenix_container_example
-    # DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URI -f deploy/Dockerfile.codebuild .
-    # docker push $REPO_URI
-    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --push -t $REPO_URI -f deploy/Dockerfile.codebuild .
+    # DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -t $REPO_URL -f deploy/Dockerfile.codebuild .
+    # docker push $REPO_URL
+    DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --push -t $REPO_URL -f deploy/Dockerfile.codebuild .
     popd
 
     https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/4.0/Dockerfile

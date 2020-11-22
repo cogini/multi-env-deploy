@@ -24,9 +24,9 @@ dependency "s3-codepipeline" {
 dependency "ecr-build" {
   config_path = "../ecr-build-app-ecs"
 }
-# dependency "ecr-build-cache" {
-#   config_path = "../ecr-build-cache-app-ecs"
-# }
+dependency "ecr-build-cache" {
+  config_path = "../ecr-build-cache-app-ecs"
+}
 dependency "ecr" {
   config_path = "../ecr-app"
 }
@@ -72,10 +72,12 @@ inputs = {
   name = "foo-app-ecs" # default app-comp
 
   environment_variables = {
+    # ECS ECR registry
+    REGISTRY = dependency.ecr.outputs.registry_id
     # ECS app ECR repository
-    REPO_URI = dependency.ecr.outputs.repository_url
+    REPO_URL = dependency.ecr.outputs.repository_url
     # # ECS app ECR repository
-    # CACHE_REPO_URI = dependency.ecr-build-cache.outputs.repository_url
+    CACHE_REPO_URL = dependency.ecr-build-cache.outputs.repository_url
     # ECS container name from service task definition
     CONTAINER_NAME = "foo-app"
     PORT = 4000
