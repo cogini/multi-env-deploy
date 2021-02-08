@@ -76,7 +76,7 @@ inputs = {
     REGISTRY = dependency.ecr.outputs.registry_id
     # ECS app ECR repository
     REPO_URL = dependency.ecr.outputs.repository_url
-    # # ECS app ECR repository
+    # ECS app ECR repository
     CACHE_REPO_URL = dependency.ecr-build-cache.outputs.repository_url
     # ECS container name from service task definition
     CONTAINER_NAME = "foo-app"
@@ -125,6 +125,8 @@ inputs = {
 
   # codebuild_cache_type = "LOCAL"
   # codebuild_cache_modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"]
+
+  codebuild_cache_type = "S3"
 
   # Allow running Docker daemon inside Docker container for ECS build
   codebuild_privileged_mode = true
