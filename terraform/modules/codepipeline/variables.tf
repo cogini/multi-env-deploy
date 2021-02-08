@@ -110,7 +110,7 @@ variable "codebuild_image_pull_credentials_type" {
 
 variable "codebuild_cache_type" {
   description = "Type of storage for project cache. NO_CACHE, LOCAL, or S3. Defaults NO_CACHE"
-  default     = "S3"
+  default     = null
 }
 
 variable "codebuild_cache_modes" {
