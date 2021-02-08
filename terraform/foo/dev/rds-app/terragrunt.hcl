@@ -43,11 +43,11 @@ inputs = {
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   engine = "postgres"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].EngineVersion'
-  engine_version = "10.10"
+  engine_version = "11.4"
   port = "5432"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].DBParameterGroupFamily'
   # family = "postgres9.6"
-  family = "postgres10"
+  family = "postgres11"
   # DB option group
   # major_engine_version = "9.6"
   # major_engine_version = "10"
@@ -56,10 +56,35 @@ inputs = {
 
   ca_cert_identifier = "rds-ca-2019"
 
+  # create_monitoring_role = true
+  # monitoring_interval = 60
+  # performance_insights_enabled = true
+  # performance_insights_retention_period = 7
+
   # parameters = [
   #   {
   #     name = "rds.force_ssl",
   #     value = 1
+  #   }
+  #   {
+  #     name = "shared_preload_libraries",
+  #     value = "pg_stat_statements",
+  #     apply_method = "pending-reboot"
+  #   },
+  #   {
+  #     name = "pg_stat_statements.track",
+  #     value = "all",
+  #     apply_method = "pending-reboot"
+  #   },
+  #   {
+  #     name = "track_activity_query_size",
+  #     value = "2048",
+  #     apply_method = "pending-reboot"
+  #   },
+  #   {
+  #     name = "idle_in_transaction_session_timeout",
+  #     value = "3600000",
+  #     apply_method = "dynamic"
   #   }
   # ]
 
