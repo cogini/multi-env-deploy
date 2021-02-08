@@ -6,10 +6,10 @@ server to handle API traffic or web sockets. They use a relational database,
 Redis or Memcached, Elasticsearch, CDN for static assets, SSL, S3 buckets,
 encryption.  They need logging, metrics, and alerting.
 
-They run in an autoscaling group and use a CI/CD pipeline to handle blue/green
-deployment. They need to run in multiple environments: dev, staging, prod,
-demo, with slight differences for each. They have some weird things to integrate
-with partners.
+They run in an autoscaling group or ECS and use a CI/CD pipeline to handle
+blue/green deployment. They need to run in multiple environments: dev, staging,
+prod, demo, with slight differences for each. They have some weird things to
+integrate with partners.
 
 This framework handles all that :-)
 
@@ -58,6 +58,11 @@ as RDS or Redis. Supports both GitHub and CodeCommit.
 * Multiple deploy targets
 * Manual approval process
 * Notifications
+
+## Containers running in ECS
+
+* App is built in CodePipeline
+* Deployed to ECS using CodeDeploy Blue/Green deployment
 
 ## Worker ASG
 
