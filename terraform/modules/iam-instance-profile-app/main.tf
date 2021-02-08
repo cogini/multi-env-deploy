@@ -540,6 +540,27 @@ resource "aws_iam_policy" "describe-instances" {
   policy      = data.aws_iam_policy_document.describe-instances.json
 }
 
+# Needed by CloudWatch Agent
+data "aws_iam_policy_document" "describe-tags" {
+  statement {
+    actions   = ["ec2:DescribeTags"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "describe-tags" {
+  count       = var.enable_ec2_describe_tags ? 1 : 0
+  name        = "${var.app_name}-${var.comp}-describe-tags"
+  description = "Enable instances to query for instance's metadata"
+  policy      = data.aws_iam_policy_document.describe-tags.json
+}
+
+resource "aws_iam_role_policy_attachment" "ec2-describe-tags" {
+  count      = var.enable_ec2_describe_tags ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.describe-tags[count.index].arn
+}
+
 # Create instance profile for role
 resource "aws_iam_instance_profile" "this" {
   name = aws_iam_role.this.name
