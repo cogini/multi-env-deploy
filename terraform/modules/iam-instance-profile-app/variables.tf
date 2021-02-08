@@ -66,6 +66,11 @@ variable "enable_ec2_describe_instances" {
   default     = false
 }
 
+variable "enable_ec2_describe_tags" {
+  description = "Enable reading EC2 instance metadata"
+  default     = false
+}
+
 variable "kms_key_arn" {
   description = "KMS CMK key ARN"
   default     = null
