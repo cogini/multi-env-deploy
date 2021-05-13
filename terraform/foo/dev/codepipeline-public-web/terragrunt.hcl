@@ -50,7 +50,7 @@ inputs = {
   repo_poll = true
 
   # Build image, either AWS standard or custom from ECR
-  build_image = "ubuntu:bionic"
+  codebuild_image = "ubuntu:bionic"
   # build_image = "centos:7"
   # build_image = "${dependency.ecr.outputs.repository_url}:latest"
 

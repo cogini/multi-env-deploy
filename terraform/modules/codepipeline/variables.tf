@@ -13,6 +13,12 @@ variable "environment_variables" {
   default     = {}
 }
 
+variable "environment_variables_ssm" {
+  description = "Environment vars from ParameterStore to make available to build"
+  type        = map
+  default     = {}
+}
+
 variable "codedeploy_app_name" {
   description = "CodeDeploy app comp name"
   default = ""
@@ -110,7 +116,7 @@ variable "codebuild_image_pull_credentials_type" {
 
 variable "codebuild_cache_type" {
   description = "Type of storage for project cache. NO_CACHE, LOCAL, or S3. Defaults NO_CACHE"
-  default     = null
+  default     = "S3"
 }
 
 variable "codebuild_cache_modes" {

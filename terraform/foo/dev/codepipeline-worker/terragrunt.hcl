@@ -75,9 +75,9 @@ inputs = {
   # codecommit_repository_name = dependency.codecommit-repo.outputs.repository_name
 
   # Build image, either AWS standard or custom from ECR
-  # build_image = "ubuntu:bionic"
-  # build_image = "centos:7"
-  build_image = "${dependency.ecr.outputs.repository_url}:latest"
+  # codebuild_image = "ubuntu:bionic"
+  # codebuild_image = "centos:7"
+  codebuild_image = "${dependency.ecr.outputs.repository_url}:latest"
 
   buildspec = "buildspec-worker.yml"
 

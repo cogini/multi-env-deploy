@@ -40,10 +40,12 @@ inputs = {
 
   # kms_key_id = dependency.kms.outputs.key_arn
 
+  # Set this when upgrading major version
+  # allow_major_version_upgrade = true
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   engine = "postgres"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].EngineVersion'
-  engine_version = "11.4"
+  engine_version = "11.11"
   port = "5432"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].DBParameterGroupFamily'
   # family = "postgres9.6"
@@ -56,7 +58,7 @@ inputs = {
 
   ca_cert_identifier = "rds-ca-2019"
 
-  # create_monitoring_role = true
+  create_monitoring_role = false
   # monitoring_interval = 60
   # performance_insights_enabled = true
   # performance_insights_retention_period = 7
