@@ -11,7 +11,7 @@ locals {
 
 # Generate JSON continer config from vars
 module "app_container" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.23.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name = local.name
   container_image = var.image
@@ -37,7 +37,7 @@ module "app_container" {
 }
 
 module "xray_container" {
-  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.23.0"
+  source = "github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.56.0"
 
   container_name = "xray-daemon"
   container_image = var.xray_image
@@ -74,8 +74,8 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = <<-EOT
   [
-    ${module.app_container.json_map}
-    ${var.xray ? ", ${module.xray_container.json_map}" : ""}
+    ${module.app_container.json_map_encoded}
+    ${var.xray ? ", ${module.xray_container.json_map_encoded}" : ""}
   ]
   EOT
 

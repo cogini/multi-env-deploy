@@ -30,7 +30,7 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.app_name}" : var.name
+  name = var.name == "" ? var.app_name : var.name
 }
 
 # https://www.terraform.io/docs/providers/aws/r/ecs_cluster.html

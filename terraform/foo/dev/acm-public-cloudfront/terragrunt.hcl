@@ -14,7 +14,7 @@ include {
   path = find_in_parent_folders()
 }
 inputs = {
-  dns_domain = dependency.route53.outputs.name
+  dns_domain = dependency.route53.outputs.name_nodot
 
   # Whether to create Route53 records for validation.
   # Default is true, for primary load balancer cert.

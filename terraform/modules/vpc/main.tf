@@ -1,8 +1,7 @@
 # Create the VPC for the app
 
 module "vpc" {
-  # version = "~> 1.66.0"
-  version = "~> 2.0"
+  version = "~> 3.0.0"
 
   # https://github.com/terraform-aws-modules/terraform-aws-vpc
   source = "terraform-aws-modules/vpc/aws"
@@ -26,9 +25,6 @@ module "vpc" {
   single_nat_gateway = var.single_nat_gateway
 
   map_public_ip_on_launch = true
-
-  enable_s3_endpoint       = true
-  enable_dynamodb_endpoint = false
 
   enable_vpn_gateway = var.enable_vpn_gateway
   amazon_side_asn    = var.amazon_side_asn
@@ -61,4 +57,40 @@ resource "aws_route53_zone" "this" {
   vpc {
     vpc_id = module.vpc.vpc_id
   }
+}
+
+# For VPC endpoints check
+# https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/modules/vpc-endpoints
+# https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/examples/complete-vpc
+module "vpc_endpoints" {
+  source = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+
+  vpc_id             = module.vpc.vpc_id
+
+  endpoints = {
+    s3 = {
+      service = "s3"
+      service_type = "Gateway"
+      private_dns_enabled = true
+      tags    = { Name = "s3-vpc-endpoint" }
+    },
+    dynamodb = {
+      service = "dynamodb"
+      service_type = "Gateway"
+      route_table_ids = flatten([module.vpc.private_route_table_ids, module.vpc.public_route_table_ids])
+      tags = { Name = "dynamodb-vpc-endpoint" }
+    }
+  }
+
+  tags = merge(
+    {
+      "Name"  = var.app_name
+      "org"   = var.org
+      "app"   = var.app_name
+      "env"   = var.env
+      "owner" = var.owner
+    },
+    var.extra_tags,
+  )
+
 }

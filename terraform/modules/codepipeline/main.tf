@@ -259,7 +259,7 @@ resource "aws_codepipeline" "this" {
           # https://github.com/terraform-providers/terraform-provider-aws/pull/5764
           # https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-rotate-personal-token-CLI.html
           # GITHUB_TOKEN
-          # OAuthToken = var.github_oauth_token
+          OAuthToken = var.github_token
           # OAuthToken = data.aws_ssm_parameter.github_token.value
           Owner  = var.repo_owner
           Repo   = var.repo_name
@@ -315,7 +315,7 @@ resource "aws_codepipeline" "this" {
     content {
       name = "Deploy"
       action {
-        name            = "Deploy-${action.value}"
+        name            = "Deploy-${stage.value}"
         category        = "Deploy"
         owner           = "AWS"
         provider        = "CodeDeploy"

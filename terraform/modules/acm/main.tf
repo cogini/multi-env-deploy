@@ -61,24 +61,31 @@ resource "aws_acm_certificate" "default" {
 }
 
 resource "aws_route53_record" "validation" {
-  # count    = "${length(var.subject_alternative_names) + 1}"
-  # count    = 2
-
-  # If this is a secondary cert, then the DNS records are already created by the primary
-  count = var.create_route53_records ? 1 : 0
-
-  name    = aws_acm_certificate.default.domain_validation_options[count.index]["resource_record_name"]
-  type    = aws_acm_certificate.default.domain_validation_options[count.index]["resource_record_type"]
-  records = [aws_acm_certificate.default.domain_validation_options[count.index]["resource_record_value"]]
+  for_each = {
+    for record in aws_acm_certificate.default.domain_validation_options:
+    record.domain_name => {
+      name   = record.resource_record_name
+      type   = record.resource_record_type
+      record = record.resource_record_value
+    }
+    if var.create_route53_records
+  }
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.record]
   zone_id = data.aws_route53_zone.selected.zone_id
   ttl     = var.validation_record_ttl
+
+  # allow_overwrite = true
+}
+
+locals {
+  validation_records = tolist(aws_acm_certificate.default.domain_validation_options)[0]
 }
 
 # https://www.terraform.io/docs/providers/aws/r/acm_certificate_validation.html
 resource "aws_acm_certificate_validation" "default" {
   certificate_arn = aws_acm_certificate.default.arn
 
-  validation_record_fqdns = [
-    aws_acm_certificate.default.domain_validation_options[0].resource_record_name,
-  ]
+  validation_record_fqdns = [for record in aws_route53_record.validation : record.fqdn]
 }

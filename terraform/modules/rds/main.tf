@@ -21,7 +21,7 @@ locals {
 # https://github.com/terraform-aws-modules/terraform-aws-rds
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "~> 2.14.0"
+  version = "~> 3.0.0"
 
   identifier     = local.name
   engine         = var.engine
@@ -99,5 +99,5 @@ resource "aws_route53_record" "db" {
   name    = "${var.dns_prefix}.${var.comp}.${var.dns_domain}"
   type    = "CNAME"
   ttl     = "60"
-  records = [module.db.this_db_instance_address]
+  records = [module.db.db_instance_address]
 }

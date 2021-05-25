@@ -78,10 +78,11 @@ variable "repo_poll" {
   default = false
 }
 
-# variable "github_oauth_token" {
-#   description = "GitHub Oauth Token with permissions to access private repositories"
-#   default     = null
-# }
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-3-upgrade#resource-aws_codepipeline
+ variable "github_token" {
+   description = "GitHub Oauth Token with permissions to access private repositories"
+   default     = null
+ }
 
 variable "codebuild_image" {
   description = "ECR image URL or predefined image name"
