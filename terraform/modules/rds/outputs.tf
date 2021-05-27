@@ -47,6 +47,7 @@ output "instance_name" {
 output "instance_username" {
   description = "The master username for the database"
   value       = module.db.db_instance_username
+  sensitive   = true
 }
 
 output "instance_port" {

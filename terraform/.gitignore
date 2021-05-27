@@ -1,5 +1,6 @@
-set_env.sh                                                                                                                                                                                                     
+set_env.sh
 */secrets/**/*.tfvars
 
 .terraform
 .terragrunt-cache
+.terraform.lock.hcl
