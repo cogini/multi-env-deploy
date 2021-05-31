@@ -15,7 +15,7 @@ resource "aws_codedeploy_deployment_group" "this" {
 
   # ECS
   dynamic "ecs_service" {
-    for_each = var.ecs_service_name == null ? [] : list(1)
+    for_each = var.ecs_service_name == null ? [] : tolist([1])
     content {
       cluster_name = var.ecs_cluster_name
       service_name = var.ecs_service_name
@@ -24,7 +24,7 @@ resource "aws_codedeploy_deployment_group" "this" {
 
   # ASG
   dynamic "load_balancer_info" {
-    for_each = var.target_group_name == null ? [] : list(1)
+    for_each = var.target_group_name == null ? [] : tolist([1])
     content {
       target_group_info {
         name = var.target_group_name
@@ -36,7 +36,7 @@ resource "aws_codedeploy_deployment_group" "this" {
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-blue-green.html
   # https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-create-load-balancer-for-ecs.html
   dynamic "load_balancer_info" {
-    for_each = length(var.target_group_names) > 0 ? list(1) : []
+    for_each = length(var.target_group_names) > 0 ? tolist([1]) : []
     content {
       target_group_pair_info {
         prod_traffic_route {
@@ -60,7 +60,7 @@ resource "aws_codedeploy_deployment_group" "this" {
   }
 
   dynamic "blue_green_deployment_config" {
-    for_each = var.deployment_type == "BLUE_GREEN" ? list(1) : []
+    for_each = var.deployment_type == "BLUE_GREEN" ? tolist([1]) : []
     content {
       deployment_ready_option {
         action_on_timeout    = var.deployment_ready_option_action_on_timeout
@@ -68,7 +68,7 @@ resource "aws_codedeploy_deployment_group" "this" {
       }
 
       dynamic "green_fleet_provisioning_option" {
-        for_each = var.provisioning_action == null ? [] : list(1)
+        for_each = var.provisioning_action == null ? [] : tolist([1])
         content {
           action = var.provisioning_action
         }

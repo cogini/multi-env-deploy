@@ -94,7 +94,7 @@ resource "aws_elasticsearch_domain" "this" {
 
   dynamic "encrypt_at_rest" {
     # It is an error to specify the key if encrypt is false
-    for_each = var.encrypt ? list(1) : []
+    for_each = var.encrypt ? tolist([1]) : []
     content {
       enabled    = var.encrypt
       kms_key_id = var.kms_key_id

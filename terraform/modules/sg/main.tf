@@ -141,7 +141,7 @@ resource "aws_security_group" "this" {
 
   # Allow traffic from machines in same security group
   dynamic "ingress" {
-    for_each = var.allow_self ? list(1) : []
+    for_each = var.allow_self ? tolist([1]) : []
     content {
       from_port = 0
       to_port   = 0
@@ -152,7 +152,7 @@ resource "aws_security_group" "this" {
 
   # Allow icmp (ping) traffic from specific source groups
   dynamic "ingress" {
-    for_each = length(var.icmp_sources) > 0 ? list(1) : []
+    for_each = length(var.icmp_sources) > 0 ? tolist([1]) : []
     content {
       from_port = 0
       to_port   = 0

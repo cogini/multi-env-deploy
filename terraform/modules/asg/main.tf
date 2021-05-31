@@ -87,7 +87,7 @@ resource "aws_autoscaling_group" "this" {
   # initial_lifecycle_hook
 
   dynamic "launch_template" {
-    for_each = var.spot_max_price == null ? list(1) : []
+    for_each = var.spot_max_price == null ? tolist([1]) : []
     content {
       id      = var.launch_template_id
       version = var.launch_template_version
@@ -95,7 +95,7 @@ resource "aws_autoscaling_group" "this" {
   }
 
   dynamic "mixed_instances_policy" {
-    for_each = var.spot_max_price == null ? [] : list(1)
+    for_each = var.spot_max_price == null ? [] : tolist([1])
     content {
       instances_distribution {
         on_demand_allocation_strategy = var.on_demand_allocation_strategy

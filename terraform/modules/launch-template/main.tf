@@ -16,7 +16,7 @@ resource "aws_launch_template" "this" {
       # virtual_name = lookup(block_device_mappings.value, "virtual_name", null)
 
       dynamic "ebs" {
-        for_each = flatten(list(lookup(block_device_mappings.value, "ebs", [])))
+        for_each = flatten(tolist(lookup(block_device_mappings.value, "ebs", [])))
         content {
           # delete_on_termination = lookup(ebs.value, "delete_on_termination", null)
           # encrypted             = lookup(ebs.value, "encrypted", null)

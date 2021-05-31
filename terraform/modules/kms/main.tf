@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "default" {
   # https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-service-linked-role.html
   # https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html
   dynamic "statement" {
-    for_each = var.enable_ec2_as ? list(1) : []
+    for_each = var.enable_ec2_as ? tolist([1]) : []
     content {
       sid = "Allow AWS service role for auto scaling to use CMK"
       principals {
@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "default" {
     }
   }
   dynamic "statement" {
-    for_each = var.enable_ec2_as ? list(1) : []
+    for_each = var.enable_ec2_as ? tolist([1]) : []
     content {
       sid = "Allow attachment of persistent resources"
       principals {

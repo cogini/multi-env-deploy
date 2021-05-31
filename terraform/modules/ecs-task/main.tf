@@ -134,7 +134,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   dynamic "proxy_configuration" {
-    for_each = var.proxy_configuration == null ? [] : list(1)
+    for_each = var.proxy_configuration == null ? [] : tolist([1])
     content {
       type            = lookup(proxy_configuration.value, "type", null)
       container_name  = lookup(proxy_configuration.value, "container_name", null)

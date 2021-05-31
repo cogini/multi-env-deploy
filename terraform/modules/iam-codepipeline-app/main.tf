@@ -236,7 +236,7 @@ data "aws_iam_policy_document" "codebuild-s3-assets" {
   # Allow invalidating CloudFront distributions
   # This is an all or nothing permission, it doesn't depend on resources
   dynamic "statement" {
-    for_each = var.cloudfront_create_invalidation ? list(1) : []
+    for_each = var.cloudfront_create_invalidation ? tolist([1]) : []
     content {
       actions = [
         "cloudfront:CreateInvalidation"
