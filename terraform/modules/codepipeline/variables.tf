@@ -13,6 +13,11 @@ variable "environment_variables" {
   default     = {}
 }
 
+variable "codestar_connection_arn" {
+  description = "CodeStar Connection ARN"
+  default = null
+}
+
 variable "codedeploy_app_name" {
   description = "CodeDeploy app comp name"
   default = ""
