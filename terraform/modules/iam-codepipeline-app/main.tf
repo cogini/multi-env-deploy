@@ -10,6 +10,9 @@
 # dependency "s3-codepipeline" {
 #   config_path = "../s3-codepipeline-app"
 # }
+# dependency "codestar-connection" {
+#   config_path = "../codestar-conection"
+# }
 # include {
 #   path = find_in_parent_folders()
 # }
@@ -37,6 +40,7 @@
 #   codepipeline_service_role_id = dependency.iam.outputs.outputs.codepipeline_service_role_id
 #   codedeploy_service_role_id = dependency.iam.outputs.outputs.codedeploy_service_role_id
 #   codebuild_service_role_id = dependency.iam.outputs.outputs.codebuild_service_role_id
+#   codestar_connection_arn = dependency.codestar-connection.arn
 # }
 
 data "terraform_remote_state" "s3" {
@@ -122,6 +126,8 @@ resource "aws_iam_role_policy" "codedeploy-s3-deploy" {
   policy = data.aws_iam_policy_document.codedeploy-s3-deploy.json
 }
 
+# https://stackoverflow.com/questions/65916627/upload-to-s3-failed-with-the-following-error-access-denied-codestarconnection
+
 # Give CodePipeline access to artifacts S3 bucket
 data "aws_iam_policy_document" "codepipeline-s3-deploy" {
   statement {
@@ -131,6 +137,7 @@ data "aws_iam_policy_document" "codepipeline-s3-deploy" {
       "s3:GetObjectVersion",
       "s3:GetBucketVersioning",
       "s3:PutObject",
+      "s3:PutObjectAcl",
     ]
     resources = [
       var.artifacts_bucket_arn,
@@ -236,7 +243,7 @@ data "aws_iam_policy_document" "codebuild-s3-assets" {
   # Allow invalidating CloudFront distributions
   # This is an all or nothing permission, it doesn't depend on resources
   dynamic "statement" {
-    for_each = var.cloudfront_create_invalidation ? list(1) : []
+    for_each = var.cloudfront_create_invalidation ? tolist([1]) : []
     content {
       actions = [
         "cloudfront:CreateInvalidation"
@@ -282,4 +289,32 @@ resource "aws_iam_role_policy_attachment" "codebuild-ssm" {
   count      = local.configure_ssm ? 1 : 0
   role       = var.codebuild_service_role_id
   policy_arn = aws_iam_policy.codebuild-ssm[0].arn
+}
+
+# Allow access to CodeStar Connection
+data "aws_iam_policy_document" "codestar-connection" {
+  count = var.codestar_connection_arn == null ? 0 : 1
+
+  statement {
+    actions = [
+      "codestar-connections:UseConnection",
+      "codestar-connections:PassConnection"
+    ]
+    resources = [
+      var.codestar_connection_arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "codestar-connection" {
+  count       = var.codestar_connection_arn == null ? 0 : 1
+  name        = "${var.app_name}-${var.comp}-codestar-connection"
+  description = "Enable CodePipeline to access CodeStar Connection"
+  policy      = data.aws_iam_policy_document.codestar-connection[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "codepipeline-codestar-connection" {
+  count      = var.codestar_connection_arn == null ? 0 : 1
+  role       = var.codepipeline_service_role_id
+  policy_arn = aws_iam_policy.codestar-connection[0].arn
 }
