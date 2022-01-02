@@ -97,7 +97,7 @@ variable "monitoring_interval" {
 
 variable "create_monitoring_role" {
   description = "Whether to create monitoring role"
-  default     = null
+  default     = false
 }
 
 variable "monitoring_role_name" {
