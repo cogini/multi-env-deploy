@@ -56,7 +56,7 @@ resource "aws_lb_target_group" "this" {
   deregistration_delay = var.deregistration_delay
 
   dynamic "health_check" {
-    for_each = var.health_check == null ? [] : list(1)
+    for_each = var.health_check == null ? [] : tolist([1])
     content {
       enabled             = lookup(var.health_check, "enabled", null)
       healthy_threshold   = lookup(var.health_check, "healthy_threshold", null)
@@ -73,7 +73,7 @@ resource "aws_lb_target_group" "this" {
   # slow_start
 
   dynamic "stickiness" {
-    for_each = var.stickiness == null ? [] : list(1)
+    for_each = var.stickiness == null ? [] : tolist([1])
     content {
       cookie_duration = lookup(var.stickiness, "cookie_duration", null)
       enabled         = lookup(var.stickiness, "enabled", null)
@@ -115,7 +115,7 @@ resource "aws_lb_listener_rule" "this" {
   }
 
   dynamic "condition" {
-    for_each = length(local.hosts) > 0 ? list(1) : []
+    for_each = length(local.hosts) > 0 ? tolist([1]) : []
     content {
       host_header {
         values = local.hosts
@@ -124,7 +124,7 @@ resource "aws_lb_listener_rule" "this" {
   }
 
   dynamic "condition" {
-    for_each = length(var.paths) > 0 ? list(1) : []
+    for_each = length(var.paths) > 0 ? tolist([1]) : []
     content {
       path_pattern {
         values = var.paths
