@@ -1,13 +1,20 @@
 terraform {
   backend "s3" {
   }
-  required_version = ">= 0.12"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+    archive = {
+      source = "hashicorp/archive"
+    }
+  }
 }
 
 provider "aws" {
-  alias   = "cloudfront"
-  region  = "us-east-1"
-  version = "~> 2.0"
+  alias  = "cloudfront"
+  region = "us-east-1"
 }
 
 # https://www.terraform.io/docs/modules/usage.html#passing-providers-explicitly
@@ -18,6 +25,5 @@ variable "aws_region" {
 }
 
 provider "aws" {
-  region  = var.aws_region
-  version = "~> 2.0"
+  region = var.aws_region
 }
