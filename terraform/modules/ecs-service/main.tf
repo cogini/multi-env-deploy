@@ -48,7 +48,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "network_configuration" {
-    for_each = var.network_configuration == null ? [] : list(1)
+    for_each = var.network_configuration == null ? [] : tolist([1])
     content {
       subnets           = lookup(var.network_configuration, "subnets", null)
       security_groups   = lookup(var.network_configuration, "security_groups", null)
@@ -83,7 +83,7 @@ resource "aws_ecs_service" "this" {
   # https://www.terraform.io/docs/providers/aws/r/ecs_service.html#service_registries-1
   # https://docs.aws.amazon.com/Route53/latest/APIReference/API_autonaming_Service.html
   dynamic "service_registries" {
-    for_each = var.service_registries == null ? [] : list(1)
+    for_each = var.service_registries == null ? [] : tolist([1])
     iterator = registries
     content {
       registry_arn    = lookup(registries.value, "registry_arn", null)
