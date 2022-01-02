@@ -9,7 +9,7 @@ variable "bucket_prefix" {
 
 variable "buckets" {
   description = "Buckets to create"
-  type        = map
+  type        = map(map(string))
   default     = {}
 }
 
