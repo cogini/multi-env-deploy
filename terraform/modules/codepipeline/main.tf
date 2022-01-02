@@ -22,6 +22,9 @@
 # dependency "s3-codepipeline" {
 #   config_path = "../s3-codepipeline-app"
 # }
+# dependency "codestar-connection" {
+#   config_path = "../codestar-connection"
+# }
 # dependency "ecr" {
 #   config_path = "../ecr-app"
 # }
@@ -133,7 +136,7 @@ resource "aws_codebuild_project" "this" {
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/vpc-support.html
   # https://aws.amazon.com/blogs/devops/access-resources-in-a-vpc-from-aws-codebuild-builds/
   dynamic "vpc_config" {
-    for_each = var.vpc_id == null ? [] : list(1)
+    for_each = var.vpc_id == null ? [] : tolist([1])
     content {
       vpc_id = var.vpc_id
       subnets = var.subnet_ids
@@ -207,7 +210,7 @@ resource "aws_codepipeline" "this" {
     location = var.artifacts_bucket_id
 
     dynamic "encryption_key" {
-      for_each = var.kms_key_arn == null ? [] : list(1)
+      for_each = var.kms_key_arn == null ? [] : tolist([1])
       content {
         id   = var.kms_key_arn
         type = "KMS"
@@ -219,7 +222,7 @@ resource "aws_codepipeline" "this" {
     name = "Source"
 
     dynamic "action" {
-      for_each = var.source_provider == "CodeCommit" ? list(1) : []
+      for_each = var.source_provider == "CodeCommit" ? tolist([1]) : []
       content {
         name             = "Git"
         category         = "Source"
@@ -237,7 +240,7 @@ resource "aws_codepipeline" "this" {
     }
 
     dynamic "action" {
-      for_each = var.source_provider == "GitHub" ? list(1) : []
+      for_each = var.source_provider == "GitHub" ? tolist([1]) : []
       content {
         name             = "Git"
         category         = "Source"
@@ -256,6 +259,24 @@ resource "aws_codepipeline" "this" {
           Branch = var.repo_branch
           # https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-webhooks-migration.html
           PollForSourceChanges = var.repo_poll
+        }
+      }
+    }
+
+    # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codepipeline
+    dynamic "action" {
+      for_each = var.source_provider == "CodeStar" ? tolist([1]) : []
+      content {
+        name             = "Source"
+        category         = "Source"
+        owner            = "AWS"
+        provider         = "CodeStarSourceConnection"
+        version          = "1"
+        output_artifacts = ["Source"]
+        configuration = {
+          ConnectionArn    = var.codestar_connection_arn
+          FullRepositoryId = var.repo_name
+          BranchName       = var.repo_branch
         }
       }
     }
@@ -279,7 +300,7 @@ resource "aws_codepipeline" "this" {
 
   # https://docs.aws.amazon.com/codepipeline/latest/userguide/approvals-action-add.html
   dynamic "stage" {
-    for_each = var.manual_approval == null ? [] : list(1)
+    for_each = var.manual_approval == null ? [] : tolist([1])
     content {
       name = "Approve"
       action {
