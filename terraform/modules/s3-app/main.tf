@@ -87,7 +87,7 @@ resource "aws_s3_bucket" "buckets" {
   acl = each.value.acl
 
   dynamic "server_side_encryption_configuration" {
-    for_each = each.value.encrypt ? list(1) : []
+    for_each = each.value.encrypt ? tolist([1]) : []
     content {
       rule {
         apply_server_side_encryption_by_default {
@@ -99,7 +99,7 @@ resource "aws_s3_bucket" "buckets" {
   }
 
   dynamic "cors_rule" {
-    for_each = each.value.cors ? list(1) : []
+    for_each = each.value.cors ? tolist([1]) : []
     content {
       allowed_headers = var.cors_allowed_headers
       allowed_methods = var.cors_allowed_methods
@@ -110,7 +110,7 @@ resource "aws_s3_bucket" "buckets" {
   }
 
   dynamic "website" {
-    for_each = each.value.website ? list(1) : []
+    for_each = each.value.website ? tolist([1]) : []
     content {
       index_document = "index.html"
       error_document = "404.html"
