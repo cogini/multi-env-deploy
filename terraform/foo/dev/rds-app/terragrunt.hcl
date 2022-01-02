@@ -43,7 +43,7 @@ inputs = {
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   engine = "postgres"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].EngineVersion'
-  engine_version = "11.4"
+  engine_version = "11.12"
   port = "5432"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].DBParameterGroupFamily'
   # family = "postgres9.6"
