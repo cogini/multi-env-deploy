@@ -108,7 +108,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   # ACM cert
   dynamic "viewer_certificate" {
-    for_each = var.enable_acm_cert ? list(1) : []
+    for_each = var.enable_acm_cert ? tolist([1]) : []
 
     content {
       acm_certificate_arn      = data.aws_acm_certificate.host_acm[0].arn
@@ -119,7 +119,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   # IAM cert
   dynamic "viewer_certificate" {
-    for_each = var.enable_iam_cert ? list(1) : []
+    for_each = var.enable_iam_cert ? tolist([1]) : []
 
     content {
       acm_certificate_arn      = data.aws_aam_certificate.host_iam[0].arn
@@ -130,7 +130,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   # Default cert
   dynamic "viewer_certificate" {
-    for_each = local.has_cert ? [] : list(1)
+    for_each = local.has_cert ? [] : tolist([1])
 
     content {
       cloudfront_default_certificate = true
@@ -174,7 +174,7 @@ resource "aws_cloudfront_distribution" "this" {
     # trusted_signers = [data.aws_caller_identity.current.account_id]
 
     dynamic "lambda_function_association" {
-      for_each = var.lambda_arn == null ? [] : list(1)
+      for_each = var.lambda_arn == null ? [] : tolist([1])
       content {
         event_type = "origin-request"
         lambda_arn = var.lambda_arn
