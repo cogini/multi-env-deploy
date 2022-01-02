@@ -25,6 +25,11 @@ variable "cloudfront_create_invalidation" {
   default = false
 }
 
+variable "codestar_connection_arn" {
+  description = "CodeStar Connection ARN"
+  default = null
+}
+
 variable "codepipeline_service_role_id" {
   description = "CodePipeline service role"
 }
