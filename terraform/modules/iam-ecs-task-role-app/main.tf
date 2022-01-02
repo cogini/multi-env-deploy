@@ -232,7 +232,7 @@ resource "aws_iam_policy" "kms" {
 # https://docs.aws.amazon.com/kms/latest/developerguide/services-parameter-store.html
 # Allow reading parameters encrypted using CMK
 # dynamic "statement" {
-#   for_each = var.kms_key_arn != null ? list(1) : []
+#   for_each = var.kms_key_arn != null ? tolist([1]) : []
 #   content {
 #     actions = ["kms:Decrypt", "kms:DescribeKey"]
 #     resources = [var.kms_key_arn]
@@ -244,7 +244,7 @@ resource "aws_iam_policy" "kms" {
 #
 # ALlow writing encrypted data to S3
 # dynamic "statement" {
-#   for_each = var.has_kms ? list(1) : []
+#   for_each = var.has_kms ? tolist([1]) : []
 #   content {
 #     actions   = ["kms:GenerateDataKey"]
 #     resources = ["*"]

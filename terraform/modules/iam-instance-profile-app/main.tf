@@ -218,7 +218,7 @@ data "aws_iam_policy_document" "s3" {
 
   # Allow access to CodeDeploy agent
   dynamic "statement" {
-    for_each = var.enable_codedeploy ? list(1) : []
+    for_each = var.enable_codedeploy ? tolist([1]) : []
     content {
       actions = ["s3:Get*", "s3:List*"]
       resources = [
@@ -243,7 +243,7 @@ data "aws_iam_policy_document" "s3" {
 
   # Allow access to artifacts S3 bucket to download CodeDeploy releases
   dynamic "statement" {
-    for_each = (var.enable_codedeploy && var.artifacts_bucket_arn != "") ? list(1) : []
+    for_each = (var.enable_codedeploy && var.artifacts_bucket_arn != "") ? tolist([1]) : []
     content {
       actions = ["s3:Get*", "s3:List*"]
       # This could be made more specific
@@ -286,7 +286,7 @@ data "aws_iam_policy_document" "ssm" {
   count = local.configure_ssm ? 1 : 0
 
   dynamic "statement" {
-    for_each = var.enable_ssm_management ? list(1) : []
+    for_each = var.enable_ssm_management ? tolist([1]) : []
     content {
       sid = "AllowAccessToSSM"
       actions = [
@@ -314,7 +314,7 @@ data "aws_iam_policy_document" "ssm" {
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-add-permissions-to-existing-profile.html
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
   dynamic "statement" {
-    for_each = var.enable_ssm_management ? list(1) : []
+    for_each = var.enable_ssm_management ? tolist([1]) : []
     content {
       actions = [
         "ssm:UpdateInstanceInformation",
@@ -378,7 +378,7 @@ resource "aws_iam_policy" "kms" {
 # https://docs.aws.amazon.com/kms/latest/developerguide/services-parameter-store.html
 # Allow reading parameters encrypted using CMK
 # dynamic "statement" {
-#   for_each = var.kms_key_arn != null ? list(1) : []
+#   for_each = var.kms_key_arn != null ? tolist([1]) : []
 #   content {
 #     actions = ["kms:Decrypt", "kms:DescribeKey"]
 #     resources = [var.kms_key_arn]
@@ -390,7 +390,7 @@ resource "aws_iam_policy" "kms" {
 #
 # ALlow writing encrypted data to S3
 # dynamic "statement" {
-#   for_each = var.has_kms ? list(1) : []
+#   for_each = var.has_kms ? tolist([1]) : []
 #   content {
 #     actions   = ["kms:GenerateDataKey"]
 #     resources = ["*"]
