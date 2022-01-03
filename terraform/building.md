@@ -514,3 +514,9 @@ Create Elasticsearch domain:
 * codepipeline-app-ecs
 
 * route53-public-lb-app-ecs
+
+
+# TODO
+
+* Migration issues
+    - vpc endpoints
