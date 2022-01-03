@@ -30,6 +30,9 @@ dependency "ecr-build-cache" {
 dependency "ecr" {
   config_path = "../ecr-app"
 }
+dependency "codestar-connection" {
+  config_path = "../codestar-connection"
+}
 # dependency "cloudfront" {
 #   config_path = "../cloudfront-app-assets"
 # }
@@ -92,13 +95,17 @@ inputs = {
   }
 
   # Source
-  source_provider = "GitHub"
+  codestar_connection_arn = dependency.codestar-connection.outputs.arn
+  source_provider = "CodeStar"
+  repo_name = "cogini/phoenix_container_example"
+
+  # source_provider = "GitHub"
   # If private repo, set TF_VAR_github_oauth_token env var
-  repo_owner = "cogini"
+  # repo_owner = "cogini"
   # repo_name = "ecs-flask-example"
-  repo_name = "phoenix_container_example"
+  # repo_name = "phoenix_container_example"
   # repo_branch = "master"
-  repo_poll = true
+  # repo_poll = true
 
   # source_provider = "CodeCommit"
   # repo_branch = "master"
@@ -115,13 +122,18 @@ inputs = {
   # codebuild_image = "aws/codebuild/docker:18.09.0"
   # codebuild_image = "aws/codebuild/standard:4.0"
   codebuild_image = "${dependency.ecr-build.outputs.repository_url}:latest"
-  buildspec = "ecs/buildspec.yml"
+  # buildspec = "ecs/buildspec.yml"
+  buildspec = "ecs/buildspec-earthly.yml"
   # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
   # ARM
+  # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
   # codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard"
-  # codebuild_type = "ARM_CONTAINER"
-  # codebuild_compute_type = "BUILD_GENERAL1_LARGE"
+  # aws codebuild list-curated-environment-images
+  codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+  # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html
+  codebuild_type = "ARM_CONTAINER"
+  codebuild_compute_type = "BUILD_GENERAL1_LARGE"
 
   # codebuild_cache_type = "LOCAL"
   # codebuild_cache_modes = ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE", "LOCAL_CUSTOM_CACHE"]
