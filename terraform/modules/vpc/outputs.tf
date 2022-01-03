@@ -115,15 +115,15 @@ output "cgw_ids" {
 }
 
 # VPC Endpoints
-output "vpc_endpoint_s3_id" {
-  description = "The ID of VPC endpoint for S3"
-  value       = module.vpc.vpc_endpoint_s3_id
-}
+# output "vpc_endpoint_s3_id" {
+#   description = "The ID of VPC endpoint for S3"
+#   value       = module.vpc.vpc_endpoint_s3_id
+# }
 
-output "vpc_endpoint_dynamodb_id" {
-  description = "The ID of VPC endpoint for DynamoDB"
-  value       = module.vpc.vpc_endpoint_dynamodb_id
-}
+# output "vpc_endpoint_dynamodb_id" {
+#   description = "The ID of VPC endpoint for DynamoDB"
+#   value       = module.vpc.vpc_endpoint_dynamodb_id
+# }
 
 output "private_dns_zone_id" {
   description = "Route53 zone_id for the private zone"
