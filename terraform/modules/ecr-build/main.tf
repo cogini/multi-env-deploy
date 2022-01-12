@@ -36,9 +36,14 @@ resource "aws_ecr_repository_policy" "codebuild" {
         "Service": "codebuild.amazonaws.com"
       },
       "Action": [
+        "ecr:GetAuthorizationToken",
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability"
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload"
       ]
     }
   ]
