@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:xenial-20210114
 
 RUN apt-get update -qq && \
     apt-get install -qq sudo python-apt python-pycurl python-pip python-dev \
