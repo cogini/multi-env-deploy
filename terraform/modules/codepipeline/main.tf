@@ -97,7 +97,7 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-# https://www.terraform.io/docs/providers/aws/r/codebuild_project.html
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codebuild_project
 # https://docs.aws.amazon.com/codebuild/latest/userguide/create-project.html#create-project-cli
 # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage
 resource "aws_codebuild_project" "this" {
