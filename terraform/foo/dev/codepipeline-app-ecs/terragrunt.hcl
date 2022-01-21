@@ -130,7 +130,7 @@ inputs = {
   # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html
   # codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard"
   # aws codebuild list-curated-environment-images
-  codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
+  # codebuild_image = "aws/codebuild/amazonlinux2-aarch64-standard:2.0"
   # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html
   codebuild_type = "ARM_CONTAINER"
   codebuild_compute_type = "BUILD_GENERAL1_LARGE"
