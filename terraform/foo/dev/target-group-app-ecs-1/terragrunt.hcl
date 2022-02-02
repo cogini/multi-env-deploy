@@ -30,8 +30,8 @@ inputs = {
     # timeout = 10 # default 5
     healthy_threshold = 2 # default 3
     unhealthy_threshold = 2 # default 3
-    matcher = "200"
-    # matcher = "200,302"
+    # matcher = "200"
+    matcher = "200,302"
   }
 
   # stickiness = {
