@@ -37,7 +37,7 @@ inputs = {
   # Give access to specific params under prefix
   ssm_ps_param_prefix = "cogini/foo/dev"
   # ssm_ps_params = ["app/*", "worker/*"]
-  ssm_ps_params = ["app/*"]
+  ssm_ps_params = ["app/*", "creds/*"]
 
   codepipeline_service_role_id = dependency.iam.outputs.codepipeline_service_role_id
   codedeploy_service_role_id = dependency.iam.outputs.codedeploy_service_role_id
