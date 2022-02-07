@@ -39,6 +39,13 @@ more complex apps. EC2 instances can be used for development or as a canary.
 See the [AWS docs](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html)
 for overview.
 
+## ECS with Fargate
+
+This runs ECS applications with the same infrastructure as above, but running
+in containers in Fargate. It supports x86 and Arm.
+
+An example app is here: https://github.com/cogini/phoenix_container_example
+
 ## CloudFront for assets
 
 Store app assets like JavaScript and CSS in CloudFront for performance
