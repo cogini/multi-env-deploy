@@ -74,8 +74,8 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = <<-EOT
   [
-    ${module.app_container.json_map}
-    ${var.xray ? ", ${module.xray_container.json_map}" : ""}
+    ${module.app_container.json_map_encoded}
+    ${var.xray ? ", ${module.xray_container.json_map_encoded}" : ""}
   ]
   EOT
 
