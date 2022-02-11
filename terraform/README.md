@@ -3,7 +3,7 @@
 [Terraform](https://www.terraform.io/) is used to create the AWS resources
 used by the app.
 
-It is a declarative configuration management tool, similar to AWS CloudFront,
+It is a declarative configuration management tool, similar to AWS CloudFormation,
 but supporting multiple services, e.g. cloud providers like Azure as well as
 many other services like CloudFlare.
 
