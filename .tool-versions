@@ -1,7 +1,8 @@
-packer 1.6.0
-python 3.8.4
+packer 1.7.10
+python 3.10.2
 # terraform 0.12.28
 # terragrunt 0.23.29
 # terraform 0.13.7
-terraform 0.15.4
-terragrunt 0.35.16
+# terraform 0.15.4
+terraform 1.1.4
+terragrunt 0.35.20
