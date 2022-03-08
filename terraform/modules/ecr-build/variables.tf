@@ -6,3 +6,8 @@ variable "name" {
   description = "Name tag of instance, var.app_name-var.comp if empty"
   default = ""
 }
+
+variable "scan_on_push" {
+  description = "Whether images are scanned after being pushed to the repository"
+  default = false
+}

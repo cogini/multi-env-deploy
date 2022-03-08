@@ -9,6 +9,10 @@ locals {
 resource "aws_ecr_repository" "this" {
   name = local.name
 
+  image_scanning_configuration {
+    scan_on_push = var.scan_on_push
+  }
+
   tags = merge(
     {
       "Name"  = local.name
