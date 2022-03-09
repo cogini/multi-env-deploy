@@ -170,7 +170,7 @@ resource "aws_kms_grant" "codebuild" {
   operations        = ["Encrypt", "Decrypt", "GenerateDataKey"]
 }
 
-# Allow CodeBuild to write logs to CloudWatch Logs
+# Allow CodeBuild to write logs to CloudWatch Logs and create test reports
 resource "aws_iam_role_policy" "codebuild-logs" {
   name   = "${var.app_name}-codebuild-logs"
   role   = aws_iam_role.codebuild-service-role.id
@@ -186,6 +186,17 @@ resource "aws_iam_role_policy" "codebuild-logs" {
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ]
+    },
+    {
+      "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases",
+        "codebuild:BatchPutCodeCoverages"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
     }
   ]
 }
