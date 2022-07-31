@@ -27,6 +27,8 @@ resource "aws_ecr_repository" "this" {
 }
 
 # Give CodeBuild access to repository
+# https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html
+# https://dev.to/aws-builders/new-ecr-pull-through-cache-feature-1b9k
 resource "aws_ecr_repository_policy" "codebuild" {
   repository = aws_ecr_repository.this.name
   policy     = <<EOF
@@ -40,14 +42,16 @@ resource "aws_ecr_repository_policy" "codebuild" {
         "Service": "codebuild.amazonaws.com"
       },
       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:BatchImportUpstreamImage",
+        "ecr:CompleteLayerUpload",
+        "ecr:CreateRepository",
         "ecr:GetAuthorizationToken",
         "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:PutImage",
         "ecr:InitiateLayerUpload",
-        "ecr:UploadLayerPart",
-        "ecr:CompleteLayerUpload"
+        "ecr:PutImage",
+        "ecr:UploadLayerPart"
       ]
     }
   ]
