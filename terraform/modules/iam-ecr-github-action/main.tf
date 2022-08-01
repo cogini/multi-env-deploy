@@ -2,6 +2,7 @@
 #
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
 # https://scalesec.com/blog/identity-federation-for-github-actions-on-aws/
+# https://stackoverflow.com/questions/69243571/how-can-i-connect-github-actions-with-aws-deployments-without-using-a-secret-key
 
 data "aws_caller_identity" "current" {}
 
