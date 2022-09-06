@@ -1,4 +1,4 @@
-# Configure IAM role allowing GitHub Action to run CodeBuild project
+# Configure IAM role allowing GitHub Action to access ECR
 
 terraform {
   source = "${get_terragrunt_dir()}/../../../modules//iam-ecr-github-action"
