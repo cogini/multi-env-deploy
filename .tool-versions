@@ -1,4 +1,4 @@
 packer 1.6.0
 python 3.8.4
-terraform 0.13.7
-terragrunt 0.29.2
+terraform 0.15.4
+terragrunt 0.29.7
