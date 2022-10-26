@@ -12,6 +12,7 @@ include {
 
 inputs = {
   name                        = "foo"
+  key_name                    = "cogini-dev"
   vpc_id                      = dependency.vpc.outputs.vpc_id
   public_subnet               = dependency.vpc.outputs.public_subnets[0]
   private_subnets_cidr_blocks = dependency.vpc.outputs.private_subnets_cidr_blocks

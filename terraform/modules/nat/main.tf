@@ -10,6 +10,7 @@ module "nat" {
   source = "int128/nat-instance/aws"
 
   name                        = var.name
+  key_name                    = var.key_name
   vpc_id                      = var.vpc_id
   public_subnet               = var.public_subnet
   private_subnets_cidr_blocks = var.private_subnets_cidr_blocks

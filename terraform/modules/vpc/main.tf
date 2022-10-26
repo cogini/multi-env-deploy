@@ -30,6 +30,11 @@ module "vpc" {
   amazon_side_asn    = var.amazon_side_asn
   customer_gateways = var.customer_gateways
 
+  # Default security group - ingress/egress rules cleared to deny all
+  manage_default_security_group  = true
+  default_security_group_ingress = []
+  default_security_group_egress  = []
+
   tags = merge(
     {
       "Name"  = var.app_name
@@ -59,18 +64,24 @@ resource "aws_route53_zone" "this" {
   }
 }
 
+data "aws_security_group" "default" {
+  name   = "default"
+  vpc_id = module.vpc.vpc_id
+}
+
 # For VPC endpoints check
 # https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/modules/vpc-endpoints
 # https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/examples/complete-vpc
 module "vpc_endpoints" {
   source = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-
   vpc_id             = module.vpc.vpc_id
+  security_group_ids = [data.aws_security_group.default.id]
 
   endpoints = {
     s3 = {
       service = "s3"
       service_type = "Gateway"
+      route_table_ids = flatten([module.vpc.private_route_table_ids, module.vpc.public_route_table_ids])
       private_dns_enabled = true
       tags    = { Name = "s3-vpc-endpoint" }
     },
@@ -79,6 +90,28 @@ module "vpc_endpoints" {
       service_type = "Gateway"
       route_table_ids = flatten([module.vpc.private_route_table_ids, module.vpc.public_route_table_ids])
       tags = { Name = "dynamodb-vpc-endpoint" }
+    },
+    ssm = {
+      service             = "ssm"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+    },
+    ssmmessages = {
+      service             = "ssmmessages"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+    },
+    ecr_api = {
+      service             = "ecr.api"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      #policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
+    },
+    ecr_dkr = {
+      service             = "ecr.dkr"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      #policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
     }
   }
 

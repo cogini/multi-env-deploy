@@ -24,6 +24,11 @@ variable "codedeploy_app_name" {
   default = ""
 }
 
+variable "enable_codedeploy_deployments" {
+  description = "Enable CodeDeploy deployments"
+  default     = true
+}
+
 variable "codedeploy_deployment_groups" {
   description = "List of deployment group names"
   type        = list(string)

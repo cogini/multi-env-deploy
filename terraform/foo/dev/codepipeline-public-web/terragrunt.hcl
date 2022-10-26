@@ -32,7 +32,7 @@ include {
 
 inputs = {
   comp = "public-web"
-
+  enable_codedeploy_deployments = false
   environment_variables = {
     BUCKET_WEB = dependency.s3.outputs.buckets["web"].id
     CLOUDFRONT_DISTRIBUTION_ID = dependency.cloudfront.outputs.id
@@ -60,4 +60,5 @@ inputs = {
 
   artifacts_bucket_id = dependency.s3-codepipeline.outputs.buckets["deploy"].id
   cache_bucket_id = dependency.s3-codepipeline.outputs.buckets["build_cache"].id
+
 }

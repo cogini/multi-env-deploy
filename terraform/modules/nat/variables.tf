@@ -8,6 +8,11 @@ variable "name" {
   default     = "main"
 }
 
+variable "key_name" {
+  description = "ssh key name"
+  default     = ""
+}
+
 variable "vpc_id" {
   description = "vpc_id"
 }

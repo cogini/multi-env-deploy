@@ -91,6 +91,7 @@ inputs = {
   # codebuild_compute_type = "BUILD_GENERAL1_MEDIUM"
 
   # Deploy
+  enable_codedeploy_deployments = true
   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
   codedeploy_deployment_groups = [
     dependency.codedeploy-deployment-asg.outputs.deployment_group_name,
