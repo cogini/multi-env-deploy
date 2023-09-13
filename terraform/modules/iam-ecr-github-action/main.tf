@@ -7,13 +7,13 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id  = data.aws_caller_identity.current.account_id
-  name        = var.name == "" ? "${var.app_name}-${var.env}" : var.name
+  account_id = data.aws_caller_identity.current.account_id
+  name       = var.name == "" ? "${var.app_name}-${var.env}" : var.name
 }
 
 resource "aws_iam_role" "this" {
-  name = local.name
-  description = "Allow GitHub Action to access ECR"
+  name               = local.name
+  description        = "Allow GitHub Action to call AWS services"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
