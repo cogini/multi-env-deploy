@@ -15,12 +15,14 @@ dependency "sg" {
 dependency "route53" {
   config_path = "../route53-public"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   comp = "bastion"
+
+  # keypair_name = "bergey-dev"
 
   instance_type = "t3.nano"
 
@@ -31,7 +33,7 @@ inputs = {
   instance_count = 1
 
   # Ubuntu 18.04
-  ami = "ami-0f63c02167ca94956"
+  # ami = "ami-0f63c02167ca94956"
 
   # CentOS 7
   # ami = "ami-8e8847f1"

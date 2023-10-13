@@ -22,7 +22,7 @@ variable "owner" {
 
 variable "extra_tags" {
   description = "Extra tags to attach to things"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -46,6 +46,11 @@ variable "remote_state_s3_key_prefix" {
 variable "aws_partition" {
   description = "aws is a common partition name. aws-cn for China"
   default     = "aws"
+}
+
+variable "aws_region" {
+  description = "aws is a common partition name. aws-cn for China"
+  default     = "us-east-1"
 }
 
 variable "aws_service_endpoint_ec2" {

@@ -16,15 +16,13 @@
 # dependency "route53" {
 #   config_path = "../route53-public"
 # }
-# include {
+# include "root" {
 #   path = find_in_parent_folders()
 # }
 #
 # inputs = {
 #   comp = "app"
 #   name = "foo-app-ec2"
-#
-#   instance_type = "t3.nano"
 #
 #   extra_tags = {
 #     deploy_hook = "foo-app-ec2"
@@ -33,16 +31,10 @@
 #   # Create one per az
 #   # instance_count = 0
 #
-#   ami = "ami-026475e7ed8dde60d"
+#   instance_type = "t3.nano"
 #
 #   # Ubuntu 18.04
 #   # ami = "ami-0f63c02167ca94956"
-#
-#   # CentOS 7
-#   # ami = "ami-8e8847f1"
-#
-#   # Amazon Linux 2
-#   # ami = "ami-0d7ed3ddb85b521a6"
 #
 #   subnet_ids = dependency.vpc.outputs.subnets["public"]
 #   security_group_ids = [dependency.sg.outputs.security_group_id]
@@ -53,31 +45,47 @@
 #   dns_zone_id = dependency.route53.outputs.zone_id
 # }
 
+data "aws_ami" "this" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = var.ami_filter
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name      = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
   host_name = var.host_name == "" ? var.comp : var.host_name
-  fqdn = "${local.host_name}.${var.dns_domain}"
+  fqdn      = "${local.host_name}.${var.dns_domain}"
+  ami       = var.ami == "" ? data.aws_ami.this.id : var.ami
 }
 
 # https://www.terraform.io/docs/providers/aws/r/instance.html
 resource "aws_instance" "this" {
   count = var.instance_count > 0 ? var.instance_count : length(var.subnet_ids)
 
-  ami           = var.ami
-  instance_type = var.instance_type
-  user_data     = var.user_data
-  key_name      = var.keypair_name
-  monitoring    = var.monitoring
-  subnet_id     = var.subnet_ids[count.index]
-  vpc_security_group_ids      = var.security_group_ids
-  iam_instance_profile        = var.instance_profile_name
-  availability_zone           = var.availability_zones[count.index]
-  associate_public_ip_address = true
-  disable_api_termination     = var.disable_api_termination
+  ami                                  = local.ami
+  instance_type                        = var.instance_type
+  user_data                            = var.user_data
+  key_name                             = var.keypair_name
+  monitoring                           = var.monitoring
+  subnet_id                            = element(distinct(compact(var.subnet_ids)), count.index)
+  vpc_security_group_ids               = var.security_group_ids
+  iam_instance_profile                 = var.instance_profile_name
+  availability_zone                    = var.availability_zones[count.index]
+  associate_public_ip_address          = true
+  disable_api_termination              = var.disable_api_termination
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
-
+  ebs_optimized                        = var.ebs_optimized
   root_block_device {
-    volume_size = var.root_volume_size
+    volume_size           = var.root_volume_size
     delete_on_termination = var.root_volume_delete_on_termination
   }
 
@@ -115,7 +123,7 @@ resource "aws_eip" "this" {
 }
 
 resource "aws_route53_health_check" "this" {
-  count             = (var.create_dns && var.dns_health_check) ? 1 : 0
+  count = (var.create_dns && var.dns_health_check) ? 1 : 0
 
   fqdn              = local.fqdn
   port              = var.health_check_port
@@ -130,7 +138,7 @@ resource "aws_route53_health_check" "this" {
 }
 
 resource "aws_route53_record" "this" {
-  count   = var.create_dns ? 1 : 0
+  count = var.create_dns ? 1 : 0
 
   zone_id = var.dns_zone_id
   name    = local.fqdn

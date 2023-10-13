@@ -45,7 +45,7 @@
 
 data "terraform_remote_state" "s3" {
   for_each = toset(keys(var.s3_buckets))
-  backend = "s3"
+  backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
     key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
@@ -56,37 +56,37 @@ data "terraform_remote_state" "s3" {
 # Configure access to S3 buckets
 locals {
   bucket_names = {
-    for comp, buckets in var.s3_buckets:
+    for comp, buckets in var.s3_buckets :
     comp => keys(buckets)
   }
   # Set default actions and ensure that bucket actually exists
   buckets = {
-    for comp, buckets in var.s3_buckets:
+    for comp, buckets in var.s3_buckets :
     comp => {
-      for name, attrs in buckets:
-        name => {
-          actions = lookup(attrs, "actions", ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"])
-          bucket = data.terraform_remote_state.s3[comp].outputs.buckets[name]
-        }
-        if lookup(data.terraform_remote_state.s3[comp].outputs.buckets, name, "missing") != "missing"
+      for name, attrs in buckets :
+      name => {
+        actions = lookup(attrs, "actions", ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"])
+        bucket  = data.terraform_remote_state.s3[comp].outputs.buckets[name]
+      }
+      if lookup(data.terraform_remote_state.s3[comp].outputs.buckets, name, "missing") != "missing"
     }
   }
   # Get actions for bucket contents
   bucket_actions_content = flatten([
-    for comp, buckets in local.buckets: [
-      for name, attrs in buckets: {
+    for comp, buckets in local.buckets : [
+      for name, attrs in buckets : {
         bucket = attrs["bucket"]
-        actions = [for action in attrs["actions"]: action
-                   if ! contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
+        actions = [for action in attrs["actions"] : action
+        if !contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
       }
     ]
   ])
   bucket_actions = flatten([
-    for comp, buckets in local.buckets: [
-      for name, attrs in buckets: {
+    for comp, buckets in local.buckets : [
+      for name, attrs in buckets : {
         bucket = attrs["bucket"]
-        actions = [for action in attrs["actions"]: action
-                   if contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
+        actions = [for action in attrs["actions"] : action
+        if contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
       }
     ]
   ])
@@ -97,16 +97,16 @@ data "aws_caller_identity" "current" {}
 # Configure access to SSM Parameter Store
 locals {
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
-  ssm_ps_arn = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
+  ssm_ps_arn          = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
   ssm_ps_param_prefix = var.ssm_ps_param_prefix == "" ? "${var.org}/${var.app_name}/${var.env}/${var.comp}" : var.ssm_ps_param_prefix
-  ssm_ps_resources = [for name in var.ssm_ps_params: "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
-  configure_ssm = length(local.ssm_ps_resources) > 0
+  ssm_ps_resources    = [for name in var.ssm_ps_params : "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
+  configure_ssm       = length(local.ssm_ps_resources) > 0
 }
 
 # Give CodeDeploy access to artifacts S3 bucket
 data "aws_iam_policy_document" "codedeploy-s3-deploy" {
   statement {
-    sid     = "AccessCodePipelineArtifacts"
+    sid = "AccessCodePipelineArtifacts"
     actions = [
       "s3:GetObject",
       "s3:GetObjectVersion",
@@ -131,7 +131,7 @@ resource "aws_iam_role_policy" "codedeploy-s3-deploy" {
 # Give CodePipeline access to artifacts S3 bucket
 data "aws_iam_policy_document" "codepipeline-s3-deploy" {
   statement {
-    sid     = "AccessCodePipelineArtifacts"
+    sid = "AccessCodePipelineArtifacts"
     actions = [
       "s3:GetObject",
       "s3:GetObjectVersion",
@@ -155,7 +155,7 @@ resource "aws_iam_role_policy" "codepipeline-s3-deploy" {
 # Give CodePipeline access to build cache S3 bucket
 data "aws_iam_policy_document" "codepipeline-s3-build-cache" {
   statement {
-    sid     = "AccessCodePipelineArtifacts"
+    sid = "AccessCodePipelineArtifacts"
     actions = [
       "s3:List*",
       "s3:GetObject",
@@ -179,7 +179,7 @@ resource "aws_iam_role_policy" "codepipeline-s3-build-cache" {
 # Give CodeBuild access to artifacts S3 bucket
 data "aws_iam_policy_document" "codebuild-s3-deploy" {
   statement {
-    sid     = "AccessCodePipelineArtifacts"
+    sid = "AccessCodePipelineArtifacts"
     actions = [
       "s3:GetObject",
       "s3:GetObjectVersion",

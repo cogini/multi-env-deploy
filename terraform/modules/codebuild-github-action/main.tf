@@ -94,8 +94,8 @@ resource "aws_codebuild_project" "this" {
   }
 
   cache {
-    type      = var.codebuild_cache_type
-    modes     = var.codebuild_cache_modes
+    type  = var.codebuild_cache_type
+    modes = var.codebuild_cache_modes
   }
 
   environment {

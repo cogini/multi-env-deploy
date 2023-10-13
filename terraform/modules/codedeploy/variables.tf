@@ -4,11 +4,11 @@ variable "comp" {
 
 variable "name" {
   description = "Name, app_name-comp if blank"
-  default = ""
+  default     = ""
 }
 
 variable "compute_platform" {
   description = "Type of deployment: ECS, Lambda, or Server"
   # Default is Server
-  default     = null
+  default = null
 }

@@ -4,7 +4,7 @@ variable "comp" {
 
 variable "name" {
   description = "Name, var.app_name-var.comp-ec2 if blank"
-  default = ""
+  default     = ""
 }
 
 variable "codedeploy_app_name" {
@@ -34,7 +34,7 @@ variable "trigger_events" {
 
 variable "ec2_tag_filter" {
   description = "Tags used to find instances to deploy to (EC2)"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -45,18 +45,18 @@ variable "codedeploy_service_role_arn" {
 variable "deployment_type" {
   description = "BLUE_GREEN or IN_PLACE"
   # default     = null
-  default     = "IN_PLACE"
+  default = "IN_PLACE"
 }
 
 variable "deployment_option" {
   description = "WITH_TRAFFIC_CONTROL or WITHOUT_TRAFFIC_CONTROL"
   # default     = null
-  default     = "WITHOUT_TRAFFIC_CONTROL"
+  default = "WITHOUT_TRAFFIC_CONTROL"
 }
 
 variable "on_premises_instance_tag_filter" {
   description = "Tags used to find instances to deploy to (on-premises)"
-  type        = list
+  type        = list(any)
   default     = []
 }
 

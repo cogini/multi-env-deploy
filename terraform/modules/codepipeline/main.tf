@@ -91,7 +91,7 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name                     = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
   codebuild_cache_location = var.codebuild_cache_type == "S3" ? "${var.cache_bucket_id}/${local.name}" : null
 }
 
@@ -116,9 +116,9 @@ resource "aws_codebuild_project" "this" {
   }
 
   cache {
-    type      = var.codebuild_cache_type
-    location  = local.codebuild_cache_location
-    modes     = var.codebuild_cache_modes
+    type     = var.codebuild_cache_type
+    location = local.codebuild_cache_location
+    modes    = var.codebuild_cache_modes
   }
 
   # logs_config {
@@ -138,8 +138,8 @@ resource "aws_codebuild_project" "this" {
   dynamic "vpc_config" {
     for_each = var.vpc_id == null ? [] : tolist([1])
     content {
-      vpc_id = var.vpc_id
-      subnets = var.subnet_ids
+      vpc_id             = var.vpc_id
+      subnets            = var.subnet_ids
       security_group_ids = var.security_group_ids
     }
   }
@@ -311,9 +311,9 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = []
         configuration = {
-          NotificationArn = lookup(var.manual_approval, "NotificationArn", null)
+          NotificationArn    = lookup(var.manual_approval, "NotificationArn", null)
           ExternalEntityLink = lookup(var.manual_approval, "ExternalEntityLink", null)
-          CustomData = lookup(var.manual_approval, "CustomData", null)
+          CustomData         = lookup(var.manual_approval, "CustomData", null)
         }
       }
     }
@@ -350,9 +350,9 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ClusterName = lookup(action.value, "ClusterName", null)
-          ServiceName = lookup(action.value, "ServiceName", null)
-          FileName = lookup(action.value, "FileName", "imagedefinitions.json")
+          ClusterName       = lookup(action.value, "ClusterName", null)
+          ServiceName       = lookup(action.value, "ServiceName", null)
+          FileName          = lookup(action.value, "FileName", "imagedefinitions.json")
           DeploymentTimeout = lookup(action.value, "DeploymentTimeout", null)
         }
       }
@@ -368,14 +368,14 @@ resource "aws_codepipeline" "this" {
         version         = "1"
         input_artifacts = ["Build"]
         configuration = {
-          ApplicationName = lookup(action.value, "ApplicationName", var.codedeploy_app_name)
-          DeploymentGroupName = lookup(action.value, "DeploymentGroupName")
+          ApplicationName                = lookup(action.value, "ApplicationName", var.codedeploy_app_name)
+          DeploymentGroupName            = lookup(action.value, "DeploymentGroupName")
           TaskDefinitionTemplateArtifact = lookup(action.value, "TaskDefinitionTemplateArtifact", "Build")
-          TaskDefinitionTemplatePath = lookup(action.value, "TaskDefinitionTemplatePath", "taskdef.json")
-          AppSpecTemplateArtifact = lookup(action.value, "AppSpecTemplateArtifact", "Build")
-          AppSpecTemplatePath = lookup(action.value, "AppSpecTemplatePath", "appspec.yml")
-          Image1ArtifactName = "Build"
-          Image1ContainerName = "IMAGE1_NAME"
+          TaskDefinitionTemplatePath     = lookup(action.value, "TaskDefinitionTemplatePath", "taskdef.json")
+          AppSpecTemplateArtifact        = lookup(action.value, "AppSpecTemplateArtifact", "Build")
+          AppSpecTemplatePath            = lookup(action.value, "AppSpecTemplatePath", "appspec.yml")
+          Image1ArtifactName             = "Build"
+          Image1ContainerName            = "IMAGE1_NAME"
           # Image2ArtifactName
           # Image2ContainerName
           # Image3ArtifactName

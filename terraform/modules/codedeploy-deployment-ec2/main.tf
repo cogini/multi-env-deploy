@@ -1,17 +1,17 @@
 # Create CodeDeploy deployment group for app component to EC2 or on-premises
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}-ec2" : var.name
+  name         = var.name == "" ? "${var.app_name}-${var.comp}-ec2" : var.name
   trigger_name = var.trigger_name == "" ? local.name : var.trigger_name
 }
 
 
 # https://www.terraform.io/docs/providers/aws/r/codedeploy_deployment_group.html
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name                = var.codedeploy_app_name
-  deployment_group_name   = local.name
-  deployment_config_name  = var.deployment_config_name
-  service_role_arn        = var.codedeploy_service_role_arn
+  app_name               = var.codedeploy_app_name
+  deployment_group_name  = local.name
+  deployment_config_name = var.deployment_config_name
+  service_role_arn       = var.codedeploy_service_role_arn
 
 
   # dynamic "ec2_tag_set" {

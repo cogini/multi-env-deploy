@@ -9,42 +9,33 @@ terraform {
   source = "${get_terragrunt_dir()}/../../../modules//iam-github-action"
 }
 
-dependency "s3" {
-  config_path = "../s3-app"
-}
-
 dependency "cloudfront" {
   config_path = "../cloudfront-public-web"
 }
-
-dependency "ecr" {
-  config_path = "../ecr-app"
-}
-
-dependency "ecs-cluster" {
-  config_path = "../ecs-cluster"
-}
-
-dependency "ecs-service" {
-  config_path = "../ecs-service-app"
-}
-
-dependency "iam-ecs-task-execution" {
-  config_path = "../iam-ecs-task-execution"
-}
-
-dependency "iam-ecs-task-role" {
-  config_path = "../iam-ecs-task-role-app"
-}
-
 dependency "codedeploy-app" {
   config_path = "../codedeploy-app-ecs"
 }
-
 dependency "codedeploy-deployment" {
   config_path = "../codedeploy-deployment-app-ecs"
 }
-
+dependency "ecr" {
+  config_path = "../ecr-app"
+}
+dependency "ecs-cluster" {
+  config_path = "../ecs-cluster"
+}
+dependency "ecs-service" {
+  config_path = "../ecs-service-app"
+}
+dependency "iam-ecs-task-execution" {
+  config_path = "../iam-ecs-task-execution"
+}
+dependency "iam-ecs-task-role" {
+  config_path = "../iam-ecs-task-role-app"
+}
+dependency "s3" {
+  config_path = "../s3-app"
+}
 
 inputs = {
   comp = "app"

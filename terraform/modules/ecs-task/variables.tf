@@ -1,10 +1,37 @@
 variable "comp" {
-  description = "Name of the app component, app, worker, etc."
+  description = "App component name, e.g. app, worker"
 }
 
 variable "name" {
-  description = "Service name, var.app_name-var.comp if empty"
+  description = "Service name, app_name-comp if empty"
   default     = ""
+}
+
+variable "container_name" {
+  description = "Container name, app_name-comp if empty"
+  default     = ""
+}
+
+variable "service_name" {
+  description = "Service name, name if empty"
+  default     = ""
+}
+
+variable "family_name" {
+  description = "Family name, name if empty"
+  default     = ""
+}
+
+variable "command" {
+  type        = list(string)
+  description = "Command"
+  default     = null
+}
+
+variable "entrypoint" {
+  type        = list(string)
+  description = "Entrypoint"
+  default     = null
 }
 
 variable "xray" {
@@ -16,12 +43,12 @@ variable "xray" {
 variable "xray_image" {
   description = "Image for X-Ray daemon"
   # default     = "123456789012.dkr.ecr.us-east-2.amazonaws.com/xray-daemon"
-  default     = "amazon/aws-xray-daemon"
+  default = "amazon/aws-xray-daemon"
 }
 
 variable "image" {
   type        = string
-  description = "The image used to start the container."
+  description = "Image used to start container"
 }
 
 variable "port_mappings" {
@@ -31,7 +58,7 @@ variable "port_mappings" {
     protocol      = string
   }))
 
-  description = "The port mappings to configure for the container. This is a list of maps. Each map should contain \"containerPort\", \"hostPort\", and \"protocol\", where \"protocol\" is one of \"tcp\" or \"udp\". If using containers in a task with the awsvpc or host network mode, the hostPort can either be left blank or set to the same value as the containerPort"
+  description = "Port mappings to configure for container. This is a list of maps. Each map should contain \"containerPort\", \"hostPort\", and \"protocol\", where \"protocol\" is one of \"tcp\" or \"udp\". If using containers in a task with the awsvpc or host network mode, the hostPort can either be left blank or set to the same value as the containerPort"
 
   default = [
     {
@@ -47,7 +74,7 @@ variable "environment" {
     name  = string
     value = string
   }))
-  description = "The environment variables to pass to the container. This is a list of maps"
+  description = "Environment variables to pass to container"
   default     = null
 }
 
@@ -56,12 +83,36 @@ variable "secrets" {
     name      = string
     valueFrom = string
   }))
-  description = "The secrets to pass to the container. This is a list of maps"
+  description = "Secrets to pass to container. This is a list of maps"
   default     = []
 }
 
-variable "cloudwatch_logs_create_group" {
-  description = "Create CloudWatch Logs group"
+# variable "log_configuration" {
+#   description = "Log configuration"
+#   type = object({
+#     logDriver = string
+#     options   = optional(map(string))
+#     secretOptions = optional(list(object({
+#       name      = string
+#       valueFrom = string
+#     })))
+#   })
+# 
+#   default     = null
+# }
+
+variable "awslogs_group" {
+  description = "awslogs-group"
+  default     = ""
+}
+
+variable "awslogs_stream_prefix" {
+  description = "awslogs-stream-prefix"
+  default     = ""
+}
+
+variable "awslogs_create_group" {
+  description = "awslogs-create-group"
   default     = true
 }
 
@@ -86,57 +137,56 @@ variable "execution_role_arn" {
 variable "network_mode" {
   description = "Docker networking mode for containers in task: none, bridge, awsvpc, or host"
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html
-  default     = "awsvpc"
+  default = "awsvpc"
 }
 
 variable "ipc_mode" {
   description = "IPC resource namespace for containers in task: host, task, or none"
   # Not supported for FARGATE launch type
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "pid_mode" {
   description = "Process namespace for containers the task: host or task"
   # Not supported for FARGATE launch type
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "cpu" {
   description = "Total number of cpu units used by task: 128 to 10240"
   # Required for FARGATE launch type
-  type        = number
-  default     = null
+  type    = number
+  default = null
 }
 
 variable "container_cpu" {
   description = "Total number of cpu units used by task: 128 to 10240"
   # Required for FARGATE launch type
-  type        = number
-  default     = null
+  type    = number
+  default = null
 }
 
 variable "memory" {
   description = "Amount in MiB of memory used by task"
   # Required for FARGATE launch type
-  type        = number
-  default     = null
+  type    = number
+  default = null
 }
 
 variable "container_memory" {
   description = "Amount in MiB of memory used by task"
   # Required for FARGATE launch type
-  type        = number
-  default     = null
+  type    = number
+  default = null
 }
-
 
 variable "memory_reservation" {
   description = "Amount in MiB of memory used by task"
   # Required for FARGATE launch type
-  type        = number
-  default     = null
+  type    = number
+  default = null
 }
 
 variable "requires_compatibilities" {
@@ -146,19 +196,19 @@ variable "requires_compatibilities" {
 
 variable "volume" {
   description = "List of volume blocks"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "placement_constraints" {
   description = "Set of placement constraints rules during task placement, max 10"
-  type        = list
+  type        = list(any)
   # Not supported for FARGATE launch type
-  default     = []
+  default = []
 }
 
 variable "proxy_configuration" {
   description = "App Mesh proxy configuration details"
-  type        = map
+  type        = map(any)
   default     = null
 }

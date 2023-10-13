@@ -45,7 +45,7 @@ variable "min_elb_capacity" {
 
 variable "target_group_arns" {
   description = "Target Group ARNs"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -107,7 +107,7 @@ variable "override_instance_types" {
 
 variable "subnets" {
   description = "Subnet ids"
-  type        = list
+  type        = list(any)
 }
 
 variable "health_check_type" {
@@ -128,7 +128,7 @@ variable "health_check_grace_period" {
 variable "enabled_metrics" {
   description = "List of metrics to collect"
   type        = list(string)
-  default     = [
+  default = [
     "GroupMinSize",
     "GroupMaxSize",
     "GroupDesiredCapacity",

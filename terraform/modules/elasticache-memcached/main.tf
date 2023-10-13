@@ -41,8 +41,8 @@ resource "aws_elasticache_cluster" "this" {
   num_cache_nodes      = var.num_cache_nodes
   parameter_group_name = var.parameter_group_name
 
-  subnet_group_name    = var.subnet_group_name
-  security_group_ids   = var.security_group_ids
+  subnet_group_name  = var.subnet_group_name
+  security_group_ids = var.security_group_ids
 
   apply_immediately = var.apply_immediately
 

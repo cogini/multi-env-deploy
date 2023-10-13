@@ -5,6 +5,6 @@ variable "comp" {
 # Scheduled Scaling
 variable "autoscaling_actions" {
   description = "Define sheduled actions"
-  type = map
-  default = {}
+  type        = map(any)
+  default     = {}
 }

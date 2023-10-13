@@ -13,7 +13,7 @@ variable "subnet_group_name" {
 
 variable "security_group_ids" {
   description = "Security group ids"
-  type = list
+  type        = list(any)
 }
 
 variable "dns_domain" {
@@ -27,7 +27,7 @@ variable "dns_zone_id" {
 
 variable "engine" {
   description = "component of the system, e.g. app, worker"
-  default = "redis"
+  default     = "redis"
 }
 
 variable "engine_version" {

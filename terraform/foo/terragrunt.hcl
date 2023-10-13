@@ -5,7 +5,56 @@
 # https://github.com/gruntwork-io/terragrunt
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Configure Terragrunt to store state in S3 bucket
+# This is based on the structure in
+# https://github.com/gruntwork-io/terragrunt-infrastructure-live-example
+# modified to be more flat.
+
+locals {
+  # Automatically load account-level variables
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+
+  # Automatically load region-level variables
+  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+
+  # Automatically load environment-level variables
+  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+
+  # Extract the variables we need for easy access
+  account_name = local.account_vars.locals.account_name
+  account_id   = local.account_vars.locals.aws_account_id
+  aws_region   = local.region_vars.locals.aws_region
+
+  # Default and common settings
+  common_vars = yamldecode(
+    file(find_in_parent_folders("common.yml"))
+  )
+
+  org = local.common_vars.org
+  app_name = local.common_vars.app_name
+
+  default_yaml_path = find_in_parent_folders("empty.yml")
+  env = get_env("ENV", "dev")
+  # org = cogini
+  # app_name = foo
+  # owner = jake
+  # aws_profile = "${local.org}-${local.env}"
+}
+
+# Generate an AWS provider block
+generate "provider" {
+  path      = "provider.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+provider "aws" {
+  region = "${local.aws_region}"
+
+  # Only these AWS Account IDs may be operated on by this template
+  # allowed_account_ids = ["${local.account_id}"]
+}
+EOF
+}
+
+# Configure Terragrunt to automatically store tfstate files in an S3 bucket
 remote_state {
   backend = "s3"
   config = {
@@ -15,6 +64,10 @@ remote_state {
     region         = get_env("TF_VAR_remote_state_s3_bucket_region", "us-east-1")
     dynamodb_table = join("-", [get_env("ORG", ""), get_env("TF_VAR_app_name", ""), "tfstate"])
   }
+  generate = {
+    path      = "backend.tf"
+    if_exists = "overwrite_terragrunt"
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -22,19 +75,6 @@ remote_state {
 # These variables apply to all configurations in this subfolder. These are
 # automatically merged into the child `terragrunt.hcl` config via the include block.
 # ---------------------------------------------------------------------------------------------------------------------
-
-locals {
-  default_yaml_path = find_in_parent_folders("empty.yml")
-  env = get_env("ENV", "dev")
-  # org = cogini
-  # app_name = foo
-  # owner = jake
-  # aws_profile = "${local.org}-${local.env}"
-}
-
-# This is based on the structure in
-# https://github.com/gruntwork-io/terragrunt-infrastructure-live-example
-# modified to be more flat.
 
 # Configure root level variables that all resources can inherit. This is
 # especially helpful with multi-account configs where terraform_remote_state

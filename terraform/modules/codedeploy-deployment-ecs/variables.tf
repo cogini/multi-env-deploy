@@ -4,12 +4,12 @@ variable "comp" {
 
 variable "name" {
   description = "Name, var.app_name-var.comp-ecs if blank"
-  default = ""
+  default     = ""
 }
 
 variable "deploy_hook" {
   description = "Tag used by deployment group to find target ASG, var.name if empty"
-  default = ""
+  default     = ""
 }
 
 variable "target_group_name" {
@@ -21,7 +21,7 @@ variable "target_group_name" {
 # ECS
 variable "ecs_cluster_name" {
   description = "ECS cluster name"
-  default = null
+  default     = null
 }
 
 variable "ecs_service_name" {

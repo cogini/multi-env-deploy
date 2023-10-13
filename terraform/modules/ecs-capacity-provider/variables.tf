@@ -13,7 +13,7 @@ variable "auto_scaling_group_arn" {
 
 variable "managed_scaling" {
   description = "Mapping of parameters for auto scaling"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 

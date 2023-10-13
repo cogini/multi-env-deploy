@@ -10,7 +10,7 @@
 # Create cross role for target
 data "aws_iam_policy_document" "this" {
   statement {
-    actions = ["sts:AssumeRole"]
+    actions   = ["sts:AssumeRole"]
     resources = [var.role_arn]
     principals {
       type        = "AWS"

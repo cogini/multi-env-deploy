@@ -9,7 +9,7 @@ variable "name" {
 
 variable "capacity_provider_strategy" {
   description = "Capacity provider strategy"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -28,18 +28,28 @@ variable "deployment_controller_type" {
 variable "deployment_maximum_percent" {
   description = "Upper limit (percentage of desired_count) of running tasks that can be running in a service during a deployment"
   # Default 200% for REPLICA, 100% for DAEMON
-  default     = null
+  default = null
 }
 
 variable "deployment_minimum_healthy_percent" {
   description = "Lower limit (pct of desired_count) of running tasks that must remain running and healthy in a service during a deployment"
   # Default 100%, 0% for DAEMON
-  default     = null
+  default = null
 }
 
 variable "desired_count" {
   description = "Number of instances of the task to place and keep running"
   # Default 0
+  default = null
+}
+
+variable "family_name" {
+  description = "Name tag task definition family, name if blank"
+  default     = ""
+}
+
+variable "force_new_deployment" {
+  description = "Force new task deployment of the service"
   default     = null
 }
 
@@ -53,7 +63,7 @@ variable "enable_ecs_managed_tags" {
 variable "health_check_grace_period_seconds" {
   description = "Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown"
   # Default 0
-  default     = null
+  default = null
 }
 
 variable "iam_role" {
@@ -64,31 +74,31 @@ variable "iam_role" {
   # If your account has already created the Amazon ECS service-linked role,
   # that role is used by default for your service unless you specify a role
   # here.
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "launch_type" {
   description = "Launch type: EC2 or FARGATE"
   # Default EC2
-  default     = null
+  default = null
 }
 
 variable "load_balancer" {
   description = "List of load balancer configs"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "network_configuration" {
   description = "Network configuration"
-  type        = object({subnets=list(string), security_groups=list(string), assign_public_ip=bool})
+  type        = object({ subnets = list(string), security_groups = list(string), assign_public_ip = bool })
   default     = null
 }
 
 variable "ordered_placement_strategy" {
   description = "Service level strategy rules taken into consideration during task placement"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -96,7 +106,7 @@ variable "placement_constraints" {
   description = "Rules taken into consideration during task placement"
   type        = list(string)
   # Not supported for FARGATE
-  default     = []
+  default = []
 }
 
 variable "platform_version" {
@@ -115,18 +125,19 @@ variable "propagate_tags" {
 variable "scheduling_strategy" {
   description = "Scheduling strategy: REPLICA or DAEMON"
   # Default REPLICA. Fargate tasks do not support DAEMON."
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 # https://www.terraform.io/docs/providers/aws/r/ecs_service.html#service_registries-1
 variable "service_registries" {
   description = "Service discovery registries for the service"
-  type        = map
+  type        = map(any)
   default     = null
 }
 
 variable "task_definition" {
   description = "Family and revision (family:revision) or full ARN of task definition to run in service"
   type        = string
+  default     = ""
 }

@@ -4,12 +4,12 @@ variable "comp" {
 
 variable "name" {
   description = "Name, var.app_name-var.comp if blank"
-  default = ""
+  default     = ""
 }
 
 variable "environment_variables" {
   description = "Environment vars to make available to build"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -53,7 +53,7 @@ variable "codebuild_cache_modes" {
   description = "LOCAL cache modes: LOCAL_SOURCE_CACHE, LOCAL_DOCKER_LAYER_CACHE, and/or LOCAL_CUSTOM_CACHE"
   type        = list(string)
   # ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
-  default     = null
+  default = null
 }
 
 variable "codebuild_service_role_arn" {

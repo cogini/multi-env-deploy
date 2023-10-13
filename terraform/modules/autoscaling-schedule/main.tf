@@ -37,11 +37,11 @@
 # }
 
 resource "aws_autoscaling_schedule" "this" {
-  for_each = var.autoscaling_actions
-    scheduled_action_name = each.value["name"]
-    autoscaling_group_name = each.value["asg_name"]
-    min_size = each.value["min_size"]
-    max_size = each.value["max_size"]
-    desired_capacity = each.value["desired_capacity"]
-    recurrence = each.value["recurrence"]
+  for_each               = var.autoscaling_actions
+  scheduled_action_name  = each.value["name"]
+  autoscaling_group_name = each.value["asg_name"]
+  min_size               = each.value["min_size"]
+  max_size               = each.value["max_size"]
+  desired_capacity       = each.value["desired_capacity"]
+  recurrence             = each.value["recurrence"]
 }

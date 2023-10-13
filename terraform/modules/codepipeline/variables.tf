@@ -4,23 +4,23 @@ variable "comp" {
 
 variable "name" {
   description = "Name, var.app_name-var.comp if blank"
-  default = ""
+  default     = ""
 }
 
 variable "environment_variables" {
   description = "Environment vars to make available to build"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
 variable "codestar_connection_arn" {
   description = "CodeStar Connection ARN"
-  default = null
+  default     = null
 }
 
 variable "codedeploy_app_name" {
   description = "CodeDeploy app comp name"
-  default = ""
+  default     = ""
 }
 
 variable "codedeploy_deployment_groups" {
@@ -31,25 +31,25 @@ variable "codedeploy_deployment_groups" {
 
 variable "codedeploy_ecs_deployments" {
   description = "List of CodeDeploy ECS configurations"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "ecs_deployments" {
   description = "List of ECS deploy configurations"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "manual_approval" {
   description = "Manual approval config"
-  type        = map
+  type        = map(any)
   default     = null
 }
 
 variable "codecommit_repository_name" {
   description = "CodeCommit repository name"
-  default = ""
+  default     = ""
 }
 
 variable "source_provider" {
@@ -64,17 +64,17 @@ variable "repo_branch" {
 
 variable "repo_owner" {
   description = "GitHub organization / person"
-  default = ""
+  default     = ""
 }
 
 variable "repo_name" {
   description = "GitHub repository"
-  default = ""
+  default     = ""
 }
 
 variable "repo_poll" {
   description = "Whether to poll repo for changes"
-  default = false
+  default     = false
 }
 
 # variable "github_oauth_token" {
@@ -122,12 +122,12 @@ variable "codebuild_cache_modes" {
   description = "LOCAL cache modes: LOCAL_SOURCE_CACHE, LOCAL_DOCKER_LAYER_CACHE, and/or LOCAL_CUSTOM_CACHE"
   type        = list(string)
   # ["LOCAL_DOCKER_LAYER_CACHE", "LOCAL_SOURCE_CACHE"]
-  default     = null
+  default = null
 }
 
 variable "kms_key_arn" {
   description = "KMS key ARN"
-  default = null
+  default     = null
 }
 
 variable "artifacts_bucket_id" {
@@ -153,13 +153,13 @@ variable "vpc_id" {
 
 variable "subnet_ids" {
   description = "VPC subnet ids"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "security_group_ids" {
   description = "Security group ids"
-  type        = list
+  type        = list(any)
   default     = []
 }
 

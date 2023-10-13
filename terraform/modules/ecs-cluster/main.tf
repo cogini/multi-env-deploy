@@ -38,22 +38,10 @@ locals {
 resource "aws_ecs_cluster" "this" {
   name = local.name
 
-  capacity_providers = var.capacity_providers
-
-  dynamic "default_capacity_provider_strategy" {
-    for_each = var.default_capacity_provider_strategy
-    iterator = strategy
-    content {
-      capacity_provider   = lookup(strategy.value, "capacity_provider", null)
-      weight              = lookup(strategy.value, "weight", null)
-      base                = lookup(strategy.value, "base", null)
-    }
-  }
-
   dynamic "setting" {
     for_each = var.container_insights == null ? [] : tolist([1])
     content {
-      name = "containerInsights"
+      name  = "containerInsights"
       value = var.container_insights
     }
   }
@@ -68,4 +56,20 @@ resource "aws_ecs_cluster" "this" {
     },
     var.extra_tags
   )
+}
+
+resource "aws_ecs_cluster_capacity_providers" "this" {
+  cluster_name = aws_ecs_cluster.this.name
+
+  capacity_providers = var.capacity_providers
+
+  dynamic "default_capacity_provider_strategy" {
+    for_each = var.default_capacity_provider_strategy
+    iterator = strategy
+    content {
+      capacity_provider = lookup(strategy.value, "capacity_provider", null)
+      weight            = lookup(strategy.value, "weight", null)
+      base              = lookup(strategy.value, "base", null)
+    }
+  }
 }

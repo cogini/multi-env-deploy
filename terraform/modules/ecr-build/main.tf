@@ -1,7 +1,7 @@
 # Create ECR repository
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name = var.name == "" ? "${var.org}/${var.app_name}-${var.comp}" : var.name
 }
 
 # Create repository
@@ -57,4 +57,14 @@ resource "aws_ecr_repository_policy" "codebuild" {
   ]
 }
 EOF
+}
+
+resource "aws_ecr_pull_through_cache_rule" "this" {
+  for_each = {
+    for index, rule in var.pull_through_cache_rules :
+    rule.ecr_repository_prefix => rule
+  }
+
+  ecr_repository_prefix = each.value.ecr_repository_prefix
+  upstream_registry_url = each.value.upstream_registry_url
 }

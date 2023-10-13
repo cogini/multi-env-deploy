@@ -1,5 +1,5 @@
 variable "comp" {
-  description = "Name of the app component, app, worker, etc."
+  description = "Name of the app component, e.g. app, worker."
 }
 
 variable "origin_bucket_arn" {
@@ -25,16 +25,16 @@ variable "logs_bucket_domain_name" {
 
 variable "logs_bucket_path_prefix" {
   description = "Request logs bucket_domain_name"
-  default  = "cloudfront/"
+  default     = "cloudfront/"
 }
 
 variable "host_name" {
-  description = "Host part, e.g. assets for assets.example.com, www for www.example.com"
+  description = "Subdomain, e.g. assets for assets.example.com, www for www.example.com"
 }
 
 variable "alias_domain" {
-  description = "Whether this distribution should handle the bare domain"
-  default = false
+  description = "Whether this distribution should handle the bare domain, e.g. example.com"
+  default     = false
 }
 
 variable "dns_domain" {
@@ -48,19 +48,19 @@ variable "dns_zone_id" {
 variable "enable_acm_cert" {
   description = "Use AWS Certificate Manager to manage cert"
   # Default to secure
-  default     = true
+  default = true
   # Default to allow HTTP
   # default     = false
 }
 
 variable "enable_iam_cert" {
-  description = "Use IAM to manage cert, exclusive to enable_acm_certificate"
+  description = "Use IAM to manage cert"
   default     = false
 }
 
 variable "restrictions" {
   description = "Restrictions on CloudFront distribution"
-  default = null
+  default     = null
   # default = {
   #   geo_restriction = {
   #     restriction_type = "none"
@@ -71,7 +71,7 @@ variable "restrictions" {
 variable "price_class" {
   description = "Price class restrictions"
   # default     = "PriceClass_All" # PriceClass_All | PriceClass_200 | PriceClass_100
-  default     = null
+  default = null
 }
 
 variable "default_ttl" {
@@ -95,7 +95,7 @@ variable "compress" {
 variable "viewer_protocol_policy" {
   description = "allow-all, https-only, redirect-to-https"
   # Default to secure
-  default     = "redirect-to-https"
+  default = "redirect-to-https"
   # Default to allow HTTP
   # default = "allow-all"
 }
@@ -107,5 +107,5 @@ variable "create_dns" {
 
 variable "lambda_arn" {
   description = "Lambda@Edge function to map e.g. /about/ to /about/index.html"
-  default = null
+  default     = null
 }

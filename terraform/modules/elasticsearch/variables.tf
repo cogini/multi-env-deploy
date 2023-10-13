@@ -9,17 +9,17 @@ variable "name" {
 
 variable "subnet_ids" {
   description = "Subnet IDs"
-  type = list
+  type        = list(any)
 }
 
 variable "security_group_ids" {
   description = "Security group IDs"
-  type = list
+  type        = list(any)
 }
 
 variable "kms_key_id" {
   description = "KMS key id"
-  default = null
+  default     = null
 }
 
 variable "cloudwatch_log_group" {

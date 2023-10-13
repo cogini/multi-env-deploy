@@ -64,9 +64,9 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}-asg" : var.name
+  name         = var.name == "" ? "${var.app_name}-${var.comp}-asg" : var.name
   trigger_name = var.trigger_name == "" ? local.name : var.trigger_name
-  deploy_hook = var.deploy_hook == "" ? local.name : var.deploy_hook
+  deploy_hook  = var.deploy_hook == "" ? local.name : var.deploy_hook
 }
 
 # Dynamically find the autoscaling group using the "deploy_hook" tag.
@@ -87,10 +87,10 @@ data "aws_autoscaling_groups" "selected" {
 
 # https://www.terraform.io/docs/providers/aws/r/codedeploy_deployment_group.html
 resource "aws_codedeploy_deployment_group" "this" {
-  app_name                = var.codedeploy_app_name
-  deployment_group_name   = local.name
-  deployment_config_name  = var.deployment_config_name
-  service_role_arn        = var.codedeploy_service_role_arn
+  app_name               = var.codedeploy_app_name
+  deployment_group_name  = local.name
+  deployment_config_name = var.deployment_config_name
+  service_role_arn       = var.codedeploy_service_role_arn
 
   autoscaling_groups = var.provisioning_action == "COPY_AUTO_SCALING_GROUP" ? [data.aws_autoscaling_groups.selected.names[0]] : data.aws_autoscaling_groups.selected.names
 

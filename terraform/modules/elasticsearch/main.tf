@@ -34,9 +34,9 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name                 = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
   cloudwatch_log_group = var.cloudwatch_log_group == "" ? "${var.app_name}-${var.comp}" : var.cloudwatch_log_group
-  subnet_ids = slice(var.subnet_ids, 0, var.instance_count)
+  subnet_ids           = slice(var.subnet_ids, 0, var.instance_count)
 }
 
 resource "aws_cloudwatch_log_group" "this" {
@@ -115,7 +115,7 @@ resource "aws_elasticsearch_domain" "this" {
   }
 
   vpc_options {
-    subnet_ids = local.subnet_ids
+    subnet_ids         = local.subnet_ids
     security_group_ids = var.security_group_ids
   }
 

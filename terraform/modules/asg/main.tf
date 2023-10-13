@@ -60,7 +60,7 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name        = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
   deploy_hook = var.deploy_hook == "" ? local.name : var.deploy_hook
 }
 
@@ -74,12 +74,12 @@ resource "aws_autoscaling_group" "this" {
   desired_capacity          = var.desired_capacity
   wait_for_capacity_timeout = var.wait_for_capacity_timeout
 
-  min_elb_capacity          = var.min_elb_capacity
-  wait_for_elb_capacity     = var.wait_for_elb_capacity
+  min_elb_capacity      = var.min_elb_capacity
+  wait_for_elb_capacity = var.wait_for_elb_capacity
 
-  default_cooldown          = var.default_cooldown
+  default_cooldown = var.default_cooldown
 
-  termination_policies      = var.termination_policies
+  termination_policies = var.termination_policies
 
   health_check_grace_period = var.health_check_grace_period
   health_check_type         = var.health_check_type
@@ -98,18 +98,18 @@ resource "aws_autoscaling_group" "this" {
     for_each = var.spot_max_price == null ? [] : tolist([1])
     content {
       instances_distribution {
-        on_demand_allocation_strategy = var.on_demand_allocation_strategy
-        on_demand_base_capacity = var.on_demand_base_capacity
+        on_demand_allocation_strategy            = var.on_demand_allocation_strategy
+        on_demand_base_capacity                  = var.on_demand_base_capacity
         on_demand_percentage_above_base_capacity = var.on_demand_percentage_above_base_capacity
-        spot_allocation_strategy = var.spot_allocation_strategy
-        spot_instance_pools = var.spot_instance_pools
-        spot_max_price = var.spot_max_price
+        spot_allocation_strategy                 = var.spot_allocation_strategy
+        spot_instance_pools                      = var.spot_instance_pools
+        spot_max_price                           = var.spot_max_price
       }
 
       launch_template {
         launch_template_specification {
           launch_template_id = var.launch_template_id
-          version = var.launch_template_version
+          version            = var.launch_template_version
         }
 
         dynamic "override" {
@@ -138,8 +138,8 @@ resource "aws_autoscaling_group" "this" {
       },
       # These normally come from the launch template
       {
-        "key"                 = "Name"
-        "value"               = local.name
+        "key"   = "Name"
+        "value" = local.name
         # Override EC2 instance name to match ASG
         "propagate_at_launch" = true
       },

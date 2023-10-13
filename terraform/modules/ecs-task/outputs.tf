@@ -13,6 +13,16 @@ output "revision" {
   value       = aws_ecs_task_definition.this.revision
 }
 
+output "container_name" {
+  description = "Primary container name"
+  value       = local.container_name
+}
+
+output "port_mappings" {
+  description = "Primary port mappings"
+  value       = var.port_mappings
+}
+
 output "cpu" {
   description = "CPU spec"
   value       = aws_ecs_task_definition.this.cpu

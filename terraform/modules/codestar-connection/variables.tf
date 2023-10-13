@@ -1,6 +1,6 @@
 variable "name" {
   description = "Name, normally the GitHub organization"
-  default = null
+  default     = null
 }
 
 variable "provider_type" {

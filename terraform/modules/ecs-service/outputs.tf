@@ -22,3 +22,8 @@ output "desired_count" {
   description = "Number of instances of task definition"
   value       = aws_ecs_service.this.desired_count
 }
+
+output "task_definition_arn" {
+  description = "Task definition"
+  value       = data.aws_ecs_task_definition.this.arn
+}

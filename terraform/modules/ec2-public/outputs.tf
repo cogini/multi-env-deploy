@@ -8,6 +8,11 @@ output "id" {
 #   value       = aws_instance.this.*.arn
 # }
 
+output "ami_id" {
+  description = "AMI id"
+  value       = local.ami
+}
+
 output "availability_zone" {
   description = "List of instance availability zones"
   value       = aws_instance.this[*].availability_zone

@@ -11,7 +11,7 @@ variable "capacity_providers" {
 
 variable "default_capacity_provider_strategy" {
   description = "List of objects"
-  type        = list
+  type        = list(any)
   default     = []
 }
 

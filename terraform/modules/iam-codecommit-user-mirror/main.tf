@@ -23,7 +23,7 @@ resource "aws_iam_user" "this" {
   name = local.name
   tags = merge(
     {
-      "Name" = local.name
+      "Name"  = local.name
       "org"   = var.org
       "app"   = var.app_name
       "env"   = var.env

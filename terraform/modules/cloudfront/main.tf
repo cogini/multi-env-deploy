@@ -1,6 +1,8 @@
-# Create CloudFront distribution for files from an S3 bucket
+# Create CloudFront distribution with S3 bucket origin
 #
-# Typically this would be:
+# Scenarios:
+#
+# * web: Public website for the app domain, built with a static site generator
 #
 # * assets: CSS and JS files built by the app asset pipeline
 #
@@ -8,13 +10,13 @@
 #   login. For example, in a "white label" website, customer logos
 #   would be available on the login screen.
 #
-# * The public website for the app domain, built with a static site generator
-#
-# Subdomain is specified by host_name, e.g. "assets" for assets.example.com.
+# The `host_name` variable specifies the subdomain, e.g. `assets` for assets.example.com
+# or `www` for a public website.
 #
 # Sets up Route53 alias pointing to CloudFront.
 #
-# This assumes that the origin is an S3 bucket, with all public access via CloudFront.
+# This assumes that the origin is an S3 bucket. THe S3 bucket is private, with
+# all public access handled via CloudFront.
 #
 # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html
 # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
@@ -23,7 +25,8 @@
 # Example config:
 
 locals {
-  cert_domain = replace(var.dns_domain, "/\\.$/", "") # zone_name has trailing dot, but cert does not
+  # The zone_name has a trailing dot, but the cert does not
+  cert_domain = replace(var.dns_domain, "/\\.$/", "")
   fqdn        = "${var.host_name}.${local.cert_domain}"
   aliases     = var.alias_domain ? [local.cert_domain, local.fqdn] : [local.fqdn]
   has_cert    = (var.enable_acm_cert || var.enable_iam_cert)
@@ -34,7 +37,8 @@ data "aws_caller_identity" "current" {
 
 # Certificate managed by ACM
 data "aws_acm_certificate" "host_acm" {
-  provider = aws.cloudfront
+  # Must be in us-east-1
+  # provider = aws.cloudfront
   count    = var.enable_acm_cert ? 1 : 0
   domain   = local.cert_domain
   statuses = ["ISSUED"]
@@ -42,10 +46,11 @@ data "aws_acm_certificate" "host_acm" {
 
 # Certificate managed external to AWS, e.g. in China where ACM is not available
 data "aws_iam_server_certificate" "host_iam" {
-  provider = aws.cloudfront
-  count    = var.enable_iam_cert ? 1 : 0
-  name     = "*.${local.cert_domain}"
-  latest   = true
+  # Must be in us-east-1
+  # provider = aws.cloudfront
+  count  = var.enable_iam_cert ? 1 : 0
+  name   = "*.${local.cert_domain}"
+  latest = true
 }
 
 resource "aws_cloudfront_origin_access_identity" "this" {
@@ -100,6 +105,7 @@ resource "aws_cloudfront_distribution" "this" {
     origin_id   = var.origin_bucket_id
   }
 
+  # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html
   logging_config {
     bucket          = var.logs_bucket_domain_name
     prefix          = "${var.logs_bucket_path_prefix}${local.fqdn}"

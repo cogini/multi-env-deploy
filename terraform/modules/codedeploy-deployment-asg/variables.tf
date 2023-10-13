@@ -4,12 +4,12 @@ variable "comp" {
 
 variable "name" {
   description = "Name, var.app_name-var.comp-asg if blank"
-  default = ""
+  default     = ""
 }
 
 variable "deploy_hook" {
   description = "Tag used by deployment group to find target ASG, var.name if empty"
-  default = ""
+  default     = ""
 }
 
 variable "target_group_name" {
@@ -21,7 +21,7 @@ variable "target_group_name" {
 # ECS
 variable "ecs_cluster_name" {
   description = "ECS cluster name"
-  default = null
+  default     = null
 }
 
 variable "ecs_service_name" {
@@ -63,7 +63,7 @@ variable "deployment_option" {
 
 variable "deployment_config_name" {
   description = "Deployment config name: CodeDeployDefault.AllAtOnce, CodeDeployDefault.OneAtATime or custom name"
-  default = "CodeDeployDefault.OneAtATime"
+  default     = "CodeDeployDefault.OneAtATime"
 }
 
 # Blue/Green
