@@ -26,11 +26,31 @@ variable "extra_tags" {
   default     = {}
 }
 
+# For referencing bucket state in modules
+
+variable "remote_state_s3_bucket_region" {
+  description = "AWS region for state file, e.g. us-east-1"
+}
+
+variable "remote_state_s3_bucket_name" {
+  description = "Bucket name for remote state, e.g. org-project-tfstate"
+}
+
+variable "remote_state_s3_key_prefix" {
+  description = "Prefix in bucket where config starts, e.g. stage/ or project/stage/"
+}
+
 # Configure for AWS environment, e.g. China (Beijing) Region
+
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-arn-format.html
 variable "aws_partition" {
   description = "AWS Partition: aws or aws-cn for China"
   default     = "aws"
+}
+
+variable "aws_service_endpoint_ec2" {
+  description = "EC2 endpoint"
+  default     = "ec2.amazonaws.com"
 }
 
 variable "has_kms" {

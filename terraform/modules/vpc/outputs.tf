@@ -62,7 +62,7 @@ output "elasticache_subnet_group" {
 
 output "subnets" {
   description = "Subnets as a map keyed by name"
-  value       = {
+  value = {
     "private"     = module.vpc.private_subnets
     "public"      = module.vpc.public_subnets
     "database"    = module.vpc.database_subnets
@@ -105,7 +105,7 @@ output "igw_id" {
 # VPN Gateway
 output "vgw_id" {
   description = "The ID of the VPN Gateway"
-  value = module.vpc.vgw_id
+  value       = module.vpc.vgw_id
 }
 
 # Customer Gateway
@@ -138,4 +138,20 @@ output "private_dns_domain" {
 output "private_dns_domain_nodot" {
   description = "Route53 domain name for the private zone"
   value       = replace(join("", aws_route53_zone.this.*.name), "/\\.$/", "")
+}
+
+# VPC endpoints
+output "vpc_endpoints" {
+  description = "Array containing the full resource object and attributes for all endpoints created"
+  value       = module.vpc_endpoints.endpoints
+}
+
+output "vpc_endpoints_security_group_arn" {
+  description = "Amazon Resource Name (ARN) of the security group"
+  value       = module.vpc_endpoints.security_group_arn
+}
+
+output "vpc_endpoints_security_group_id" {
+  description = "ID of the security group"
+  value       = module.vpc_endpoints.security_group_id
 }

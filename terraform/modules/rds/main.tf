@@ -1,7 +1,8 @@
-# Create RDS database instance for app component
+# Create RDS database instance for app
 
 locals {
-  name = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  name     = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  dns_name = "${var.dns_prefix}.${var.comp}.${var.dns_domain}"
 }
 
 # https://www.terraform.io/docs/providers/aws/d/db_instance.html
@@ -21,14 +22,13 @@ locals {
 # https://github.com/terraform-aws-modules/terraform-aws-rds
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  # version = "~> 2.14.0"
-  version = "~> 3.0"
+  version = "~> 6.0"
 
-  identifier     = local.name
-  engine         = var.engine
-  engine_version = var.engine_version
-  port           = var.port
-  instance_class = var.instance_class
+  identifier         = local.name
+  engine             = var.engine
+  engine_version     = var.engine_version
+  port               = var.port
+  instance_class     = var.instance_class
   ca_cert_identifier = var.ca_cert_identifier
 
   allocated_storage = var.allocated_storage
@@ -49,19 +49,20 @@ module "db" {
   # name = var.app_name
   username = var.rds_master_user
   password = var.rds_master_pass
+  db_name  = var.db_name
 
   # password = data.aws_ssm_parameter.db_master_password
   # password = data.aws_secretsmanager_secret.db_master_password
 
-  monitoring_interval = var.monitoring_interval
-  monitoring_role_name = var.monitoring_role_name
+  monitoring_interval    = var.monitoring_interval
+  monitoring_role_name   = var.monitoring_role_name
   create_monitoring_role = var.create_monitoring_role
 
   # Snapshot name upon DB deletion
-  skip_final_snapshot       = var.skip_final_snapshot
-  final_snapshot_identifier = "${local.name}-final"
-  deletion_protection       = var.deletion_protection
-  copy_tags_to_snapshot     = true
+  final_snapshot_identifier_prefix = "${local.name}-final"
+  skip_final_snapshot              = var.skip_final_snapshot
+  deletion_protection              = var.deletion_protection
+  copy_tags_to_snapshot            = true
 
   allow_major_version_upgrade = var.allow_major_version_upgrade
   auto_minor_version_upgrade  = var.auto_minor_version_upgrade
@@ -73,6 +74,7 @@ module "db" {
 
   subnet_ids             = var.subnet_ids
   vpc_security_group_ids = var.security_group_ids
+  db_subnet_group_name   = var.db_subnet_group_name
 
   kms_key_id = var.storage_encrypted ? var.kms_key_id : null
 
@@ -94,10 +96,10 @@ module "db" {
 }
 
 resource "aws_route53_record" "db" {
-  count   = var.create_dns ? 1 : 0
+  count = var.create_dns ? 1 : 0
 
   zone_id = var.dns_zone_id
-  name    = "${var.dns_prefix}.${var.comp}.${var.dns_domain}"
+  name    = local.dns_name
   type    = "CNAME"
   ttl     = "60"
   records = [module.db.db_instance_address]

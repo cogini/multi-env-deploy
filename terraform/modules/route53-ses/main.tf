@@ -15,8 +15,6 @@
 #   # Domain used for sending mail, verified with SES
 #   zone_name = dependency.zone.outputs.name
 #   zone_id = dependency.zone.outputs.zone_id
-#
-#   aws_region = "us-east-1"
 # }
 
 locals {
@@ -25,12 +23,12 @@ locals {
 
 # https://www.terraform.io/docs/providers/aws/r/ses_domain_identity.html
 resource "aws_ses_domain_identity" "default" {
-  domain   = local.domain
+  domain = local.domain
 }
 
 # https://www.terraform.io/docs/providers/aws/r/ses_domain_dkim.html
 resource "aws_ses_domain_dkim" "default" {
-  domain   = aws_ses_domain_identity.default.domain
+  domain = aws_ses_domain_identity.default.domain
 }
 
 resource "aws_route53_record" "aws_ses_verification_record" {

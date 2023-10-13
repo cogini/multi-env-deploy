@@ -8,5 +8,5 @@ variable "zone_id" {
 
 variable "ttl" {
   description = "Time To Live"
-  default = 3600
+  default     = 3600
 }

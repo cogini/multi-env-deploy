@@ -8,17 +8,17 @@ variable "dns_zone_id" {
 
 variable "host_name" {
   description = "Host part of DNS name, e.g. www"
-  default = "www"
+  default     = "www"
 }
 
 variable "target_records" {
   description = "DNS records to point to"
-  type = list
+  type        = list(any)
 }
 
 variable "alias_domain" {
   description = "Create Route53 record for DNS bare domain"
-  default = false
+  default     = false
 }
 
 variable "dns_ttl" {

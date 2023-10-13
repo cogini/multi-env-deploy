@@ -15,7 +15,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  name   = var.name == "" ? "${var.app_name}-${var.env}" : var.name
+  name       = var.name == "" ? "${var.app_name}-${var.env}" : var.name
 }
 
 # Define key policy for CMK

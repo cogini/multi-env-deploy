@@ -16,7 +16,7 @@
 #     "../s3-app",
 #   ]
 # }
-# include {
+# include "root" {
 #   path = find_in_parent_folders()
 # }
 #
@@ -66,7 +66,7 @@
 
 data "terraform_remote_state" "s3" {
   for_each = toset(keys(var.s3_buckets))
-  backend = "s3"
+  backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
     key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
@@ -77,37 +77,37 @@ data "terraform_remote_state" "s3" {
 # Give access to S3 buckets
 locals {
   bucket_names = {
-    for comp, buckets in var.s3_buckets:
+    for comp, buckets in var.s3_buckets :
     comp => keys(buckets)
   }
   # Set default actions and ensure that bucket actually exists
   buckets = {
-    for comp, buckets in var.s3_buckets:
+    for comp, buckets in var.s3_buckets :
     comp => {
-      for name, attrs in buckets:
-        name => {
-          actions = lookup(attrs, "actions", ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"])
-          bucket = data.terraform_remote_state.s3[comp].outputs.buckets[name]
-        }
-        if lookup(data.terraform_remote_state.s3[comp].outputs.buckets, name, "missing") != "missing"
+      for name, attrs in buckets :
+      name => {
+        actions = lookup(attrs, "actions", ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"])
+        bucket  = data.terraform_remote_state.s3[comp].outputs.buckets[name]
+      }
+      if lookup(data.terraform_remote_state.s3[comp].outputs.buckets, name, "missing") != "missing"
     }
   }
   # Get actions for bucket contents
   bucket_actions_content = flatten([
-    for comp, buckets in local.buckets: [
-      for name, attrs in buckets: {
+    for comp, buckets in local.buckets : [
+      for name, attrs in buckets : {
         bucket = attrs["bucket"]
-        actions = [for action in attrs["actions"]: action
-                   if ! contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
+        actions = [for action in attrs["actions"] : action
+        if !contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
       }
     ]
   ])
   bucket_actions = flatten([
-    for comp, buckets in local.buckets: [
-      for name, attrs in buckets: {
+    for comp, buckets in local.buckets : [
+      for name, attrs in buckets : {
         bucket = attrs["bucket"]
-        actions = [for action in attrs["actions"]: action
-                   if contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
+        actions = [for action in attrs["actions"] : action
+        if contains(["s3:ListBucket", "s3:GetEncryptionConfiguration"], action)]
       }
     ]
   ])
@@ -119,22 +119,22 @@ data "aws_caller_identity" "current" {}
 # Configure access to SSM Parameter Store parameters
 locals {
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
-  ssm_ps_arn = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
+  ssm_ps_arn          = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
   ssm_ps_param_prefix = var.ssm_ps_param_prefix == "" ? "${var.org}/${var.app_name}/${var.env}/${var.comp}" : var.ssm_ps_param_prefix
-  ssm_ps_resources = [for name in var.ssm_ps_params: "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
-  configure_ssm = length(local.ssm_ps_resources) > 0 || var.enable_ssm_management
+  ssm_ps_resources    = [for name in var.ssm_ps_params : "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
+  configure_ssm       = length(local.ssm_ps_resources) > 0 || var.enable_ssm_management
 }
 
 # Configure access to CloudWatch metrics
 locals {
-  configure_cloudwatch_metrics = var.cloudwatch_metrics_namespace != ""
+  configure_cloudwatch_metrics  = var.cloudwatch_metrics_namespace != ""
   cloudwatch_metrics_namespaces = var.cloudwatch_metrics_namespace == "*" ? [] : [var.cloudwatch_metrics_namespace]
 }
 
 # Configure access to CloudWatch Logs
 locals {
   cloudwatch_logs_prefix = var.cloudwatch_logs_prefix == "" ? "arn:${var.aws_partition}:logs:*:*" : var.cloudwatch_logs_prefix
-  cloudwatch_logs = [for name in var.cloudwatch_logs: "${local.cloudwatch_logs_prefix}:${name}"]
+  cloudwatch_logs        = [for name in var.cloudwatch_logs : "${local.cloudwatch_logs_prefix}:${name}"]
   # arn:${var.aws_partition}:logs:*:*:*
   # arn:${var.aws_partition}:logs:*:*:log-group:*
   # arn:${var.aws_partition}:logs:*:*:log-group:*:log-stream:*
@@ -166,7 +166,7 @@ data "aws_iam_policy_document" "cloudwatch-metrics" {
       content {
         test     = "StringEquals"
         variable = "cloudwatch:namespace"
-        values = [condition.value]
+        values   = [condition.value]
       }
     }
   }
@@ -282,71 +282,74 @@ resource "aws_iam_policy" "s3" {
 # Allow access to SSM for management
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-setting-up-messageAPIs.html
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-instance-profile.html
-data "aws_iam_policy_document" "ssm" {
-  count = local.configure_ssm ? 1 : 0
+# https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonSSMManagedInstanceCore.html
 
-  dynamic "statement" {
-    for_each = var.enable_ssm_management ? tolist([1]) : []
-    content {
-      sid = "AllowAccessToSSM"
-      actions = [
-        "ssm:DescribeAssociation",
-        "ssm:ListAssociations",
-        "ssm:GetDocument",
-        "ssm:ListInstanceAssociations",
-        "ssm:UpdateAssociationStatus",
-        "ssm:UpdateInstanceInformation",
-        "ec2messages:AcknowledgeMessage",
-        "ec2messages:DeleteMessage",
-        "ec2messages:FailMessage",
-        "ec2messages:GetEndpoint",
-        "ec2messages:GetMessages",
-        "ec2messages:SendReply",
-        "ds:CreateComputer",
-        "ds:DescribeDirectories",
-        "ec2:DescribeInstanceStatus",
-      ]
-      resources = ["*"]
-    }
-  }
-
-  # Give SSM Session Manager access
-  # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-add-permissions-to-existing-profile.html
-  # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
-  dynamic "statement" {
-    for_each = var.enable_ssm_management ? tolist([1]) : []
-    content {
-      actions = [
-        "ssm:UpdateInstanceInformation",
-        "ssmmessages:CreateControlChannel",
-        "ssmmessages:CreateDataChannel",
-        "ssmmessages:OpenControlChannel",
-        "ssmmessages:OpenDataChannel",
-      ]
-      resources = ["*"]
-    }
-  }
-
-  # Allow read only access to SSM Parameter Store params
-  dynamic "statement" {
-    for_each = local.ssm_ps_resources
-    content {
-      actions = [
-        "ssm:DescribeParameters",
-        "ssm:GetParameters",
-        "ssm:GetParameter*"
-      ]
-      resources = local.ssm_ps_resources
-    }
-  }
-}
-
-resource "aws_iam_policy" "ssm" {
-  count       = local.configure_ssm ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-ssm"
-  description = "Enable instances to access SSM"
-  policy      = data.aws_iam_policy_document.ssm[0].json
-}
+# data "aws_iam_policy_document" "ssm" {
+#   count = local.configure_ssm ? 1 : 0
+# 
+#   dynamic "statement" {
+#     for_each = var.enable_ssm_management ? tolist([1]) : []
+#     content {
+#       sid = "AllowAccessToSSM"
+#       actions = [
+#         "ds:CreateComputer",
+#         "ds:DescribeDirectories",
+#         "ec2:DescribeInstanceStatus",
+#         "ec2messages:AcknowledgeMessage",
+#         "ec2messages:DeleteMessage",
+#         "ec2messages:FailMessage",
+#         "ec2messages:GetEndpoint",
+#         "ec2messages:GetMessages",
+#         "ec2messages:SendReply",
+#         "ssm:DescribeAssociation",
+#         "ssm:GetDocument",
+#         "ssm:ListAssociations",
+#         "ssm:ListInstanceAssociations",
+#         "ssm:UpdateAssociationStatus",
+#         "ssm:UpdateInstanceInformation",
+#       ]
+#       resources = ["*"]
+#     }
+#   }
+# 
+#   # Give SSM Session Manager access
+#   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-add-permissions-to-existing-profile.html
+#   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
+#   dynamic "statement" {
+#     for_each = var.enable_ssm_management ? tolist([1]) : []
+#     content {
+#       actions = [
+#         "ssm:UpdateInstanceInformation",
+#         "ssmmessages:CreateControlChannel",
+#         "ssmmessages:CreateDataChannel",
+#         "ssmmessages:OpenControlChannel",
+#         "ssmmessages:OpenDataChannel",
+#       ]
+#       resources = ["*"]
+#     }
+#   }
+# 
+#   # Allow read only access to SSM Parameter Store params
+#   dynamic "statement" {
+#     for_each = local.ssm_ps_resources
+#     content {
+#       actions = [
+#         "ssm:DescribeParameters",
+#         "ssm:GetParameters",
+#         "ssm:GetParameter*"
+#       ]
+#       resources = local.ssm_ps_resources
+#     }
+#   }
+# }
+# 
+# resource "aws_iam_policy" "ssm" {
+#   count       = local.configure_ssm ? 1 : 0
+# 
+#   name        = "${var.app_name}-${var.comp}-ssm"
+#   description = "Enable instances to access SSM"
+#   policy      = data.aws_iam_policy_document.ssm[0].json
+# }
 
 # KMS
 # https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html
@@ -415,8 +418,8 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 # Base IAM role
 # https://github.com/hashicorp/terraform/issues/2761
 resource "aws_iam_role" "this" {
-  name               = "${var.app_name}-${var.comp}"
-  description        = "${var.app_name} ${var.comp} instance profile"
+  name        = "${var.app_name}-${var.comp}"
+  description = "${var.app_name} ${var.comp} instance profile"
   # path               = "/system/"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
 
@@ -466,10 +469,19 @@ resource "aws_iam_role_policy_attachment" "cloudwatch-metrics" {
 }
 
 # Allow management via SSM
+# resource "aws_iam_role_policy_attachment" "ssm" {
+#   count      = local.configure_ssm ? 1 : 0
+#   role       = aws_iam_role.this.name
+#   policy_arn = aws_iam_policy.ssm[0].arn
+# }
+
+# Allow management via SSM
+# https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonSSMManagedInstanceCore.html
 resource "aws_iam_role_policy_attachment" "ssm" {
-  count      = local.configure_ssm ? 1 : 0
+  count = var.enable_ssm_management ? 1 : 0
+
   role       = aws_iam_role.this.name
-  policy_arn = aws_iam_policy.ssm[0].arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 # Allow uploading segment documents and telemetry to the X-Ray API
@@ -504,7 +516,7 @@ resource "aws_iam_role_policy_attachment" "ec2-read-only" {
 }
 
 data "aws_iam_policy_document" "ecs-read-only" {
-  count       = var.enable_ecs_readonly ? 1 : 0
+  count = var.enable_ecs_readonly ? 1 : 0
   statement {
     actions   = ["ecs:Describe*", "ecs:List*"]
     resources = ["*"]

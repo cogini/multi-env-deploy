@@ -19,22 +19,22 @@ variable "force_destroy" {
 }
 
 variable "cors_allowed_headers" {
-  type    = list
+  type    = list(any)
   default = ["*"]
 }
 
 variable "cors_allowed_methods" {
-  type    = list
+  type    = list(any)
   default = ["GET"]
 }
 
 variable "cors_allowed_origins" {
-  type    = list
+  type    = list(any)
   default = ["*"]
 }
 
 variable "cors_expose_headers" {
-  type    = list
+  type    = list(any)
   default = ["ETag"]
 }
 

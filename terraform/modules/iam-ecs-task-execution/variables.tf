@@ -2,6 +2,10 @@ variable "comp" {
   description = "Component, e.g. app, worker"
 }
 
+variable "aws_region" {
+  description = "AWS Region"
+}
+
 variable "cloudwatch_logs_prefix" {
   description = "CloudWatch Logs, arn:aws:logs:*:* if blank"
   default     = ""
@@ -9,7 +13,7 @@ variable "cloudwatch_logs_prefix" {
 
 variable "cloudwatch_logs" {
   description = "CloudWatch Logs"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -25,7 +29,7 @@ variable "ssm_ps_param_prefix" {
 
 variable "ssm_ps_params" {
   description = "Names of SSM Parameter Store parameters"
-  type        = list
+  type        = list(any)
   default     = []
 }
 

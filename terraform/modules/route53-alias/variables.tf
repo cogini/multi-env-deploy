@@ -8,7 +8,7 @@ variable "dns_zone_id" {
 
 variable "host_name" {
   description = "Host part of DNS name, default www"
-  default = "www"
+  default     = "www"
 }
 
 variable "target_name" {
@@ -21,5 +21,5 @@ variable "target_zone_id" {
 
 variable "alias_domain" {
   description = "Create Route53 record for bare domain"
-  default = false
+  default     = false
 }

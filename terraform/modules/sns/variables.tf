@@ -4,5 +4,5 @@ variable "comp" {
 
 variable "name" {
   description = "Name, org-app_name-env-comp if blank"
-  default = ""
+  default     = ""
 }

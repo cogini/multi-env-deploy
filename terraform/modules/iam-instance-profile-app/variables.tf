@@ -1,10 +1,14 @@
+variable "aws_region" {
+  description = "AWS Region"
+}
+
 variable "comp" {
   description = "Component, e.g. app, worker"
 }
 
 variable "s3_buckets" {
   description = "S3 bucket access"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -15,7 +19,7 @@ variable "cloudwatch_logs_prefix" {
 
 variable "cloudwatch_logs" {
   description = "CloudWatch Logs"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -42,7 +46,7 @@ variable "ssm_ps_param_prefix" {
 
 variable "ssm_ps_params" {
   description = "Names of SSM Parameter Store parameters"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -78,5 +82,5 @@ variable "kms_key_arn" {
 
 variable "artifacts_bucket_arn" {
   description = "S3 bucket with CodePipeline artifacts, needed for CodeDeploy"
-  default = ""
+  default     = ""
 }

@@ -13,9 +13,8 @@ variable "storage_encrypted" {
   default     = false
 }
 
-
 variable "engine" {
-  description = "The database engine to use, postgres or mysql"
+  description = "Database engine: postgres or mysql"
   type        = string
 }
 
@@ -38,7 +37,7 @@ variable "port" {
 # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html
 variable "instance_class" {
   description = "The instance type of the RDS instance"
-  default     = "db.t2.micro"
+  default     = "db.t3.micro"
 }
 
 variable "allocated_storage" {
@@ -49,7 +48,7 @@ variable "allocated_storage" {
 }
 
 variable "storage_type" {
-  description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'standard' if not. Note that this behaviour is different from the AWS web console, where the default is 'gp2'."
+  description = "Storage type: 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD)."
   default     = "gp2"
 }
 
@@ -68,9 +67,10 @@ variable "multi_az" {
 #   default     = false
 # }
 
-# variable "db_name" {
-#   description = "The DB name to create. If omitted, no database is created initially"
-# }
+variable "db_name" {
+  description = "The DB name to create. If omitted, no database is created initially"
+  default     = null
+}
 
 variable "rds_master_user" {
   description = "Username for the master DB user"
@@ -101,18 +101,18 @@ variable "create_monitoring_role" {
 }
 
 variable "monitoring_role_name" {
-  description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Must be specified if monitoring_interval is non-zero."
-  default = "rds-monitoring-role"
+  description = "ARN for IAM role for RDS to send enhanced monitoring metrics to CloudWatch Logs. Must set if monitoring_interval is non-zero."
+  default     = "rds-monitoring-role"
 }
 
 variable "monitoring_role_arn" {
-  description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Must be specified if monitoring_interval is non-zero."
-  default = ""
+  description = "ARN for IAM role for RDS to send enhanced monitoring metrics to CloudWatch Logs. Must set if monitoring_interval is non-zero."
+  default     = ""
 }
 
-# variable "iam_database_authentication_enabled" {
-#   default = true
-# }
+variable "iam_database_authentication_enabled" {
+  default = false
+}
 
 variable "allow_major_version_upgrade" {
   description = "Indicates that major version upgrades are allowed. Changing this parameter does not result in an outage and the change is asynchronously applied as soon as possible"
@@ -161,8 +161,6 @@ variable "enabled_cloudwatch_logs_exports" {
   default     = []
 }
 
-# iam_database_authentication_enabled
-
 # monitoring_role_name = "MyRDSMonitoringRole"
 # create_monitoring_role = true
 
@@ -174,7 +172,7 @@ variable "enabled_cloudwatch_logs_exports" {
 
 # DB parameter group
 variable "family" {
-  description = "The family of the DB parameter group"
+  description = "DB parameter group family"
 }
 
 variable "parameters" {
@@ -190,17 +188,17 @@ variable "create_db_option_group" {
 
 # RDS Performance Insights
 variable "performance_insights_enabled" {
-  description = "Specifies whether Performance Insights are enabled"
+  description = "Performance Insights enabled"
   default     = false
 }
 
 variable "performance_insights_kms_key_id" {
-  description = "The ARN for the KMS key to encrypt Performance Insights data"
+  description = "ARN for KMS key to encrypt Performance Insights data"
   default     = null
 }
 
 variable "performance_insights_retention_period" {
-  description = "The amount of time in days to retain Performance Insights data. Either 7 (7 days) or 731 (2 years)."
+  description = "Time in days to retain Performance Insights data. Either 7 or 731 (2 years)"
   default     = null
 }
 
@@ -209,32 +207,47 @@ variable "create_dns" {
   default     = true
 }
 
+variable "dns_name" {
+  description = "DNS name"
+  default     = ""
+}
+
 variable "dns_prefix" {
   description = "Prefix for DNS name"
-  default = "db"
+  default     = "db"
+}
+
+variable "create_db_subnet_group" {
+  description = "Create DB subnet group"
+  default     = false
+}
+
+variable "db_subnet_group_name" {
+  description = "DB subnet group name"
+  default     = null
 }
 
 variable "subnet_ids" {
   description = "Subnet IDs"
-  type = list
+  type        = list(string)
 }
 
 variable "security_group_ids" {
   description = "Security group IDs"
-  type = list
+  type        = list(any)
 }
 
 variable "kms_key_id" {
   description = "KMS key ARN"
-  default = null
+  default     = null
 }
 
 variable "dns_domain" {
   description = "Private DNS domain in the VPC"
-  default = ""
+  default     = ""
 }
 
 variable "dns_zone_id" {
   description = "Private DNS zone_id in the VPC"
-  default = ""
+  default     = ""
 }

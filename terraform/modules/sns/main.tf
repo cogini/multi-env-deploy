@@ -1,7 +1,6 @@
 # Create SNS topic for component
 
 # Example config:
-#
 # terraform {
 #   source = "${get_terragrunt_dir()}/../../../modules//sns"
 # }

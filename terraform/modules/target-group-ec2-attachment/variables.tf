@@ -8,7 +8,7 @@ variable "target_group_arn" {
 
 variable "ips" {
   description = "IP addresses of EC2 instances"
-  type        = list
+  type        = list(any)
 }
 
 variable "port" {

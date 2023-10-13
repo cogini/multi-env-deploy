@@ -21,16 +21,16 @@ variable "protocol" {
 
 variable "health_check" {
   description = "Mapping of tags for target group health_check"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
 variable "stickiness" {
   description = "Mapping of tags for target group stickiness"
-  type        = map
-  default     = {
-    type      = "lb_cookie"
-    enabled   = false
+  type        = map(any)
+  default = {
+    type            = "lb_cookie"
+    enabled         = false
     cookie_duration = 86400
   }
 }

@@ -14,9 +14,9 @@
 # dependency "route53" {
 #   config_path = "../route53-public"
 # }
-# dependency "lb" {
-#   config_path = "../lb-public"
-# }
+# # dependency "lb" {
+# #   config_path = "../lb-public"
+# # }
 # # dependency "cloudfront" {
 # #   config_path = "../cloudfront-public-web"
 # # }
@@ -55,7 +55,7 @@ locals {
 
 # https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-alias.html
 resource "aws_route53_record" "domain" {
-  count = var.alias_domain ? 1 : 0
+  count   = var.alias_domain ? 1 : 0
   zone_id = var.dns_zone_id
   name    = var.dns_domain
   type    = "A"

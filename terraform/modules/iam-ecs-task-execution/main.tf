@@ -8,16 +8,16 @@ data "aws_caller_identity" "current" {}
 # Configure access to SSM Parameter Store parameters
 locals {
   # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
-  ssm_ps_arn = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
+  ssm_ps_arn          = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
   ssm_ps_param_prefix = var.ssm_ps_param_prefix == "" ? "${var.org}/${var.app_name}/${var.env}/${var.comp}" : var.ssm_ps_param_prefix
-  ssm_ps_resources = [for name in var.ssm_ps_params: "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
-  configure_ssm_ps = length(local.ssm_ps_resources) > 0
+  ssm_ps_resources    = [for name in var.ssm_ps_params : "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
+  configure_ssm_ps    = length(local.ssm_ps_resources) > 0
 }
 
 # Configure access to CloudWatch Logs
 locals {
   cloudwatch_logs_prefix = var.cloudwatch_logs_prefix == "" ? "arn:${var.aws_partition}:logs:*:*" : var.cloudwatch_logs_prefix
-  cloudwatch_logs = [for name in var.cloudwatch_logs: "${local.cloudwatch_logs_prefix}:${name}"]
+  cloudwatch_logs        = [for name in var.cloudwatch_logs : "${local.cloudwatch_logs_prefix}:${name}"]
   # arn:${var.aws_partition}:logs:*:*:*
   # arn:${var.aws_partition}:logs:*:*:log-group:*
   # arn:${var.aws_partition}:logs:*:*:log-group:*:log-stream:*
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = ["sts:AssumeRole"]
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
@@ -55,6 +55,8 @@ resource "aws_iam_role_policy_attachment" "this" {
   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# https://aws-otel.github.io/docs/setup/ecs/create-iam-role
+
 # Allow creation of CloudWatch Logs log group
 data "aws_iam_policy_document" "cloudwatch-logs" {
   count = var.cloudwatch_logs_create_group ? 1 : 0
@@ -69,20 +71,27 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
 }
 
 resource "aws_iam_policy" "cloudwatch-logs" {
-  count       = var.cloudwatch_logs_create_group ? 1 : 0
+  count = var.cloudwatch_logs_create_group ? 1 : 0
+
   name_prefix = "${var.app_name}-${var.comp}-cloudwatch-logs-"
   description = "Enable CloudWatch Logs create group"
   policy      = data.aws_iam_policy_document.cloudwatch-logs[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
-  count       = var.cloudwatch_logs_create_group ? 1 : 0
+  count = var.cloudwatch_logs_create_group ? 1 : 0
+
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
 }
 
+# resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
+#   role       = aws_iam_role.this.name
+#   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/CloudWatchLogsFullAccess"
+# }
 
 # Allow read only access to SSM Parameter Store params
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html
 data "aws_iam_policy_document" "ssm-ps" {
   count = local.configure_ssm_ps ? 1 : 0
 

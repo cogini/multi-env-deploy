@@ -50,9 +50,9 @@ locals {
 # https://www.terraform.io/docs/providers/aws/r/lb_target_group.html
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html
 resource "aws_lb_target_group" "this" {
-  name        = local.name
-  port        = var.port
-  protocol    = var.protocol
+  name                 = local.name
+  port                 = var.port
+  protocol             = var.protocol
   deregistration_delay = var.deregistration_delay
 
   dynamic "health_check" {
@@ -104,7 +104,7 @@ resource "aws_lb_target_group" "this" {
 # https://www.terraform.io/docs/providers/aws/r/lb_listener_rule.html
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-update-rules.html
 resource "aws_lb_listener_rule" "this" {
-  count = var.listener_rule ? 1 : 0
+  count        = var.listener_rule ? 1 : 0
   listener_arn = var.listener_arn
 
   priority = var.priority

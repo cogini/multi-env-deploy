@@ -43,7 +43,7 @@ variable "elasticache_subnets" {
 # Used to allow direct remote access to db
 variable "create_database_subnet_group" {
   description = "Whether to create database subnet group"
-  default     = false
+  default     = true
 }
 
 # Used to allow direct remote access to db
@@ -58,9 +58,10 @@ variable "create_database_internet_gateway_route" {
   default     = false
 }
 
-# create_database_subnet_group           = true
-# create_database_subnet_route_table     = true
-# create_database_internet_gateway_route = true
+variable "create_ec2_instance_connect_endpoint" {
+  description = "Whether to create EC2 Instance Connect Endpoint"
+  default     = false
+}
 
 variable "enable_nat_gateway" {
   description = "Provision NAT Gateways for each of your private networks"
@@ -84,6 +85,12 @@ variable "amazon_side_asn" {
 
 variable "customer_gateways" {
   description = "Maps of Customer Gateway's attributes (BGP ASN and Gateway's Internet-routable external IP address)"
+  type        = map(map(any))
+  default     = {}
+}
+
+variable "endpoints" {
+  description = "VPC encpoints"
   type        = map(map(any))
   default     = {}
 }

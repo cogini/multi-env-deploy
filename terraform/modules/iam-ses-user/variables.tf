@@ -4,5 +4,5 @@ variable "comp" {
 
 variable "name" {
   description = "IAM user name"
-  default = ""
+  default     = ""
 }

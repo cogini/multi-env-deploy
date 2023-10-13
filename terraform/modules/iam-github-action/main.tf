@@ -7,20 +7,22 @@
 # https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/
 
 # Example config:
-# include {
+# include "root" {
 #   path = find_in_parent_folders()
 # }
 #
 # terraform {
-#   # source = "${dirname(find_in_parent_folders())}/modules//iam-github-action"
-#   source = "${get_terragrunt_dir()}/../../../modules//iam-github-action"
+#   source = "${dirname(find_in_parent_folders())}/modules//iam-github-action"
 # }
 #
-# dependency "s3" {
-#   config_path = "../s3-app"
-# }
 # dependency "cloudfront" {
-#   config_path = "../cloudfront-public-web"
+#   config_path = "../cloudfront-app-assets"
+# }
+# dependency "codedeploy-app" {
+#   config_path = "../codedeploy-app"
+# }
+# dependency "codedeploy-deployment" {
+#   config_path = "../codedeploy-deployment-app"
 # }
 # dependency "ecr" {
 #   config_path = "../ecr-app"
@@ -37,17 +39,14 @@
 # dependency "iam-ecs-task-role" {
 #   config_path = "../iam-ecs-task-role-app"
 # }
-# dependency "codedeploy-app" {
-#   config_path = "../codedeploy-app-ecs"
-# }
-# dependency "codedeploy-deployment" {
-#   config_path = "../codedeploy-deployment-app-ecs"
+# dependency "s3" {
+#   config_path = "../s3-app"
 # }
 #
 # inputs = {
 #   comp = "app"
 #
-#   sub = "repo:cogini/phoenix_container_example:*"
+#   sub = "repo:cogini/foo:*"
 #
 #   s3_buckets = [
 #     dependency.s3.outputs.buckets["assets"].id
@@ -78,6 +77,7 @@ locals {
   enable_ecs        = var.ecs != null
   ecs               = var.ecs
   enable_codebuild  = var.codebuild_project_name != ""
+  enable_codedeploy = var.ecs != null && try(var.ecs.codedeploy_application_name, null) != null
 
   # enable_codedeploy = var.enable_codedeploy
   # codedeploy_arn    = "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}"
@@ -157,7 +157,7 @@ data "aws_iam_policy_document" "s3" {
 }
 
 resource "aws_iam_policy" "s3" {
-  count       = local.enable_s3 ? 1 : 0
+  count = local.enable_s3 ? 1 : 0
 
   name_prefix = "${local.name}-github-action-s3-"
   description = "Allow access to S3 buckets"
@@ -165,7 +165,7 @@ resource "aws_iam_policy" "s3" {
 }
 
 resource "aws_iam_role_policy_attachment" "github-action-s3" {
-  count       = local.enable_s3 ? 1 : 0
+  count = local.enable_s3 ? 1 : 0
 
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.s3[0].arn
@@ -292,14 +292,14 @@ data "aws_iam_policy_document" "ecs" {
   count = local.enable_ecs ? 1 : 0
 
   statement {
-    actions   = [
+    actions = [
       "ecs:RegisterTaskDefinition"
     ]
     resources = ["*"]
   }
 
   statement {
-    actions   = [
+    actions = [
       "iam:PassRole"
     ]
     resources = [
@@ -308,35 +308,46 @@ data "aws_iam_policy_document" "ecs" {
     ]
   }
 
-  dynamic "statement" {
-    for_each = local.ecs["codedeploy_application_name"] == null ? tolist([1]) : []
-    content {
-      actions   = [
-        "ecs:UpdateService",
-        "ecs:DescribeServices"
-      ]
-      resources = [
-        "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
-      ]
-    }
+  statement {
+    actions = [
+      "ecs:UpdateService",
+      "ecs:DescribeServices"
+    ]
+    resources = [
+      "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
+    ]
   }
 
-  dynamic "statement" {
-    for_each = local.ecs["codedeploy_application_name"] != null ? tolist([1]) : []
-    content {
-      actions   = [
-        "ecs:DescribeServices"
-      ]
-      resources = [
-        "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
-      ]
-    }
-  }
+  # When using CodeDeploy, "ecs:UpdateService" is not needed
+  # dynamic "statement" {
+  #   for_each = local.enable_codedeploy ? [] : tolist([1])
+  #   content {
+  #     actions   = [
+  #       "ecs:UpdateService",
+  #       "ecs:DescribeServices"
+  #     ]
+  #     resources = [
+  #       "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
+  #     ]
+  #   }
+  # }
+  #
+  # dynamic "statement" {
+  #   for_each = local.enable_codedeploy ? tolist([1]) : []
+  #   content {
+  #     actions   = [
+  #       "ecs:DescribeServices"
+  #     ]
+  #     resources = [
+  #       "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
+  #     ]
+  #   }
+  # }
 
   dynamic "statement" {
-    for_each = local.ecs["codedeploy_application_name"] != null ? tolist([1]) : []
+    for_each = local.enable_codedeploy ? tolist([1]) : []
     content {
-      actions   = [
+      actions = [
         "codedeploy:GetDeploymentGroup",
         "codedeploy:CreateDeployment",
         "codedeploy:GetDeployment",

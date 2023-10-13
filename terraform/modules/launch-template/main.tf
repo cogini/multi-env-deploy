@@ -11,7 +11,7 @@ resource "aws_launch_template" "this" {
   dynamic "block_device_mappings" {
     for_each = var.block_device_mappings
     content {
-      device_name  = lookup(block_device_mappings.value, "device_name", null)
+      device_name = lookup(block_device_mappings.value, "device_name", null)
       # no_device    = lookup(block_device_mappings.value, "no_device", null)
       # virtual_name = lookup(block_device_mappings.value, "virtual_name", null)
 
@@ -23,7 +23,7 @@ resource "aws_launch_template" "this" {
           # iops                  = lookup(ebs.value, "iops", null)
           # kms_key_id            = lookup(ebs.value, "kms_key_id", null)
           # snapshot_id           = lookup(ebs.value, "snapshot_id", null)
-          volume_size           = lookup(ebs.value, "volume_size", null)
+          volume_size = lookup(ebs.value, "volume_size", null)
           # volume_type           = lookup(ebs.value, "volume_type", null)
         }
       }
@@ -65,7 +65,7 @@ resource "aws_launch_template" "this" {
     name = var.instance_profile_name
   }
 
-  image_id                             = var.image_id
+  image_id = var.image_id
 
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
 

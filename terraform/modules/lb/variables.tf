@@ -10,7 +10,7 @@ variable "name" {
 
 variable "dns_domain" {
   description = "DNS domain name, used to find certs"
-  default = ""
+  default     = ""
 }
 
 variable "enable_acm_cert" {
@@ -40,12 +40,12 @@ variable "internal" {
 
 variable "subnet_ids" {
   description = "List of subnet ids"
-  type = list
+  type        = list(any)
 }
 
 variable "security_group_ids" {
   description = "List of security group ids"
-  type = list
+  type        = list(any)
 }
 
 variable "access_logs_bucket_id" {
@@ -53,7 +53,7 @@ variable "access_logs_bucket_id" {
 }
 variable "access_logs_bucket_path_prefix" {
   description = "S3 bucket prefix"
-  default = "lb/"
+  default     = "lb/"
 }
 
 variable "idle_timeout" {
@@ -71,4 +71,10 @@ variable "ip_address_type" {
 
   # default     = "dualstack"
   default = "ipv4"
+}
+
+# https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-security-policy-table.html
+variable "ssl_policy" {
+  description = "SSL security policy"
+  default     = null
 }

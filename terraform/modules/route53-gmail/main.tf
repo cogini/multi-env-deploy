@@ -19,8 +19,8 @@
 
 resource "aws_route53_record" "this" {
   zone_id = var.zone_id
-  name = var.zone_name
-  type = "MX"
+  name    = var.zone_name
+  type    = "MX"
   records = [
     "10 ASPMX.L.GOOGLE.COM",
     "20 ALT1.ASPMX.L.GOOGLE.COM",

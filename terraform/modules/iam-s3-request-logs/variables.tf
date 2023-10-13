@@ -32,5 +32,5 @@ variable "logs_bucket_id" {
 
 variable "logs_bucket_path_prefix" {
   description = "Logs S3 bucket path prefix"
-  default = "lb/"
+  default     = "lb/"
 }

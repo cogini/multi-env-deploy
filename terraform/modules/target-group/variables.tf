@@ -25,20 +25,20 @@ variable "deregistration_delay" {
 
 variable "health_check" {
   description = "Mapping of tags for target group health_check"
-  type        = map
+  type        = map(any)
   default     = null
 }
 
 variable "stickiness" {
   description = "Mapping of tags for target group stickiness"
-  type      = map
-  default   = null
+  type        = map(any)
+  default     = null
 }
 
 variable "target_type" {
   description = "The type of target, values are instance: instance, ip, lambda"
   # Default "instance"
-  default     = null
+  default = null
 }
 
 variable "hosts" {
@@ -51,7 +51,7 @@ variable "paths" {
   description = "Hosts for listener rule condition, domain will be added"
   type        = list(string)
   # default     = ["/*"]
-  default     = []
+  default = []
 }
 
 variable "priority" {

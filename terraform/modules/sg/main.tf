@@ -52,7 +52,7 @@ locals {
 
 data "terraform_remote_state" "sg" {
   for_each = toset(local.security_groups)
-  backend = "s3"
+  backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
     key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
@@ -61,7 +61,7 @@ data "terraform_remote_state" "sg" {
 }
 
 locals {
-  sg_ids = {for i in local.security_groups : i => data.terraform_remote_state.sg[i].outputs.security_group_id}
+  sg_ids = { for i in local.security_groups : i => data.terraform_remote_state.sg[i].outputs.security_group_id }
 }
 
 resource "aws_security_group" "this" {
@@ -73,7 +73,7 @@ resource "aws_security_group" "this" {
     #iterator = port
     for_each = {
       for i in setproduct(var.ingress_ports, var.ingress_protocols) : "${i[0]}/${i[1]}" => {
-        port = i[0]
+        port     = i[0]
         protocol = i[1]
       }
     }
@@ -90,8 +90,8 @@ resource "aws_security_group" "this" {
     #iterator = port
     for_each = {
       for i in setproduct(var.custom_ports, var.custom_protocols, var.custom_cidr_blocks) : "${i[0]}/${i[1]}/${i[2]}" => {
-        port = i[0]
-        protocol = i[1]
+        port       = i[0]
+        protocol   = i[1]
         cidr_block = i[2]
       }
     }
@@ -108,9 +108,9 @@ resource "aws_security_group" "this" {
     iterator = port
     for_each = length(var.app_sources) > 0 ? var.app_ports : []
     content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
+      from_port       = port.value
+      to_port         = port.value
+      protocol        = "tcp"
       security_groups = [for i in var.app_sources : local.sg_ids[i]]
     }
   }
@@ -120,9 +120,9 @@ resource "aws_security_group" "this" {
     iterator = port
     for_each = length(var.prometheus_sources) > 0 ? var.prometheus_ports : []
     content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
+      from_port       = port.value
+      to_port         = port.value
+      protocol        = "tcp"
       security_groups = [for i in var.prometheus_sources : local.sg_ids[i]]
     }
   }
@@ -132,9 +132,9 @@ resource "aws_security_group" "this" {
     iterator = port
     for_each = length(var.ssh_sources) > 0 ? var.ssh_ports : []
     content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
+      from_port       = port.value
+      to_port         = port.value
+      protocol        = "tcp"
       security_groups = [for i in var.ssh_sources : local.sg_ids[i]]
     }
   }
@@ -154,9 +154,9 @@ resource "aws_security_group" "this" {
   dynamic "ingress" {
     for_each = length(var.icmp_sources) > 0 ? tolist([1]) : []
     content {
-      from_port = 0
-      to_port   = 0
-      protocol  = "icmp"
+      from_port       = 0
+      to_port         = 0
+      protocol        = "icmp"
       security_groups = [for i in var.icmp_sources : local.sg_ids[i]]
     }
   }
@@ -170,12 +170,12 @@ resource "aws_security_group" "this" {
 
   tags = merge(
     {
-      "Name"     = local.name
-      "org"      = var.org
-      "app"      = var.app_name
-      "comp"     = var.comp
-      "env"      = var.env
-      "owner"    = var.owner
+      "Name"  = local.name
+      "org"   = var.org
+      "app"   = var.app_name
+      "comp"  = var.comp
+      "env"   = var.env
+      "owner" = var.owner
     },
     var.extra_tags,
   )

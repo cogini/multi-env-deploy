@@ -14,7 +14,7 @@ variable "instance_profile_name" {
 
 variable "security_group_ids" {
   description = "Security group ids"
-  type = list
+  type        = list(any)
 }
 
 variable "image_id" {
@@ -48,7 +48,7 @@ variable "instance_initiated_shutdown_behavior" {
 variable "block_device_mappings" {
   description = "Specify volumes to attach to the instance besides the volumes specified by the AMI"
   type = list(object({
-    device_name  = string
+    device_name = string
     ebs = object({
       volume_size = number
     })

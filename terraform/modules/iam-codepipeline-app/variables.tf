@@ -5,7 +5,7 @@ variable "comp" {
 
 variable "s3_buckets" {
   description = "S3 bucket access"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 
@@ -16,18 +16,18 @@ variable "ssm_ps_param_prefix" {
 
 variable "ssm_ps_params" {
   description = "Names of SSM Parameter Store parameters"
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "cloudfront_create_invalidation" {
   description = "Allow role to invalidate CloudFront distributions"
-  default = false
+  default     = false
 }
 
 variable "codestar_connection_arn" {
   description = "CodeStar Connection ARN"
-  default = null
+  default     = null
 }
 
 variable "codepipeline_service_role_id" {

@@ -31,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "rds" {
 
 data "aws_iam_policy_document" "log" {
   statement {
-    actions = ["rds:DownloadDBLogFilePortion"]
+    actions   = ["rds:DownloadDBLogFilePortion"]
     resources = ["*"]
   }
 }

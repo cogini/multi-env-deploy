@@ -207,7 +207,7 @@ POLICY
 # https://stackoverflow.com/questions/52843460/receive-not-authorized-to-perform-describesecuritygroups-when-creating-new-pro/52886506
 data "aws_iam_policy_document" "codebuild-vpc" {
   statement {
-    actions   = [
+    actions = [
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSubnets",
       "ec2:CreateNetworkInterface",

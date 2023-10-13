@@ -29,23 +29,23 @@ variable "s3_buckets" {
 
 variable "enable_cloudfront" {
   description = "Enable CloudFront invalidation"
-  default = false
+  default     = false
 }
 
 variable "ecr_arn" {
   description = "ARN of ECR repository"
-  default = ""
+  default     = ""
 }
 
 variable "ecs" {
   description = "ECS config"
-  type = map(string)
-  default = null
+  type        = map(string)
+  default     = null
 }
 
 variable "codebuild_project_name" {
   description = "Name of CodeBuild project"
-  default = ""
+  default     = ""
 }
 
 # variable "enable_codedeploy" {

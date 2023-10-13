@@ -22,7 +22,7 @@ variable "owner" {
 
 variable "extra_tags" {
   description = "Extra tags to attach to things"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 

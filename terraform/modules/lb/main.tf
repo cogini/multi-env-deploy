@@ -30,7 +30,7 @@ resource "aws_lb" "this" {
   internal = var.internal
 
   security_groups = var.security_group_ids
-  subnets = var.subnet_ids
+  subnets         = var.subnet_ids
 
   access_logs {
     bucket  = var.access_logs_bucket_id
@@ -103,7 +103,7 @@ resource "aws_lb_listener" "https-iam" {
   load_balancer_arn = aws_lb.this.arn
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  ssl_policy        = var.ssl_policy
   certificate_arn   = data.aws_iam_server_certificate.iam[0].arn
 
   default_action {

@@ -2,6 +2,10 @@ variable "comp" {
   description = "Name of the app component, app, worker, etc."
 }
 
+variable "aws_region" {
+  description = "AWS Region"
+}
+
 variable "name" {
   description = "Name, app_name-comp if blank"
   default     = ""
