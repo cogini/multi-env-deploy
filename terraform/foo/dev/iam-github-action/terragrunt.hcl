@@ -1,12 +1,7 @@
 # Create IAM role that allows a GitHub Action to call AWS
 
-include {
-  path = find_in_parent_folders()
-}
-
 terraform {
-  # source = "${dirname(find_in_parent_folders())}/modules//iam-github-action"
-  source = "${get_terragrunt_dir()}/../../../modules//iam-github-action"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-github-action"
 }
 
 dependency "cloudfront" {
@@ -35,6 +30,9 @@ dependency "iam-ecs-task-role" {
 }
 dependency "s3" {
   config_path = "../s3-app"
+}
+include "root" {
+  path = find_in_parent_folders()
 }
 
 inputs = {
