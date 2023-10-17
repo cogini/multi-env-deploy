@@ -14,6 +14,11 @@ locals {
   configure_ssm_ps    = length(local.ssm_ps_resources) > 0
 }
 
+# Override var.app_name
+locals {
+  name = var.name == "" ? "${var.app_name}" : var.name
+}
+
 # Configure access to CloudWatch Logs
 locals {
   cloudwatch_logs_prefix = var.cloudwatch_logs_prefix == "" ? "arn:${var.aws_partition}:logs:*:*" : var.cloudwatch_logs_prefix
@@ -71,16 +76,14 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
 }
 
 resource "aws_iam_policy" "cloudwatch-logs" {
-  count = var.cloudwatch_logs_create_group ? 1 : 0
-
-  name_prefix = "${var.app_name}-${var.comp}-cloudwatch-logs-"
+  count       = var.cloudwatch_logs_create_group ? 1 : 0
+  name_prefix = "${local.name}-${var.comp}-cloudwatch-logs-"
   description = "Enable CloudWatch Logs create group"
   policy      = data.aws_iam_policy_document.cloudwatch-logs[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
   count = var.cloudwatch_logs_create_group ? 1 : 0
-
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
 }
@@ -111,7 +114,7 @@ data "aws_iam_policy_document" "ssm-ps" {
 
 resource "aws_iam_policy" "ssm-ps" {
   count       = local.configure_ssm_ps ? 1 : 0
-  name_prefix = "${var.app_name}-${var.comp}-ssm-ps"
+  name_prefix = "${local.name}-${var.comp}-ssm-ps"
   description = "Enable instances to access SSM Parameter Store"
   policy      = data.aws_iam_policy_document.ssm-ps[0].json
 }
@@ -143,7 +146,7 @@ data "aws_iam_policy_document" "kms" {
 
 resource "aws_iam_policy" "kms" {
   count       = var.kms_key_arn != null ? 1 : 0
-  name_prefix = "${var.app_name}-${var.comp}-kms-"
+  name_prefix = "${local.name}-${var.comp}-kms-"
   description = "Allow reading SSM PS parameters encrypted using CMK"
   policy      = data.aws_iam_policy_document.kms[0].json
 }
