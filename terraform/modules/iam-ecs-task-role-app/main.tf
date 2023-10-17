@@ -59,7 +59,7 @@ locals {
   ssm_ps_arn          = "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter"
   ssm_ps_param_prefix = var.ssm_ps_param_prefix == "" ? "${var.org}/${var.app_name}/${var.env}/${var.comp}" : var.ssm_ps_param_prefix
   ssm_ps_resources    = [for name in var.ssm_ps_params : "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
-  configure_ssm       = length(local.ssm_ps_resources) > 0
+  configure_ssm_ps    = length(local.ssm_ps_resources) > 0
 }
 
 # Override var.app_name
@@ -151,6 +151,12 @@ resource "aws_iam_policy" "cloudwatch-logs" {
   policy      = data.aws_iam_policy_document.cloudwatch-logs[0].json
 }
 
+resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
+  count      = local.configure_cloudwatch_logs ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
+}
+
 data "aws_iam_policy_document" "transcribe" {
   count = var.enable_transcribe ? 1 : 0
 
@@ -208,7 +214,7 @@ resource "aws_iam_policy" "s3" {
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-setting-up-messageAPIs.html
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-instance-profile.html
 data "aws_iam_policy_document" "ssm" {
-  count = local.configure_ssm ? 1 : 0
+  count = local.configure_ssm_ps ? 1 : 0
 
   # Allow read only access to SSM Parameter Store params
   dynamic "statement" {
@@ -225,7 +231,7 @@ data "aws_iam_policy_document" "ssm" {
 }
 
 resource "aws_iam_policy" "ssm" {
-  count       = local.configure_ssm ? 1 : 0
+  count       = local.configure_ssm_ps ? 1 : 0
   name_prefix = "${local.name}-${var.comp}-ssm-"
   description = "Enable instances to access SSM"
   policy      = data.aws_iam_policy_document.ssm[0].json
@@ -372,23 +378,14 @@ resource "aws_iam_role_policy_attachment" "s3" {
   policy_arn = aws_iam_policy.s3[0].arn
 }
 
-# Allow use of CloudWatch Logs
-resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
-  count      = local.configure_cloudwatch_logs ? 1 : 0
-  role       = aws_iam_role.this.name
-  policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
-}
-
-# Allow use of CloudWatch metrics
 resource "aws_iam_role_policy_attachment" "cloudwatch-metrics" {
   count      = local.configure_cloudwatch_metrics ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.cloudwatch-metrics[0].arn
 }
 
-# Allow management via SSM
 resource "aws_iam_role_policy_attachment" "ssm" {
-  count      = local.configure_ssm ? 1 : 0
+  count      = local.configure_ssm_ps ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.ssm[0].arn
 }
