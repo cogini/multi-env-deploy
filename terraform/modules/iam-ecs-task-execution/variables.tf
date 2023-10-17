@@ -1,9 +1,10 @@
-variable "comp" {
-  description = "Component, e.g. app, worker"
+variable "name" {
+  description = "Used to override the var.app_name"
+  default     = ""
 }
 
-variable "aws_region" {
-  description = "AWS Region"
+variable "comp" {
+  description = "Component, e.g. app, worker"
 }
 
 variable "cloudwatch_logs_prefix" {

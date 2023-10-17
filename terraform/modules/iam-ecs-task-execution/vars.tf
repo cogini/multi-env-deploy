@@ -48,6 +48,11 @@ variable "aws_partition" {
   default     = "aws"
 }
 
+variable "aws_region" {
+  description = "aws is a common partition name. aws-cn for China"
+  default     = "us-east-1"
+}
+
 variable "aws_service_endpoint_ec2" {
   description = "EC2 endpoint"
   default     = "ec2.amazonaws.com"
