@@ -7,3 +7,4 @@
 tmp/
 .ackrc
 .terragrunt-cache/
+.envrc
