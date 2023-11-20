@@ -6,3 +6,4 @@ boto3
 cloudflare
 PyYAML
 requests
+ansible-core>=2.12.0b1 # not directly required, pinned by Snyk to avoid a vulnerability
