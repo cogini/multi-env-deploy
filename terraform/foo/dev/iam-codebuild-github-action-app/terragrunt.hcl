@@ -1,7 +1,7 @@
 # Configure IAM role allowing GitHub Action to run CodeBuild project
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-codebuild-github-action"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-codebuild-github-action"
 }
 dependency "codebuild" {
   config_path = "../codebuild-github-action"
@@ -10,7 +10,7 @@ dependency "codebuild" {
 #   paths = [
 #   ]
 # }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

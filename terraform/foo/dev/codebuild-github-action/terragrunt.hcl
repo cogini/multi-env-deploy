@@ -1,7 +1,7 @@
 # Create CodeBuild project for GitHub Action
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codebuild-github-action"
+  source = "${dirname(find_in_parent_folders())}/modules//codebuild-github-action"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -17,7 +17,7 @@ dependency "ecr" {
 #     "../iam-codepipeline-app",
 #   ]
 # }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

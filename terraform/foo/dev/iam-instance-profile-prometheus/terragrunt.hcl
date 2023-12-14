@@ -1,12 +1,9 @@
 # Create IAM instance profile for prometheus
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-instance-profile-app"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-instance-profile-app"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

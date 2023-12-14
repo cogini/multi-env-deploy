@@ -1,7 +1,7 @@
 # Create CodeDeploy deployment for headless worker component in ASG
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-asg"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -17,7 +17,7 @@ dependencies {
     "../asg-worker",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

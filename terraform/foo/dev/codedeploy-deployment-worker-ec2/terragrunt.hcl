@@ -1,5 +1,5 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-ec2"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-ec2"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -15,7 +15,7 @@ dependencies {
     "../ec2-worker"
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

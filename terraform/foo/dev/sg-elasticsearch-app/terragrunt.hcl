@@ -1,7 +1,7 @@
 # Security group for Elasticsearch
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//sg"
+  source = "${dirname(find_in_parent_folders())}/modules//sg"
 }
 dependency "vpc" {
   config_path = "../vpc"
@@ -15,7 +15,7 @@ dependencies {
     "../sg-worker",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

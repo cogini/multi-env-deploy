@@ -1,7 +1,7 @@
 # Create Elasticsearch domain
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//elasticsearch"
+  source = "${dirname(find_in_parent_folders())}/modules//elasticsearch"
 }
 # dependency "kms" {
 #   config_path = "../kms"
@@ -12,7 +12,7 @@ dependency "vpc" {
 dependency "sg" {
   config_path = "../sg-elasticsearch-app"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

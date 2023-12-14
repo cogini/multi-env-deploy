@@ -1,7 +1,7 @@
 # Create CodePipeline to build and deploy app
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codepipeline"
+  source = "${dirname(find_in_parent_folders())}/modules//codepipeline"
 }
 dependency "kms" {
   config_path = "../kms"
@@ -26,7 +26,7 @@ dependencies {
     "../iam-codepipeline-public-web",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

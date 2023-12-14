@@ -1,9 +1,9 @@
 # Configure IAM role  CodePipeline components
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-openid-connect-provider-github"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-openid-connect-provider-github"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

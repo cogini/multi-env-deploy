@@ -1,9 +1,9 @@
 # Create CodeStar Connection
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codestar-connection"
+  source = "${dirname(find_in_parent_folders())}/modules//codestar-connection"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

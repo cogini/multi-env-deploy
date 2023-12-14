@@ -1,7 +1,7 @@
 # Create an ASG for an app component which handles background jobs
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg"
+  source = "${dirname(find_in_parent_folders())}/modules//asg"
 }
 dependency "vpc" {
   config_path = "../vpc"
@@ -9,7 +9,7 @@ dependency "vpc" {
 dependency "lt" {
   config_path = "../launch-template-app"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

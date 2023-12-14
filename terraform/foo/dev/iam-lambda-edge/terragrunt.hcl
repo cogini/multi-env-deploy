@@ -1,11 +1,8 @@
 # Create IAM service role for Lambda@Edge
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-lambda-edge"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-lambda-edge"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }

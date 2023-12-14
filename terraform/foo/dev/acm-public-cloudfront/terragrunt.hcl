@@ -5,12 +5,12 @@
 # CloudFront certs must be created in us-east-1 region.
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//acm"
+  source = "${dirname(find_in_parent_folders())}/modules//acm"
 }
 dependency "route53" {
   config_path = "../route53-public"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 inputs = {

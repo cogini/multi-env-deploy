@@ -1,7 +1,7 @@
 # Create alias for base domain and www to Load Balancer or CloudFront
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//route53-alias"
+  source = "${dirname(find_in_parent_folders())}/modules//route53-alias"
 }
 dependency "route53" {
   config_path = "../route53-public"
@@ -15,7 +15,7 @@ dependency "lb" {
 # dependency "s3" {
 #   config_path = "../s3-app"
 # }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

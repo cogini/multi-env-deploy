@@ -1,7 +1,7 @@
 # Configure IAM permissions for CodePipeline components
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-codepipeline-app"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-codepipeline-app"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -17,7 +17,7 @@ dependencies {
     "../s3-app",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

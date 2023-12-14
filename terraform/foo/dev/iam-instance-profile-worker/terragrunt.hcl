@@ -1,7 +1,7 @@
 # Create IAM instance profile for app
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-instance-profile-app"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-instance-profile-app"
 }
 dependency "kms" {
   config_path = "../kms"
@@ -15,7 +15,7 @@ dependencies {
     "../s3-app",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

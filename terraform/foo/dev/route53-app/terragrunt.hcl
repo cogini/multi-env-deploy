@@ -1,7 +1,7 @@
 # Create Route53 records for EC2 instances
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//route53-ec2"
+  source = "${dirname(find_in_parent_folders())}/modules//route53-ec2"
 }
 dependency "route53" {
   config_path = "../route53-public"
@@ -9,7 +9,7 @@ dependency "route53" {
 dependency "ec2" {
   config_path = "../ec2-app"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

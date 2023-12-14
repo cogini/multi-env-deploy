@@ -1,7 +1,7 @@
 # Give CodePipeline service roles access to S3 buckets for app component
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-codepipeline-app"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-codepipeline-app"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -9,7 +9,7 @@ dependency "iam" {
 dependency "s3-codepipeline" {
   config_path = "../s3-codepipeline-worker"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

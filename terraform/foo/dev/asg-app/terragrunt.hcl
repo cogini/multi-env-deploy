@@ -2,7 +2,7 @@
 # via the load balancer.
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//asg"
+  source = "${dirname(find_in_parent_folders())}/modules//asg"
 }
 dependency "vpc" {
   config_path = "../vpc"
@@ -14,7 +14,7 @@ dependency "tg" {
   config_path = "../target-group-default"
   # config_path = "../target-group-app"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

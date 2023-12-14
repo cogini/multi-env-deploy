@@ -1,7 +1,7 @@
 # Create CodePipeline to build and deploy worker
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codepipeline"
+  source = "${dirname(find_in_parent_folders())}/modules//codepipeline"
 }
 # dependency "vpc" {
 #   config_path = "../vpc"
@@ -45,7 +45,7 @@ dependencies {
     "../iam-codepipeline-worker",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

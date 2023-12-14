@@ -1,7 +1,7 @@
 # Create Launch Template for app ASG
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//launch-template"
+  source = "${dirname(find_in_parent_folders())}/modules//launch-template"
 }
 dependency "iam" {
   config_path = "../iam-instance-profile-app"
@@ -9,7 +9,7 @@ dependency "iam" {
 dependency "sg" {
   config_path = "../sg-app-private"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

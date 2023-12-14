@@ -1,12 +1,9 @@
 # Create CodeDeploy application for worker
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
