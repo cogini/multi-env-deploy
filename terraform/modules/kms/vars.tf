@@ -40,12 +40,21 @@ variable "remote_state_s3_key_prefix" {
   description = "Prefix in bucket where config starts, e.g. stage/ or project/stage/"
 }
 
+variable "remote_state_s3_parent_dir" {
+  description = "Path to parent dir of current module"
+}
+
 # Configure for AWS environment, e.g. China (Beijing) Region
 
 # https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-arn-format.html
 variable "aws_partition" {
-  description = "aws is a common partition name. aws-cn for China"
+  description = "AWS Partition: aws or aws-cn for China"
   default     = "aws"
+}
+
+variable "aws_region" {
+  description = "aws is a common partition name. aws-cn for China"
+  default     = "us-east-1"
 }
 
 variable "aws_service_endpoint_ec2" {

@@ -2,8 +2,9 @@
 
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
 # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html
-
+# https://github.com/aws-actions/aws-codebuild-run-build
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_openid_connect_provider
+# https://stackoverflow.com/questions/69243571/how-can-i-connect-github-actions-with-aws-deployments-without-using-a-secret-key
 
 # Get the latest TLS cert from GitHub to authenticate their requests
 data "tls_certificate" "github" {

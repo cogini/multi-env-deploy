@@ -3,7 +3,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//iam-instance-profile-app"
+#   source = "${dirname(find_in_parent_folders())}/modules//iam-instance-profile-app"
 # }
 # dependency "kms" {
 #   config_path = "../kms"
@@ -64,12 +64,26 @@
 #   kms_key_arn = dependency.kms.outputs.key_arn
 # }
 
+# Example for bastion host
+# terraform {
+#   source = "${dirname(find_in_parent_folders())}/modules//iam-instance-profile-app"
+# }
+# include "root" {
+#   path = find_in_parent_folders()
+# }
+#
+# inputs = {
+#   comp = "bastion"
+# }
+
 data "terraform_remote_state" "s3" {
   for_each = toset(keys(var.s3_buckets))
   backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
-    key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
+    # key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
+    # key    = "${var.remote_state_s3_key_prefix}/${var.aws_region}/${var.env}/${each.key}/terraform.tfstate"
+    key    = "${var.remote_state_s3_parent_dir}/${each.key}/terraform.tfstate"
     region = var.remote_state_s3_bucket_region
   }
 }
@@ -125,6 +139,10 @@ locals {
   configure_ssm       = length(local.ssm_ps_resources) > 0 || var.enable_ssm_management
 }
 
+locals {
+  name = var.name == "" ? "${var.app_name}" : var.name
+}
+
 # Configure access to CloudWatch metrics
 locals {
   configure_cloudwatch_metrics  = var.cloudwatch_metrics_namespace != ""
@@ -174,7 +192,7 @@ data "aws_iam_policy_document" "cloudwatch-metrics" {
 
 resource "aws_iam_policy" "cloudwatch-metrics" {
   count       = local.configure_cloudwatch_metrics ? 1 : 0
-  name_prefix = "${var.app_name}-${var.comp}-cloudwatch-metrics-"
+  name_prefix = "${local.name}-${var.comp}-cloudwatch-metrics-"
   description = "Enable logging to CloudWatch metrics"
   policy      = data.aws_iam_policy_document.cloudwatch-metrics[0].json
 }
@@ -202,7 +220,7 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
 
 resource "aws_iam_policy" "cloudwatch-logs" {
   count       = local.configure_cloudwatch_logs ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-cloudwatch-logs"
+  name        = "${local.name}-${var.comp}-cloudwatch-logs"
   description = "Enable logging to CloudWatch Logs"
   policy      = data.aws_iam_policy_document.cloudwatch-logs[0].json
 }
@@ -274,7 +292,7 @@ data "aws_iam_policy_document" "s3" {
 
 resource "aws_iam_policy" "s3" {
   count       = local.configure_s3 ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-s3"
+  name        = "${local.name}-${var.comp}-s3"
   description = "Allow access to S3 buckets"
   policy      = data.aws_iam_policy_document.s3[0].json
 }
@@ -284,72 +302,84 @@ resource "aws_iam_policy" "s3" {
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-instance-profile.html
 # https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonSSMManagedInstanceCore.html
 
-# data "aws_iam_policy_document" "ssm" {
-#   count = local.configure_ssm ? 1 : 0
-# 
-#   dynamic "statement" {
-#     for_each = var.enable_ssm_management ? tolist([1]) : []
-#     content {
-#       sid = "AllowAccessToSSM"
-#       actions = [
-#         "ds:CreateComputer",
-#         "ds:DescribeDirectories",
-#         "ec2:DescribeInstanceStatus",
-#         "ec2messages:AcknowledgeMessage",
-#         "ec2messages:DeleteMessage",
-#         "ec2messages:FailMessage",
-#         "ec2messages:GetEndpoint",
-#         "ec2messages:GetMessages",
-#         "ec2messages:SendReply",
-#         "ssm:DescribeAssociation",
-#         "ssm:GetDocument",
-#         "ssm:ListAssociations",
-#         "ssm:ListInstanceAssociations",
-#         "ssm:UpdateAssociationStatus",
-#         "ssm:UpdateInstanceInformation",
-#       ]
-#       resources = ["*"]
-#     }
-#   }
-# 
-#   # Give SSM Session Manager access
-#   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-add-permissions-to-existing-profile.html
-#   # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
-#   dynamic "statement" {
-#     for_each = var.enable_ssm_management ? tolist([1]) : []
-#     content {
-#       actions = [
-#         "ssm:UpdateInstanceInformation",
-#         "ssmmessages:CreateControlChannel",
-#         "ssmmessages:CreateDataChannel",
-#         "ssmmessages:OpenControlChannel",
-#         "ssmmessages:OpenDataChannel",
-#       ]
-#       resources = ["*"]
-#     }
-#   }
-# 
-#   # Allow read only access to SSM Parameter Store params
-#   dynamic "statement" {
-#     for_each = local.ssm_ps_resources
-#     content {
-#       actions = [
-#         "ssm:DescribeParameters",
-#         "ssm:GetParameters",
-#         "ssm:GetParameter*"
-#       ]
-#       resources = local.ssm_ps_resources
-#     }
-#   }
-# }
-# 
-# resource "aws_iam_policy" "ssm" {
-#   count       = local.configure_ssm ? 1 : 0
-# 
-#   name        = "${var.app_name}-${var.comp}-ssm"
-#   description = "Enable instances to access SSM"
-#   policy      = data.aws_iam_policy_document.ssm[0].json
-# }
+data "aws_iam_policy_document" "ssm" {
+  count = local.configure_ssm ? 1 : 0
+
+  dynamic "statement" {
+    for_each = var.enable_ssm_management ? tolist([1]) : []
+    content {
+      sid = "AllowAccessToSSM"
+      actions = [
+        "ds:CreateComputer",
+        "ds:DescribeDirectories",
+        "ec2:DescribeInstanceStatus",
+        "ec2messages:AcknowledgeMessage",
+        "ec2messages:DeleteMessage",
+        "ec2messages:FailMessage",
+        "ec2messages:GetEndpoint",
+        "ec2messages:GetMessages",
+        "ec2messages:SendReply",
+        "ssm:DescribeAssociation",
+        "ssm:GetDeployablePatchSnapshotForInstance",
+        "ssm:GetDocument",
+        "ssm:DescribeDocument",
+        "ssm:GetManifest",
+        "ssm:ListAssociations",
+        "ssm:ListInstanceAssociations",
+        "ssm:PutInventory",
+        "ssm:PutComplianceItems",
+        "ssm:PutConfigurePackageResult",
+        "ssm:UpdateAssociationStatus",
+        "ssm:UpdateInstanceAssociationStatus",
+      ]
+      resources = ["*"]
+    }
+  }
+
+  # Give SSM Session Manager access
+  # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-add-permissions-to-existing-profile.html
+  # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
+  dynamic "statement" {
+    for_each = var.enable_ssm_management ? tolist([1]) : []
+    content {
+      actions = [
+        "ssm:UpdateInstanceInformation",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+      ]
+      resources = ["*"]
+    }
+  }
+
+  # statement {
+  #   actions = [
+  #     "s3:GetEncryptionConfiguration"
+  #   ]
+  #   resources = ["*"]
+  # }
+
+  # Allow read only access to SSM Parameter Store params
+  dynamic "statement" {
+    for_each = local.ssm_ps_resources
+    content {
+      actions = [
+        "ssm:DescribeParameters",
+        "ssm:GetParameters",
+        "ssm:GetParameter*"
+      ]
+      resources = local.ssm_ps_resources
+    }
+  }
+}
+
+resource "aws_iam_policy" "ssm" {
+  count       = local.configure_ssm ? 1 : 0
+  name        = "${local.name}-${var.comp}-ssm"
+  description = "Enable instances to access SSM"
+  policy      = data.aws_iam_policy_document.ssm[0].json
+}
 
 # KMS
 # https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html
@@ -372,7 +402,7 @@ data "aws_iam_policy_document" "kms" {
 
 resource "aws_iam_policy" "kms" {
   count       = var.kms_key_arn != null ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-kms"
+  name        = "${local.name}-${var.comp}-kms"
   description = "Enable instances to access KMS CMK"
   policy      = data.aws_iam_policy_document.kms[0].json
 }
@@ -418,8 +448,8 @@ data "aws_iam_policy_document" "instance-assume-role-policy" {
 # Base IAM role
 # https://github.com/hashicorp/terraform/issues/2761
 resource "aws_iam_role" "this" {
-  name        = "${var.app_name}-${var.comp}"
-  description = "${var.app_name} ${var.comp} instance profile"
+  name        = "${local.name}-${var.comp}"
+  description = "${local.name} ${var.comp} instance profile"
   # path               = "/system/"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
 
@@ -435,7 +465,7 @@ resource "aws_iam_role" "this" {
 # needed to access encrypted S3 buckets
 # resource "aws_kms_grant" "this" {
 #   count             = var.kms_key_arn != null ? 1 : 0
-#   name              = "${var.app_name}-${var.comp}-kms"
+#   name              = "${local.name}-${var.comp}-kms"
 #   key_id            = var.kms_key_arn
 #   grantee_principal = aws_iam_role.this.arn
 #   operations        = ["Decrypt", "DescribeKey"]
@@ -469,20 +499,20 @@ resource "aws_iam_role_policy_attachment" "cloudwatch-metrics" {
 }
 
 # Allow management via SSM
-# resource "aws_iam_role_policy_attachment" "ssm" {
-#   count      = local.configure_ssm ? 1 : 0
-#   role       = aws_iam_role.this.name
-#   policy_arn = aws_iam_policy.ssm[0].arn
-# }
+resource "aws_iam_role_policy_attachment" "ssm" {
+  count      = local.configure_ssm ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.ssm[0].arn
+}
 
 # Allow management via SSM
 # https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonSSMManagedInstanceCore.html
-resource "aws_iam_role_policy_attachment" "ssm" {
-  count = var.enable_ssm_management ? 1 : 0
-
-  role       = aws_iam_role.this.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
+# resource "aws_iam_role_policy_attachment" "ssm" {
+#   count = var.enable_ssm_management ? 1 : 0
+#
+#   role       = aws_iam_role.this.name
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+# }
 
 # Allow uploading segment documents and telemetry to the X-Ray API
 # https://docs.aws.amazon.com/xray/latest/devguide/security_iam_id-based-policy-examples.html
@@ -525,7 +555,7 @@ data "aws_iam_policy_document" "ecs-read-only" {
 
 resource "aws_iam_policy" "ecs-read-only" {
   count       = var.enable_ecs_readonly ? 1 : 0
-  name        = "ECSReadOnly"
+  name        = "${local.name}-ECSReadOnly"
   description = "Needed for ECS Prometheus discovery plugin"
   policy      = data.aws_iam_policy_document.ecs-read-only[count.index].json
 }
@@ -547,7 +577,7 @@ data "aws_iam_policy_document" "describe-instances" {
 
 resource "aws_iam_policy" "describe-instances" {
   count       = var.enable_ec2_describe_instances ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-describe-instances"
+  name        = "${local.name}-${var.comp}-describe-instances"
   description = "Enable instances to query for instance's metadata"
   policy      = data.aws_iam_policy_document.describe-instances.json
 }
@@ -562,7 +592,7 @@ data "aws_iam_policy_document" "describe-tags" {
 
 resource "aws_iam_policy" "describe-tags" {
   count       = var.enable_ec2_describe_tags ? 1 : 0
-  name        = "${var.app_name}-${var.comp}-describe-tags"
+  name        = "${local.name}-${var.comp}-describe-tags"
   description = "Enable instances to query for instance's metadata"
   policy      = data.aws_iam_policy_document.describe-tags.json
 }
@@ -571,6 +601,14 @@ resource "aws_iam_role_policy_attachment" "ec2-describe-tags" {
   count      = var.enable_ec2_describe_tags ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.describe-tags[count.index].arn
+}
+
+# Allow readonly access to cloudwatch logs
+# Needed for Prometheus
+resource "aws_iam_role_policy_attachment" "cwlogs-read-only" {
+  count      = var.enable_cwl_readonly ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
 # Create instance profile for role

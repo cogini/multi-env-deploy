@@ -1,27 +1,17 @@
-variable "comp" {
-  description = "Part of the app, e.g. app, worker"
+variable "build_timeout" {
+  description = "Build timeout in minutes"
+  default     = null
 }
 
-variable "name" {
-  description = "Name, var.app_name-var.comp if blank"
-  default     = ""
-}
-
-variable "environment_variables" {
-  description = "Environment vars to make available to build"
-  type        = map(any)
-  default     = {}
+variable "buildspec" {
+  description = "Buildspec file name, e.g. subdir/buildspec.yml"
+  default     = "buildspec.yml"
 }
 
 variable "codebuild_image" {
   description = "ECR image URL or predefined image name"
   # default     = "ubuntu:bionic"
   # default     = "centos:7"
-}
-
-variable "buildspec" {
-  description = "Buildspec file name, e.g. subdir/buildspec.yml"
-  default     = "buildspec.yml"
 }
 
 variable "codebuild_type" {
@@ -59,7 +49,56 @@ variable "codebuild_cache_modes" {
 variable "codebuild_service_role_arn" {
   description = "CodeBuild IAM service role ARN"
 }
-variable "build_timeout" {
-  description = "Build timeout in minutes"
+
+variable "comp" {
+  description = "Part of the app, e.g. app, worker"
+}
+
+variable "environment_variables" {
+  description = "Environment vars to make available to build"
+  type        = map(any)
+  default     = {}
+}
+
+variable "environment_variables_ssm" {
+  description = "Environment vars from ParameterStore to make available to build"
+  type        = map(any)
+  default     = {}
+}
+
+variable "fetch_submodules" {
+  description = "Fetch git submodules"
+  default     = true
+}
+
+variable "git_clone_depth" {
+  description = "Truncate git history to this many commits"
+  default     = 1
+}
+
+variable "name" {
+  description = "Name, var.app_name-var.comp if blank"
+  default     = ""
+}
+
+variable "report_build_status" {
+  description = "Report status of build start and finish to source provider"
+  default     = true
+}
+
+variable "subnet_ids" {
+  description = "VPC subnet ids"
+  type        = list(any)
+  default     = []
+}
+
+variable "security_group_ids" {
+  description = "Security group ids"
+  type        = list(any)
+  default     = []
+}
+
+variable "vpc_id" {
+  description = "VPC id"
   default     = null
 }

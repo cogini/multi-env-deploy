@@ -1,11 +1,13 @@
 # Create CodeBuild project for GitHub Action
 
+# https://github.com/marketplace/actions/aws-codebuild-run-build-action-for-github-actions
+
 # Example config:
 # terraform {
 #   source = "${get_terragrunt_dir()}/../../../modules//codebuild-github-action"
 # }
 # dependency "iam" {
-#   config_path = "../iam-codepipeline"
+#   config_path = "../iam-codebuild-github-action-app"
 # }
 # dependency "ecr-build" {
 #   config_path = "../ecr-build-app-ecs"
@@ -13,11 +15,6 @@
 # dependency "ecr" {
 #   config_path = "../ecr-app"
 # }
-# # dependencies {
-# #   paths = [
-# #     "../iam-codepipeline-app",
-# #   ]
-# # }
 # include {
 #   path = find_in_parent_folders()
 # }
@@ -82,20 +79,40 @@ resource "aws_codebuild_project" "this" {
   }
 
   source {
-    # Overridden by GitHub Action
     type     = "GITHUB"
+
+    # Overridden by GitHub Action
     location = "https://github.com/cogini/dummy"
 
-    # git_clone_depth = 1
+    buildspec = var.buildspec
+    report_build_status = var.report_build_status
 
-    # git_submodules_config {
-    #   fetch_submodules = true
+    # build_status_config {
+    #   context = var.build_status_context
+    #   target_url = var.build_status_target_url
     # }
+
+    git_clone_depth = var.git_clone_depth
+
+    git_submodules_config {
+      fetch_submodules = var.fetch_submodules
+    }
   }
 
   cache {
     type  = var.codebuild_cache_type
     modes = var.codebuild_cache_modes
+  }
+
+  # https://docs.aws.amazon.com/codepipeline/latest/userguide/vpc-support.html
+  # https://aws.amazon.com/blogs/devops/access-resources-in-a-vpc-from-aws-codebuild-builds/
+  dynamic "vpc_config" {
+    for_each = var.vpc_id == null ? [] : tolist([1])
+    content {
+      vpc_id             = var.vpc_id
+      subnets            = var.subnet_ids
+      security_group_ids = var.security_group_ids
+    }
   }
 
   environment {
@@ -134,6 +151,16 @@ resource "aws_codebuild_project" "this" {
         value = environment_variable.value
       }
     }
+
+    dynamic "environment_variable" {
+      for_each = var.environment_variables_ssm
+      content {
+        name  = environment_variable.key
+        value = environment_variable.value
+        type  = "PARAMETER_STORE"
+      }
+    }
+
   }
 
   tags = merge(

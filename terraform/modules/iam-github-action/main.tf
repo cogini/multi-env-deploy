@@ -6,15 +6,10 @@
 # https://github.com/aws-actions/aws-codebuild-run-build
 # https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/
 
-# Example config:
-# include "root" {
-#   path = find_in_parent_folders()
-# }
-#
+# Example:
 # terraform {
 #   source = "${dirname(find_in_parent_folders())}/modules//iam-github-action"
 # }
-#
 # dependency "cloudfront" {
 #   config_path = "../cloudfront-app-assets"
 # }
@@ -24,14 +19,20 @@
 # dependency "codedeploy-deployment" {
 #   config_path = "../codedeploy-deployment-app"
 # }
-# dependency "ecr" {
+# dependency "ecr-app" {
 #   config_path = "../ecr-app"
+# }
+# dependency "ecr-otel" {
+#   config_path = "../ecr-otel"
 # }
 # dependency "ecs-cluster" {
 #   config_path = "../ecs-cluster"
 # }
-# dependency "ecs-service" {
+# dependency "ecs-service-app" {
 #   config_path = "../ecs-service-app"
+# }
+# dependency "ecs-service-worker" {
+#   config_path = "../ecs-service-worker"
 # }
 # dependency "iam-ecs-task-execution" {
 #   config_path = "../iam-ecs-task-execution"
@@ -41,6 +42,9 @@
 # }
 # dependency "s3" {
 #   config_path = "../s3-app"
+# }
+# include "root" {
+#   path = find_in_parent_folders()
 # }
 #
 # inputs = {
@@ -54,16 +58,25 @@
 #
 #   enable_cloudfront = true
 #
-#   ecr_arn = dependency.ecr.outputs.arn
+#   ecr_arns = [
+#     dependency.ecr-app.outputs.arn,
+#     dependency.ecr-otel.outputs.arn
+#   ]
 #
-#   ecs = {
-#     cluster_name = dependency.ecs-cluster.outputs.name
-#     service_name = dependency.ecs-service.outputs.name
-#     task_role_arn = dependency.iam-ecs-task-role.outputs.arn
-#     execution_role_arn = dependency.iam-ecs-task-execution.outputs.arn
-#     codedeploy_application_name = dependency.codedeploy-app.outputs.app_name
-#     codedeploy_deployment_group_name = dependency.codedeploy-deployment.outputs.deployment_group_name
-#   }
+#   ecs = [
+#     {
+#       service_arn                      = dependency.ecs-service-app.outputs.id
+#       task_role_arn                    = dependency.iam-ecs-task-role.outputs.arn
+#       execution_role_arn               = dependency.iam-ecs-task-execution.outputs.arn
+#       codedeploy_application_name      = dependency.codedeploy-app.outputs.app_name
+#       codedeploy_deployment_group_name = dependency.codedeploy-deployment.outputs.deployment_group_name
+#     },
+#     {
+#       service_arn                      = dependency.ecs-service-worker.outputs.id
+#       task_role_arn                    = dependency.iam-ecs-task-role.outputs.arn
+#       execution_role_arn               = dependency.iam-ecs-task-execution.outputs.arn
+#     }
+#   ]
 # }
 
 data "aws_caller_identity" "current" {}
@@ -73,20 +86,22 @@ locals {
   name              = var.name == "" ? "${var.org}-${var.app_name}-${var.env}-${var.comp}" : var.name
   enable_s3         = length(var.s3_buckets) > 0
   enable_cloudfront = var.enable_cloudfront
-  enable_ecr        = var.ecr_arn != ""
-  enable_ecs        = var.ecs != null
-  ecs               = var.ecs
+  enable_ecr        = length(var.ecr_arns) > 0
+  enable_ecs        = length(var.ecs) > 0
   enable_codebuild  = var.codebuild_project_name != ""
-  enable_codedeploy = var.ecs != null && try(var.ecs.codedeploy_application_name, null) != null
 
-  # enable_codedeploy = var.enable_codedeploy
-  # codedeploy_arn    = "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}"
-  # codedeploy_name   = var.codedeploy_name == "" ? "${var.app_name}-${var.comp}" : var.codedeploy_name
-  # codedeploy_deploymentgroup_name = var.codedeploy_deploymentgroup_name == "" ? local.codedeploy_name : var.codedeploy_deploymentgroup_name
-  # codedeploy_deploymentconfig_name = var.codedeploy_deploymentconfig_name == "" ? local.codedeploy_name : var.codedeploy_deploymentconfig_name
-  # codedeploy_application_name = var.codedeploy_application_name == "" ? local.codedeploy_name : var.codedeploy_application_name
-  # codedeploy_bucket = var.codedeploy_bucket
-  # codedeploy_bucket_arn = "arn:${var.aws_partition}:s3:::${local.codedeploy_bucket}"
+  ecs_task_roles = [ for r in var.ecs : r.task_role_arn ]
+  ecs_execution_roles = [ for r in var.ecs : r.execution_role_arn ]
+  ecs_service_arns = [ for r in var.ecs : r.service_arn ]
+  ecs_codedeploy_arns = flatten([ for r in var.ecs :
+    try(r.codedeploy_application_name, null) != null ?
+      [
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
+      ] : []
+  ])
+  enable_codedeploy = length(local.ecs_codedeploy_arns) > 0
 }
 
 resource "aws_iam_role" "this" {
@@ -116,7 +131,6 @@ resource "aws_iam_role" "this" {
 }
 EOF
 }
-
 
 # Give access to S3 buckets
 data "aws_iam_policy_document" "s3" {
@@ -228,7 +242,7 @@ data "aws_iam_policy_document" "ecr" {
       "ecr:PutImage",
       "ecr:UploadLayerPart",
     ]
-    resources = [var.ecr_arn]
+    resources = var.ecr_arns
   }
 
   statement {
@@ -256,16 +270,25 @@ resource "aws_iam_role_policy_attachment" "github-action-ecr" {
 
 
 # Run CodeBuild and get resulting log messages
+# https://docs.aws.amazon.com/codebuild/latest/userguide/setting-up.html
+# https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-access-control-identity-based.html
 data "aws_iam_policy_document" "codebuild" {
   count = local.enable_codebuild ? 1 : 0
 
   statement {
-    actions   = ["codebuild:StartBuild", "codebuild:BatchGetBuilds"]
+    actions   = [
+      # Required to start running builds
+      "codebuild:StartBuild",
+      # Required to get information about builds
+      "codebuild:BatchGetBuilds"
+    ]
     resources = ["arn:${var.aws_partition}:codebuild:${var.aws_region}:${local.aws_account_id}:project/${var.codebuild_project_name}"]
   }
 
   statement {
-    actions   = ["logs:GetLogEvents"]
+    actions   = [
+      "logs:GetLogEvents",
+    ]
     resources = ["arn:${var.aws_partition}:logs:${var.aws_region}:${local.aws_account_id}:log-group:/aws/codebuild/${var.codebuild_project_name}:*"]
   }
 }
@@ -302,10 +325,7 @@ data "aws_iam_policy_document" "ecs" {
     actions = [
       "iam:PassRole"
     ]
-    resources = [
-      local.ecs.task_role_arn,
-      local.ecs.execution_role_arn
-    ]
+    resources = concat(local.ecs_task_roles, local.ecs_execution_roles)
   }
 
   statement {
@@ -313,9 +333,7 @@ data "aws_iam_policy_document" "ecs" {
       "ecs:UpdateService",
       "ecs:DescribeServices"
     ]
-    resources = [
-      "arn:${var.aws_partition}:ecs:${var.aws_region}:${local.aws_account_id}:service/${local.ecs.cluster_name}/${local.ecs.service_name}"
-    ]
+    resources = local.ecs_service_arns
   }
 
   # When using CodeDeploy, "ecs:UpdateService" is not needed
@@ -354,11 +372,7 @@ data "aws_iam_policy_document" "ecs" {
         "codedeploy:GetDeploymentConfig",
         "codedeploy:RegisterApplicationRevision"
       ]
-      resources = [
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${local.ecs.codedeploy_application_name}/${local.ecs.codedeploy_deployment_group_name}",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${var.ecs.codedeploy_application_name}"
-      ]
+      resources = local.ecs_codedeploy_arns
     }
   }
 }

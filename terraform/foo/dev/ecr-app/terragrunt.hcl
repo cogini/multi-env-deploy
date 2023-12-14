@@ -1,15 +1,19 @@
 # ECR repository for ECS app
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ecr-build"
+  source = "${dirname(find_in_parent_folders())}/modules//ecr-build"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   comp = "app"
+
+  pull_through_cache_rules = [
+    {
+        ecr_repository_prefix = "ecr-public"
+        upstream_registry_url = "public.ecr.aws" 
+    }
+  ]
 }

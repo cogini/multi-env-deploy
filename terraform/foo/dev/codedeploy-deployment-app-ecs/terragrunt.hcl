@@ -1,38 +1,38 @@
-# Create CodeDeploy deployment group for app running in ASG behind LB
+# Create CodeDeploy deployment group for app running in ECS
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-ecs"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-ecs"
 }
-dependency "iam" {
-  config_path = "../iam-codepipeline"
-}
-dependency "sns" {
-  config_path = "../sns-codedeploy-app"
+dependency "cluster" {
+  config_path = "../ecs-cluster"
 }
 dependency "codedeploy-app" {
   config_path = "../codedeploy-app-ecs"
 }
- dependency "lb" {
-   config_path = "../lb-public"
- }
+dependency "iam" {
+  config_path = "../iam-codepipeline"
+}
+dependency "lb" {
+  config_path = "../lb-public"
+}
+dependency "service" {
+  config_path = "../ecs-service-app"
+}
+dependency "sns" {
+  config_path = "../sns-codedeploy-app"
+}
 dependency "target-group-1" {
   config_path = "../target-group-app-ecs-1"
 }
 dependency "target-group-2" {
   config_path = "../target-group-app-ecs-2"
 }
-dependency "cluster" {
-  config_path = "../ecs-cluster"
-}
-dependency "service" {
-  config_path = "../ecs-service-app"
-}
 # dependencies {
 #   paths = [
 #     "../asg-app"
 #   ]
 # }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

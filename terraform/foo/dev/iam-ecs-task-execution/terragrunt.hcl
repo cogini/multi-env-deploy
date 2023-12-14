@@ -1,15 +1,12 @@
 # Create ECS IAM Task Execution role
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-ecs-task-execution"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-ecs-task-execution"
 }
 dependency "kms" {
   config_path = "../kms"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

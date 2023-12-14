@@ -1,8 +1,9 @@
 # Create RDS database instance for app
 
 locals {
-  name     = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
-  dns_name = "${var.dns_prefix}.${var.comp}.${var.dns_domain}"
+  name       = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  dns_name   = var.dns_name == "" ? "${var.comp}-db" : var.dns_name
+  enable_sd  = var.service_discovery_namespace_id == null ? false : true
 }
 
 # https://www.terraform.io/docs/providers/aws/d/db_instance.html
@@ -22,7 +23,7 @@ locals {
 # https://github.com/terraform-aws-modules/terraform-aws-rds
 module "db" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "~> 6.0"
+  version = "~> 6.1.1"
 
   identifier         = local.name
   engine             = var.engine
@@ -30,6 +31,8 @@ module "db" {
   port               = var.port
   instance_class     = var.instance_class
   ca_cert_identifier = var.ca_cert_identifier
+
+  replicate_source_db = var.replicate_source_db
 
   allocated_storage = var.allocated_storage
   storage_type      = var.storage_type
@@ -59,8 +62,8 @@ module "db" {
   create_monitoring_role = var.create_monitoring_role
 
   # Snapshot name upon DB deletion
-  final_snapshot_identifier_prefix = "${local.name}-final"
   skip_final_snapshot              = var.skip_final_snapshot
+  final_snapshot_identifier_prefix = "${local.name}-final"
   deletion_protection              = var.deletion_protection
   copy_tags_to_snapshot            = true
 
@@ -72,6 +75,7 @@ module "db" {
   backup_window           = var.backup_window
   backup_retention_period = var.backup_retention_period
 
+  create_db_subnet_group = var.create_db_subnet_group
   subnet_ids             = var.subnet_ids
   vpc_security_group_ids = var.security_group_ids
   db_subnet_group_name   = var.db_subnet_group_name
@@ -95,12 +99,32 @@ module "db" {
   )
 }
 
-resource "aws_route53_record" "db" {
-  count = var.create_dns ? 1 : 0
+# https://www.garretwilson.com/blog/2023/06/01/aws-ecs-service-connect-service-discovery-together
+resource "aws_service_discovery_service" "this" {
+  count = local.enable_sd ? 1 : 0
 
-  zone_id = var.dns_zone_id
-  name    = local.dns_name
-  type    = "CNAME"
-  ttl     = "60"
-  records = [module.db.db_instance_address]
+  name = local.dns_name
+
+  dns_config {
+    namespace_id = var.service_discovery_namespace_id
+
+    dns_records {
+      ttl  = 60
+      type = "CNAME"
+    }
+
+    routing_policy = "WEIGHTED"
+  }
+}
+
+resource "aws_service_discovery_instance" "this" {
+  count = local.enable_sd ? 1 : 0
+
+  instance_id = local.dns_name
+
+  service_id = aws_service_discovery_service.this[0].id
+
+  attributes = {
+    AWS_INSTANCE_CNAME = module.db.db_instance_address
+  }
 }

@@ -1,12 +1,12 @@
 # Security group for load balancer running in public subnet
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//sg"
+  source = "${dirname(find_in_parent_folders())}/modules//sg"
 }
 dependency "vpc" {
   config_path = "../vpc"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

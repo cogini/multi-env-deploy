@@ -1,12 +1,9 @@
 # Create bucket for AWS request logs from load balancer and CloudFront
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//s3-app"
+  source = "${dirname(find_in_parent_folders())}/modules//s3-app"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

@@ -43,3 +43,8 @@ variable "target_type" {
 variable "vpc_id" {
   description = "VPC id"
 }
+
+variable "protocol_version" {
+  description = "Protocol version"
+  default     = "HTTP1"
+}

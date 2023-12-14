@@ -1,7 +1,7 @@
-# Create IAM ECS task role for app, equivalent to instance profile
+# Create IAM ECS task role for app, equivalent to EC2 instance profile
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-ecs-task-role-app"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-ecs-task-role-app"
 }
 dependency "kms" {
   config_path = "../kms"
@@ -14,7 +14,7 @@ dependencies {
     "../s3-app",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
@@ -58,6 +58,9 @@ inputs = {
   # ssm_ps_param_prefix = "cogini/foo/dev"
   # Give acess to specific params under prefix
   # ssm_ps_params = ["app/*", "worker/*"]
+
+  # Allow sending email via AWS SES
+  enable_ses = true
 
   # Give access to KMS CMK
   kms_key_arn = dependency.kms.outputs.key_arn

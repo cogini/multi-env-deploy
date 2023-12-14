@@ -1,13 +1,13 @@
 # Create Load Balancer in public subnet
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//lb"
-}
-dependency "vpc" {
-  config_path = "../vpc"
+  source = "${dirname(find_in_parent_folders())}/modules//lb"
 }
 dependency "route53" {
   config_path = "../route53-public"
+}
+dependency "s3" {
+  config_path = "../s3-request-logs"
 }
 dependency "sg" {
   config_path = "../sg-lb-public"
@@ -15,15 +15,15 @@ dependency "sg" {
 dependency "tg" {
   config_path = "../target-group-default"
 }
-dependency "s3" {
-  config_path = "../s3-request-logs"
+dependency "vpc" {
+  config_path = "../vpc"
 }
 dependencies {
   paths = [
     "../acm-public",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

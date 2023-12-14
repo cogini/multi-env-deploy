@@ -6,11 +6,8 @@
 # even if you delete the Route53 zone and create it again.
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//route53-delegation-set"
+  source = "${dirname(find_in_parent_folders())}/modules//route53-delegation-set"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }

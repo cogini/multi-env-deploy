@@ -1,12 +1,12 @@
 # Create S3 buckets for worker
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//s3-app"
+  source = "${dirname(find_in_parent_folders())}/modules//s3-app"
 }
 dependency "kms" {
   config_path = "../kms"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

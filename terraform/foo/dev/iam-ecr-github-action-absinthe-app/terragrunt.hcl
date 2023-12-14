@@ -1,16 +1,12 @@
 # Configure IAM role allowing GitHub Action to access ECR
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-ecr-github-action"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-ecr-github-action"
 }
 dependency "ecr" {
   config_path = "../ecr-absinthe-app"
 }
-# dependencies {
-#   paths = [
-#   ]
-# }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

@@ -1,10 +1,7 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-ses-user"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-ses-user"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

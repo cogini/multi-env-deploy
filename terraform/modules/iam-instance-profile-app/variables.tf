@@ -1,5 +1,6 @@
-variable "aws_region" {
-  description = "AWS Region"
+variable "name" {
+  description = "Used to override the var.app_name"
+  default     = ""
 }
 
 variable "comp" {
@@ -83,4 +84,9 @@ variable "kms_key_arn" {
 variable "artifacts_bucket_arn" {
   description = "S3 bucket with CodePipeline artifacts, needed for CodeDeploy"
   default     = ""
+}
+
+variable "enable_cwl_readonly" {
+  description = "Enables readonly access to CloudWatch Logs"
+  default     = false
 }

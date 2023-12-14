@@ -1,7 +1,7 @@
 # Create NAT instance
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//nat"
+  source = "${dirname(find_in_parent_folders())}/modules//nat"
 }
 dependency "vpc" {
   config_path = "../vpc"

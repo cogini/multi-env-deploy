@@ -29,6 +29,17 @@ variable "cloudwatch_metrics_namespace" {
   default     = ""
 }
 
+variable "enable_ecs_discovery" {
+  description = "Allow calling ECS APIs to discover service info"
+  default     = false
+}
+
+variable "sqs_queues" {
+  description = "SQS queue ARNs"
+  type        = list(string)
+  default     = []
+}
+
 variable "ssm_ps_param_prefix" {
   description = "Prefix for SSM Parameter Store parameters, default env/org/app/comp"
   default     = ""

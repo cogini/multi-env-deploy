@@ -43,7 +43,7 @@ variable "elasticache_subnets" {
 # Used to allow direct remote access to db
 variable "create_database_subnet_group" {
   description = "Whether to create database subnet group"
-  default     = true
+  default     = false
 }
 
 # Used to allow direct remote access to db
@@ -55,11 +55,6 @@ variable "create_database_subnet_route_table" {
 # Used to allow direct remote access to db
 variable "create_database_internet_gateway_route" {
   description = "Whether to create database internet gateway route"
-  default     = false
-}
-
-variable "create_ec2_instance_connect_endpoint" {
-  description = "Whether to create EC2 Instance Connect Endpoint"
   default     = false
 }
 
@@ -85,12 +80,6 @@ variable "amazon_side_asn" {
 
 variable "customer_gateways" {
   description = "Maps of Customer Gateway's attributes (BGP ASN and Gateway's Internet-routable external IP address)"
-  type        = map(map(any))
-  default     = {}
-}
-
-variable "endpoints" {
-  description = "VPC encpoints"
   type        = map(map(any))
   default     = {}
 }
@@ -153,14 +142,4 @@ variable "database_subnet_tags" {
 variable "elasticache_subnet_tags" {
   description = "Additional tags for the elasticache subnets"
   default     = {}
-}
-
-variable "private_dns_domain" {
-  description = "Private DNS domain, e.g. foo.local"
-  default     = ""
-}
-
-variable "enable_route53" {
-  description = "Whether or not to enable route53 zone creation"
-  default     = true
 }

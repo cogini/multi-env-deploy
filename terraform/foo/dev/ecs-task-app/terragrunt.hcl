@@ -1,7 +1,7 @@
-# Create ECS service
+# Create ECS task
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ecs-task"
+  source = "${dirname(find_in_parent_folders())}/modules//ecs-task"
 }
 dependency "iam-task" {
   config_path = "../iam-ecs-task-role-app"
@@ -15,64 +15,71 @@ dependency "ecr" {
 dependency "s3" {
   config_path = "../s3-app"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   comp = "app"
 
-  image = "${dependency.ecr.outputs.repository_url}:latest"
+  # image = "${dependency.ecr.outputs.repository_url}:latest"
+  image = "public.ecr.aws/docker/library/httpd:2.4"
 
-  port_mappings = [
-    {
-      containerPort = 4000
-      hostPort      = 4000
-      protocol      = "tcp"
-    }
+  # port_mappings = [
+  #   {
+  #     containerPort = 4000
+  #     hostPort      = 4000
+  #     protocol      = "tcp"
+  #   }
+  # ]
+
+  entrypoint = ["sh", "-c"]
+  command = [
+    "/bin/sh -c \"echo '<html><head><title>ECS App</title></head><h1>ECS App</h1><p>It works!</p></body></html>' > /usr/local/apache2/htdocs/index.html && httpd-foreground\""
   ]
 
-  environment = [
-    {
-        name = "CONFIG_S3_BUCKET"
-        value = dependency.s3.outputs.buckets["config"].id
-    },
-    {
-        name = "CONFIG_S3_PREFIX"
-        value = "app"
-    }
-  ]
+  environment = []
+  # environment = [
+  #   {
+  #       name = "CONFIG_S3_BUCKET"
+  #       value = dependency.s3.outputs.buckets["config"].id
+  #   },
+  #   {
+  #       name = "CONFIG_S3_PREFIX"
+  #       value = "app"
+  #   }
+  # ]
 
-  secrets = [
-    {
-        name = "SECRET_KEY_BASE"
-        valueFrom = "endpoint/secret_key_base"
-    },
-    {
-        name = "DATABASE_URL"
-        valueFrom = "db/url"
-    },
-    {
-        name = "COOKIE"
-        valueFrom = "erlang_cookie"
-    },
-    {
-        name = "SMTP_HOST"
-        valueFrom = "smtp/host"
-    },
-    {
-        name = "SMTP_PORT"
-        valueFrom = "smtp/port"
-    },
-    {
-        name = "SMTP_USER"
-        valueFrom = "smtp/user"
-    },
-    {
-        name = "SMTP_PASS"
-        valueFrom = "smtp/pass"
-    },
-  ]
+  # secrets = [
+  #   {
+  #       name = "SECRET_KEY_BASE"
+  #       valueFrom = "endpoint/secret_key_base"
+  #   },
+  #   {
+  #       name = "DATABASE_URL"
+  #       valueFrom = "db/url"
+  #   },
+  #   {
+  #       name = "COOKIE"
+  #       valueFrom = "erlang_cookie"
+  #   },
+  #   {
+  #       name = "SMTP_HOST"
+  #       valueFrom = "smtp/host"
+  #   },
+  #   {
+  #       name = "SMTP_PORT"
+  #       valueFrom = "smtp/port"
+  #   },
+  #   {
+  #       name = "SMTP_USER"
+  #       valueFrom = "smtp/user"
+  #   },
+  #   {
+  #       name = "SMTP_PASS"
+  #       valueFrom = "smtp/pass"
+  #   },
+  # ]
 
   xray = true
 
@@ -127,6 +134,17 @@ inputs = {
 
   task_role_arn = dependency.iam-task.outputs.arn
   execution_role_arn = dependency.iam-execution.outputs.arn
+
+  # log_configuration = {
+  #   logDriver = "awslogs"
+  #   options = {
+  #     "awslogs-group"         = local.awslogs_group
+  #     "awslogs-stream-prefix" = local.service_name
+  #     "awslogs-region"        = var.aws_region
+  #     "awslogs-create-group"  = true
+  #   }
+  #   secretOptions = []
+  # }
 
   # FARGATE supported values
   # CPU value       Memory value (MiB)

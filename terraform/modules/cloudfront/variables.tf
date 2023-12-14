@@ -54,7 +54,7 @@ variable "enable_acm_cert" {
 }
 
 variable "enable_iam_cert" {
-  description = "Use IAM to manage cert"
+  description = "Use IAM to manage cert, exclusive to enable_acm_certificate"
   default     = false
 }
 

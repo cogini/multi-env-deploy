@@ -1,5 +1,7 @@
+# Create target group for blue/green deployment
+
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//target-group"
+  source = "${dirname(find_in_parent_folders())}/modules//target-group"
 }
 dependency "vpc" {
   config_path = "../vpc"
@@ -11,7 +13,7 @@ dependency "zone" {
   config_path = "../route53-public"
   # config_path = "../route53-cdn" # separate CDN domain
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
@@ -25,7 +27,7 @@ inputs = {
   protocol = "HTTP"
 
   health_check = {
-    path = "/"
+    path = "/healthz"
     # interval = 30 # default 30
     # timeout = 10 # default 5
     healthy_threshold = 2 # default 3

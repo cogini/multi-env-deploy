@@ -1,10 +1,12 @@
+# Define IAM service role for CodePipeline
+
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-codepipeline"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-codepipeline"
 }
 dependency "kms" {
   config_path = "../kms"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 inputs = {

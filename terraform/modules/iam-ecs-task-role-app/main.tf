@@ -1,12 +1,82 @@
 # Create IAM ECS task role for app
 
+# Example
+# terraform {
+#   source = "${dirname(find_in_parent_folders())}/modules//iam-ecs-task-role-app"
+# }
+# dependency "kms" {
+#   config_path = "../kms"
+# }
+# dependencies {
+#   paths = [
+#     "../s3-app",
+#   ]
+# }
+# include "root" {
+#   path = find_in_parent_folders()
+# }
+#
+# inputs = {
+#   comp = "app"
+#
+#   # Give access to S3 buckets
+#   s3_buckets = {
+#     # s3-app = {
+#     #   # assets = {}
+#     #   # Allow read only access to config bucket
+#     #   config = {
+#     #     actions = ["s3:ListBucket", "s3:List*", "s3:Get*"]
+#     #   }
+#     #   data = {
+#     #     actions = ["s3:ListBucket", "s3:List*", "s3:Get*", "s3:PutObject*", "s3:DeleteObject"]
+#     #   }
+#     #   logs = {}
+#     #   # protected_web = {}
+#     #   # public_web = {}
+#     # }
+#   }
+#
+#   # Allow writing to any log group and stream
+#   cloudwatch_logs = ["*"]
+#   # cloudwatch_logs = ["log-group:*"]
+#   # cloudwatch_logs = ["log-group:*:log-stream:*"]
+#
+#   # Enable writing metrics to any namespace
+#   cloudwatch_metrics_namespace = "*"
+#   # Allow writing to specific namespace
+#   # cloudwatch_metrics_namespace = "Foo"
+#
+#   # Enable writing to AWS X-Ray
+#   xray = true
+#
+#   # Give acess to all SSM Parameter Store params under /org/app/env/comp
+#   ssm_ps_params = ["*"]
+#   # Specify prefix and params
+#   # Give acess to all SSM Parameter Store params under /org/app/env
+#   # ssm_ps_param_prefix = "cogini/foo/dev"
+#   # Give acess to specific params under prefix
+#   # ssm_ps_params = ["app/*", "worker/*"]
+#
+#   # Allow use of ECS Exec
+#   enable_ssmmessages = true
+#
+#   # Allow sending email via AWS SES
+#   enable_ses = true
+#
+#   enable_transcribe = true
+#
+#   # Give access to KMS CMK
+#   kms_key_arn = dependency.kms.outputs.key_arn
+# }
+
 data "terraform_remote_state" "s3" {
   for_each = toset(keys(var.s3_buckets))
   backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
-    key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
+    # key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
     # key    = "${var.remote_state_s3_key_prefix}/${var.aws_region}/${var.env}/${each.key}/terraform.tfstate"
+    key    = "${var.remote_state_s3_parent_dir}/${each.key}/terraform.tfstate"
     region = var.remote_state_s3_bucket_region
   }
 }
@@ -60,6 +130,7 @@ locals {
   ssm_ps_param_prefix = var.ssm_ps_param_prefix == "" ? "${var.org}/${var.app_name}/${var.env}/${var.comp}" : var.ssm_ps_param_prefix
   ssm_ps_resources    = [for name in var.ssm_ps_params : "${local.ssm_ps_arn}/${local.ssm_ps_param_prefix}/${name}"]
   configure_ssm_ps    = length(local.ssm_ps_resources) > 0
+  configure_sqs       = length(var.sqs_queues) > 0
 }
 
 # Override var.app_name
@@ -157,6 +228,29 @@ resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
   policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
 }
 
+data "aws_iam_policy_document" "ecs-discovery" {
+  count = var.enable_ecs_discovery ? 1 : 0
+
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+      "ecs:DescribeContainerInstances",
+      "ecs:DescribeTasks",
+      "ecs:ListClusters",
+      "ecs:ListServices",
+      "ecs:ListTasks",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "ecs-discovery" {
+  count = var.enable_ecs_discovery ? 1 : 0
+  name = "${local.name}-${var.comp}-ecs-discovery"
+  description = "Allow ECS service and task discovery"
+  policy      = data.aws_iam_policy_document.ecs-discovery[0].json
+}
+
 data "aws_iam_policy_document" "transcribe" {
   count = var.enable_transcribe ? 1 : 0
 
@@ -176,6 +270,28 @@ resource "aws_iam_policy" "transcribe" {
   name_prefix = "${local.name}-${var.comp}-transcribe-"
   description = "Allow performing Transcribe jobs"
   policy      = data.aws_iam_policy_document.transcribe[0].json
+}
+
+data "aws_iam_policy_document" "sqs" {
+  count = local.configure_sqs ? 1 : 0
+
+  statement {
+    actions = [
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:ChangeMessageVisibility",
+      "sqs:ListQueues"
+    ]
+    resources = var.sqs_queues
+  }
+}
+
+resource "aws_iam_policy" "sqs" {
+  count = local.configure_sqs ? 1 : 0
+  name_prefix = "${local.name}-${var.comp}-sqs-"
+  description = "allow sqs actions"
+  policy      = data.aws_iam_policy_document.sqs[0].json
 }
 
 # Give access to S3 buckets
@@ -238,6 +354,7 @@ resource "aws_iam_policy" "ssm" {
 }
 
 # allow access to ssmmessages for secure connection
+# https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
 data "aws_iam_policy_document" "ssmmessages" {
   count = var.enable_ssmmessages ? 1 : 0
 
@@ -263,7 +380,6 @@ resource "aws_iam_policy" "ssmmessages" {
   policy      = data.aws_iam_policy_document.ssmmessages[0].json
 }
 
-# SES
 data "aws_iam_policy_document" "ses" {
   count = var.enable_ses ? 1 : 0
 
@@ -276,8 +392,7 @@ data "aws_iam_policy_document" "ses" {
 }
 
 resource "aws_iam_policy" "ses" {
-  count = var.enable_ses ? 1 : 0
-
+  count       = var.enable_ses ? 1 : 0
   name_prefix = "${local.name}-${var.comp}-ses-"
   description = "Allow sending ses"
   policy      = data.aws_iam_policy_document.ses[0].json
@@ -371,6 +486,12 @@ resource "aws_iam_role" "this" {
 #   operations        = ["Decrypt", "DescribeKey"]
 # }
 
+resource "aws_iam_role_policy_attachment" "ecs-discovery" {
+  count      = var.enable_ecs_discovery ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.ecs-discovery[0].arn
+}
+
 # Allow access to S3 buckets
 resource "aws_iam_role_policy_attachment" "s3" {
   count      = local.configure_s3 ? 1 : 0
@@ -400,6 +521,12 @@ resource "aws_iam_role_policy_attachment" "transcribe" {
   count      = var.enable_transcribe ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.transcribe[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "sqs" {
+  count      = local.configure_sqs ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.sqs[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "ses" {

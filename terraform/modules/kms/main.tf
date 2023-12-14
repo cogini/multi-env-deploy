@@ -2,7 +2,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//kms"
+#   source = "${dirname(find_in_parent_folders())}/modules//kms"
 # }
 # include {
 #   path = find_in_parent_folders()
@@ -10,6 +10,9 @@
 # inputs = {
 #   enable_ec2_as = true
 # }
+
+# terragrunt import aws_kms_key.default 91a26962-814a-4f05-bed0-d3c23fb41475
+# terragrunt import aws_kms_alias.default alias/webapp-stg
 
 data "aws_caller_identity" "current" {}
 
@@ -115,7 +118,8 @@ resource "aws_kms_key" "default" {
   description = local.name
 
   # deletion_window_in_days = 30 # default
-  policy = data.aws_iam_policy_document.default.json
+  policy       = data.aws_iam_policy_document.default.json
+  multi_region = var.multi_region
 
   tags = merge(
     {

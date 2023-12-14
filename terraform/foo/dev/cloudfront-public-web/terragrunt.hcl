@@ -1,7 +1,7 @@
 # Create CloudFront distribution for public website
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//cloudfront"
+  source = "${dirname(find_in_parent_folders())}/modules//cloudfront"
 }
 dependency "route53" {
   config_path = "../route53-public"
@@ -16,7 +16,7 @@ dependency "s3-logs" {
 dependency "lambda" {
   config_path = "../lambda-edge"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

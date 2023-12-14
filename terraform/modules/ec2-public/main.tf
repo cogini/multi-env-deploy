@@ -2,10 +2,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//ec2-public"
-# }
-# dependency "vpc" {
-#   config_path = "../vpc"
+#   source = "${dirname(find_in_parent_folders())}/modules//ec2-public"
 # }
 # dependency "iam" {
 #   config_path = "../iam-instance-profile-app"
@@ -15,6 +12,9 @@
 # }
 # dependency "route53" {
 #   config_path = "../route53-public"
+# }
+# dependency "vpc" {
+#   config_path = "../vpc"
 # }
 # include "root" {
 #   path = find_in_parent_folders()
@@ -35,6 +35,10 @@
 #
 #   # Ubuntu 18.04
 #   # ami = "ami-0f63c02167ca94956"
+#
+#   keypair_name = "foo-dev"
+#
+#   # root_volume_size = 400
 #
 #   subnet_ids = dependency.vpc.outputs.subnets["public"]
 #   security_group_ids = [dependency.sg.outputs.security_group_id]

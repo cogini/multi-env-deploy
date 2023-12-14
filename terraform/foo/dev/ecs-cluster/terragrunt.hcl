@@ -1,9 +1,9 @@
 # Create ECS cluster
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ecs-cluster"
+  source = "${dirname(find_in_parent_folders())}/modules//ecs-cluster"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

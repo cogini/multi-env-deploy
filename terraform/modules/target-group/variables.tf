@@ -64,10 +64,15 @@ variable "vpc_id" {
 }
 
 variable "listener_arn" {
-  description = "ARN of LB listner"
+  description = "ARN of LB listener"
 }
 
 variable "listener_rule" {
   description = "Whether to add a listener rule"
   default     = true
+}
+
+variable "protocol_version" {
+  description = "Protocol version"
+  default     = "HTTP1"
 }

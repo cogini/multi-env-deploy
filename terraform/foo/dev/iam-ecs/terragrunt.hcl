@@ -4,8 +4,8 @@
 # aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//iam-ecs"
+  source = "${dirname(find_in_parent_folders())}/modules//iam-ecs"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }

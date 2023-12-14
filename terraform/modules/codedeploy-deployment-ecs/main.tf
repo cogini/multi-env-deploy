@@ -1,5 +1,78 @@
 # Create CodeDeploy deployment group for ECS behind LB
 
+# Example
+# terraform {
+#   source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-ecs"
+# }
+# dependency "cluster" {
+#   config_path = "../ecs-cluster"
+# }
+# dependency "codedeploy-app" {
+#   config_path = "../codedeploy-app"
+# }
+# dependency "iam-codedeploy" {
+#   config_path = "../iam-codedeploy"
+# }
+# dependency "lb" {
+#   config_path = "../lb-public"
+# }
+# dependency "service" {
+#   config_path = "../ecs-service-app"
+# }
+# dependency "sns" {
+#   config_path = "../sns-codedeploy-app"
+# }
+# dependency "target-group-1" {
+#   config_path = "../target-group-app-ecs-1"
+# }
+# dependency "target-group-2" {
+#   config_path = "../target-group-app-ecs-2"
+# }
+# include "root" {
+#   path = find_in_parent_folders()
+# }
+# 
+# inputs = {
+#   # Name of component we are deploying
+#   comp = "app"
+# 
+#   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-blue-green.html
+#   target_group_names = [
+#     dependency.target-group-1.outputs.name,
+#     dependency.target-group-2.outputs.name
+#   ]
+# 
+#   listener_arns = [dependency.lb.outputs.listener_arn]
+# 
+#   ecs_cluster_name = dependency.cluster.outputs.name
+#   ecs_service_name = dependency.service.outputs.name
+# 
+#   # Blue/Green
+#   deployment_type   = "BLUE_GREEN"
+#   deployment_option = "WITH_TRAFFIC_CONTROL"
+# 
+#   # On success, deploy immediately
+#   deployment_ready_option_action_on_timeout     = "CONTINUE_DEPLOYMENT"
+#   deployment_ready_option_wait_time_in_minutes  = 0
+# 
+#   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+# 
+#   # In place
+#   # deployment_type   = "IN_PLACE"
+#   # deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+#   # deployment_config_name = "CodeDeployDefault.OneAtATime"
+# 
+#   codedeploy_app_name = dependency.codedeploy-app.outputs.app_name
+#   codedeploy_service_role_arn = dependency.iam-codedeploy.outputs.codedeploy_service_role_arn
+# 
+#   # alarm_configuration = {
+#   #   alarms  = ["my-alarm-name"]
+#   #   enabled = true
+#   # }
+# 
+#   trigger_target_arn = dependency.sns.outputs.arn
+# }
+
 locals {
   name         = var.name == "" ? "${var.app_name}-${var.comp}-ecs" : var.name
   trigger_name = var.trigger_name == "" ? local.name : var.trigger_name

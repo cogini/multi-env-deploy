@@ -1,7 +1,7 @@
 # Create VPC
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//vpc"
+  source = "${dirname(find_in_parent_folders())}/modules//vpc"
 }
 include "root" {
   path = find_in_parent_folders()

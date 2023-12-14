@@ -3,7 +3,7 @@
 # Example config:
 #
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//sg"
+#   source = "${dirname(find_in_parent_folders())}/modules//sg"
 # }
 # dependency "vpc" {
 #   config_path = "../vpc"
@@ -55,7 +55,9 @@ data "terraform_remote_state" "sg" {
   backend  = "s3"
   config = {
     bucket = var.remote_state_s3_bucket_name
-    key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
+    # key    = "${var.remote_state_s3_key_prefix}/${each.key}/terraform.tfstate"
+    # key    = "${var.remote_state_s3_key_prefix}/${var.aws_region}/${var.env}/${each.key}/terraform.tfstate"
+    key    = "${var.remote_state_s3_parent_dir}/${each.key}/terraform.tfstate"
     region = var.remote_state_s3_bucket_region
   }
 }

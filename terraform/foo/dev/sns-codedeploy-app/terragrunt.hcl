@@ -1,14 +1,12 @@
 # Create SNS topic
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//sns"
+  source = "${dirname(find_in_parent_folders())}/modules//sns"
 }
-dependencies {
-  paths = []
-}
-include {
+include "root" {
   path = find_in_parent_folders()
 }
+
 inputs = {
   comp = "codedeploy"
   name = "foo-dev-codedeploy"

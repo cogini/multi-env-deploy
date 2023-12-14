@@ -1,23 +1,24 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//target-group-default"
+  source = "${dirname(find_in_parent_folders())}/modules//target-group-default"
 }
 dependency "vpc" {
   config_path = "../vpc"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   port = 4001
   protocol = "HTTPS"
+  # protocol = "HTTP"
 
   health_check = {
     # If you don't specify the port, it uses the same as the traffic port
     # You still need to specify HTTPS, though
     port = 4001
     protocol = "HTTPS"
-    path = "/"
+    path = "/healthz"
     interval = 30
     timeout = 10
     healthy_threshold = 2

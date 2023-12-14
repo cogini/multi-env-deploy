@@ -1,18 +1,3 @@
-output "dns_name" {
-  description = "DNS name of RDS instance"
-  value       = aws_route53_record.db[0].name
-}
-
-output "dns_fqdn" {
-  description = "DNS name of RDS instance"
-  value       = aws_route53_record.db[0].fqdn
-}
-
-output "dns_record" {
-  description = "DNS name of RDS instance"
-  value       = aws_route53_record.db[0]
-}
-
 # DB instance
 output "instance_address" {
   description = "Address of RDS instance"
@@ -68,4 +53,24 @@ output "instance_username" {
 output "instance_port" {
   description = "Database port"
   value       = module.db.db_instance_port
+}
+
+output "service_discovery_service_id" {
+  description = "Service discovery service id"
+  value       = local.enable_sd ? aws_service_discovery_service.this[0].id : null
+}
+
+output "service_discovery_service_arn" {
+  description = "Service discovery service ARN"
+  value       = local.enable_sd ? aws_service_discovery_service.this[0].arn : null
+}
+
+output "service_discovery_instance_id" {
+  description = "Service discovery instance id"
+  value       = local.enable_sd ? aws_service_discovery_instance.this[0].id : null
+}
+
+output "service_discovery_instance_dns_name" {
+  description = "Service discovery instance DNS name"
+  value       = local.enable_sd ? "${local.dns_name}.${var.service_discovery_dns_domain}" : null
 }

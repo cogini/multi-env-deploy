@@ -20,12 +20,6 @@ locals {
   # aws_account_id   = local.account_vars.locals.aws_account_id
   aws_region       = local.region_vars.locals.aws_region
 
-  # Default and common settings
-  # common_vars = yamldecode(
-  #  file(find_in_parent_folders("common.yml"))
-  #)
-  #default_yaml_path = find_in_parent_folders("empty.yml")
-
   org = local.common_vars.locals.org
   app_name = local.common_vars.locals.app_name
   # env = local.env_vars.locals.env
@@ -96,22 +90,4 @@ inputs = merge(
     remote_state_s3_bucket_name   = format("%s-%s-%s-tfstate", local.org, local.app_name, local.env)
     remote_state_s3_key_prefix    = local.env
   }
-  # yamldecode(
-  #   # Default and common settings
-  #   file("${find_in_parent_folders("common.yml", local.default_yaml_path)}"),
-  # ),
-  # yamldecode(
-  #   # Settings for environment
-  #   file("${find_in_parent_folders("${local.env}.yml", local.default_yaml_path)}"),
-  # ),
-  # Use a directory hierarchy to load config files:
-  # yamldecode(
-  #   file("${get_terragrunt_dir()}/${find_in_parent_folders("env.yml", local.default_yaml_path)}"),
-  # ),
-  # yamldecode(
-  #   file("${get_terragrunt_dir()}/${find_in_parent_folders("region.yml", local.default_yaml_path)}"),
-  # ),
-  # {
-  #   aws_profile = "non-prod"
-  # },
 )

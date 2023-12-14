@@ -1,5 +1,7 @@
+# Create CodeDeploy deployment group for app running in EC2
+
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-ec2"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-ec2"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"
@@ -16,7 +18,7 @@ dependencies {
     # "../iam-codepipeline-app",
   ]
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

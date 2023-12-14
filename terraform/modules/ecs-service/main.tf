@@ -39,7 +39,16 @@ resource "aws_ecs_service" "this" {
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
   desired_count                      = var.desired_count
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
+  enable_execute_command             = var.enable_execute_command
   force_new_deployment               = var.force_new_deployment
+
+  # dynamic "triggers" {
+  #   for_each = var.force_new_deployment == null ? [] : tolist([1])
+  #   content {
+  #     redeployment = timestamp()
+  #   }
+  # }
+
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   iam_role                           = var.iam_role
   launch_type                        = var.launch_type
@@ -92,12 +101,46 @@ resource "aws_ecs_service" "this" {
   # https://docs.aws.amazon.com/Route53/latest/APIReference/API_autonaming_Service.html
   dynamic "service_registries" {
     for_each = var.service_registries == null ? [] : tolist([1])
-    iterator = registries
     content {
-      registry_arn   = lookup(registries.value, "registry_arn", null)
-      port           = lookup(registries.value, "port", null)
-      container_port = lookup(registries.value, "container_port", null)
-      container_name = lookup(registries.value, "container_name", null)
+      registry_arn   = lookup(var.service_registries, "registry_arn", null)
+      port           = lookup(var.service_registries, "port", null)
+      container_port = lookup(var.service_registries, "container_port", null)
+      container_name = lookup(var.service_registries, "container_name", null)
+    }
+  }
+
+  # service_connect_configuration = var.service_connect_configuration
+  dynamic "service_connect_configuration" {
+    for_each = var.service_connect_configuration == null ? [] : tolist([1])
+    content {
+      enabled = lookup(service_connect_configuration, "enabled", true)
+      namespace = lookup(service_connect_configuration, "namespace", null)
+
+      dynamic "service" {
+        for_each = lookup(service_connect_configuration, "service", [])
+        content {
+          client_alias = lookup(service.value, "client_alias", [])
+          discovery_name = lookup(service.value, "discovery_name", null)
+          ingress_port_override = lookup(service.value, "ingress_port_override", null)
+          port_name = lookup(service.value, "port_name", null)
+        }
+      }
+
+      dynamic "log_configuration" {
+        for_each = lookup(service_connect_configuration, "log_configuration", null) == null ? [] : tolist([1])
+        content {
+          log_driver = lookup(log_configuration.value, "log_driver", null)
+          options    = lookup(log_configuration.value, "options", null)
+
+          dynamic "secret_option" {
+            for_each = lookup(log_configuration.value, "secret_option", [])
+            content {
+              name      = lookup(secret_option.value, "name", null)
+              value_from = lookup(secret_option.value, "value_from", null)
+            }
+          }
+        }
+      }
     }
   }
 

@@ -7,11 +7,6 @@ variable "aws_account_id" {
   default     = ""
 }
 
-variable "aws_region" {
-  description = "AWS region"
-  default     = ""
-}
-
 variable "name" {
   description = "Role name"
   default     = ""
@@ -32,15 +27,16 @@ variable "enable_cloudfront" {
   default     = false
 }
 
-variable "ecr_arn" {
-  description = "ARN of ECR repository"
-  default     = ""
+variable "ecr_arns" {
+  description = "ARNs of ECR repository"
+  type        = set(string)
+  default     = []
 }
 
 variable "ecs" {
   description = "ECS config"
-  type        = map(string)
-  default     = null
+  type        = list(map(string))
+  default     = []
 }
 
 variable "codebuild_project_name" {

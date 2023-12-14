@@ -1,20 +1,20 @@
 # Create Route53 DNS records to verify a domain for sending mail via SES
 
-# Example route53-ses/terraform.tfvars
+# Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//route53-ses"
+#   source = "${dirname(find_in_parent_folders())}/modules//route53-ses"
 # }
-# dependency "zone" {
+# dependency "route53" {
 #   config_path = "../route53-public"
 # }
-# include {
+# include "root" {
 #   path = find_in_parent_folders()
 # }
 #
 # inputs = {
 #   # Domain used for sending mail, verified with SES
-#   zone_name = dependency.zone.outputs.name
-#   zone_id = dependency.zone.outputs.zone_id
+#   dns_domain = dependency.route53.outputs.name
+#   dns_zone_id = dependency.route53.outputs.zone_id
 # }
 
 locals {

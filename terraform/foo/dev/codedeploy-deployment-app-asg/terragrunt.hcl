@@ -1,7 +1,7 @@
 # Create CodeDeploy deployment group for app running in ASG behind LB
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//codedeploy-deployment-asg"
+  source = "${dirname(find_in_parent_folders())}/modules//codedeploy-deployment-asg"
 }
 dependency "iam" {
   config_path = "../iam-codepipeline"

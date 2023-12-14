@@ -17,9 +17,19 @@ variable "comp" {
   description = "Name of component: bastion, app, worker, etc."
 }
 
+variable "create_dns" {
+  description = "Create DNS records for instance"
+  default     = false
+}
+
 variable "dns_domain" {
   description = "DNS domain (zone)"
   default     = ""
+}
+
+variable "dns_ttl" {
+  description = "DNS record time to live"
+  default     = 60
 }
 
 variable "dns_zone_id" {
@@ -99,14 +109,4 @@ variable "root_volume_size" {
 variable "root_volume_delete_on_termination" {
   description = "Whether the volume should be destroyed on instance termination"
   default     = true
-}
-
-variable "create_dns" {
-  description = "Create DNS records for instance"
-  default     = false
-}
-
-variable "dns_ttl" {
-  description = "DNS record time to live"
-  default     = 60
 }

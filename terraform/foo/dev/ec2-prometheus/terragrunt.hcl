@@ -1,8 +1,5 @@
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ec2-public"
-}
-dependency "vpc" {
-  config_path = "../vpc"
+  source = "${dirname(find_in_parent_folders())}/modules//ec2-public"
 }
 dependency "iam" {
   config_path = "../iam-instance-profile-prometheus"
@@ -13,28 +10,24 @@ dependency "sg" {
 dependency "route53" {
   config_path = "../route53-public"
 }
-include {
+dependency "vpc" {
+  config_path = "../vpc"
+}
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   comp = "prometheus"
 
-  instance_type = "t2.micro"
-
-  dns_health_check = true
 
   # Single instance
   instance_count = 1
 
+  instance_type = "t3.micro"
+
   # Ubuntu 18.04
-  ami = "ami-0f63c02167ca94956"
-
-  # CentOS 7
-  # ami = "ami-8e8847f1"
-
-  # Amazon Linux 2
-  # ami = "ami-0d7ed3ddb85b521a6"
+  # ami = "ami-0f63c02167ca94956"
 
   subnet_ids = dependency.vpc.outputs.subnets["public"]
   security_group_ids = [dependency.sg.outputs.security_group_id]

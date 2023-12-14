@@ -1,39 +1,42 @@
 # Create ECS service
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//ecs-service"
+  source = "${dirname(find_in_parent_folders())}/modules//ecs-service"
 }
-dependency "vpc" {
-  config_path = "../vpc"
-}
-dependency "sg" {
-  config_path = "../sg-app-private"
-}
-dependency "tg" {
-  config_path = "../target-group-app-ecs-1"
+dependency "cluster" {
+  config_path = "../ecs-cluster"
 }
 # dependency "iam" {
 #   config_path = "../iam-instance-profile-app"
 # }
-dependency "cluster" {
-  config_path = "../ecs-cluster"
+dependency "sg" {
+  config_path = "../sg-app-private"
 }
 dependency "task" {
   config_path = "../ecs-task-app"
 }
-include {
+dependency "tg" {
+  config_path = "../target-group-app-ecs-1"
+}
+dependency "vpc" {
+  config_path = "../vpc"
+}
+include "root" {
   path = find_in_parent_folders()
 }
 
 inputs = {
   comp = "app"
   cluster = dependency.cluster.outputs.arn
-  task_definition = dependency.task.outputs.arn
+
+  # task_definition = dependency.task.outputs.arn
+  # task_definition = "iot-app:27"
 
   load_balancer = [
     {
       target_group_arn = dependency.tg.outputs.arn
-      container_name = "foo-app"
+      container_name = dependency.task.outputs.container_name
+      # container_port = dependency.task.outputs.port_mappings[0].hostPort
       container_port = 4000
     }
   ]
@@ -52,7 +55,9 @@ inputs = {
     }
   ]
 
-  deployment_controller_type = "CODE_DEPLOY"
+  # deployment_controller_type = "CODE_DEPLOY"
+  deployment_controller_type = "ECS"
+  force_new_deployment = true
 
   # deployment_maximum_percent = 200
   # deployment_minimum_healthy_percent = 0

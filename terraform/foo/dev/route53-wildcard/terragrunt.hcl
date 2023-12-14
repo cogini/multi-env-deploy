@@ -1,21 +1,21 @@
 # Create alias for *.example.com
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//route53-alias"
+  source = "${dirname(find_in_parent_folders())}/modules//route53-alias"
 }
+# dependency "cloudfront" {
+#   config_path = "../cloudfront-public-web"
+# }
 dependency "route53" {
   config_path = "../route53-public"
 }
 dependency "lb" {
   config_path = "../lb-public"
 }
-# dependency "cloudfront" {
-#   config_path = "../cloudfront-public-web"
-# }
 # dependency "s3" {
 #   config_path = "../s3-app"
 # }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

@@ -38,7 +38,7 @@ locals {
   configure_cloudwatch_logs = length(local.cloudwatch_logs) > 0
 }
 
-# Allow task execution role to be assumed by ecs
+# Allow task execution role to be assumed by ECS
 data "aws_iam_policy_document" "this" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  name               = "${var.app_name}-ecs-task-execution-role"
+  name               = "${local.name}-ecs-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.this.json
 }
 
@@ -83,7 +83,7 @@ resource "aws_iam_policy" "cloudwatch-logs" {
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch-logs" {
-  count = var.cloudwatch_logs_create_group ? 1 : 0
+  count      = var.cloudwatch_logs_create_group ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.cloudwatch-logs[0].arn
 }

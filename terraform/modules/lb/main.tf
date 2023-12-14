@@ -93,8 +93,8 @@ resource "aws_lb_listener" "https-acm" {
   certificate_arn   = data.aws_acm_certificate.acm[0].arn
 
   default_action {
-    target_group_arn = var.target_group_arn
     type             = "forward"
+    target_group_arn = var.target_group_arn
   }
 }
 
@@ -107,7 +107,7 @@ resource "aws_lb_listener" "https-iam" {
   certificate_arn   = data.aws_iam_server_certificate.iam[0].arn
 
   default_action {
-    target_group_arn = var.target_group_arn
     type             = "forward"
+    target_group_arn = var.target_group_arn
   }
 }

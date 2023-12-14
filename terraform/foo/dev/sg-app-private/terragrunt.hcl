@@ -1,13 +1,11 @@
 # Security group for app running in private subnet
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//sg"
+  source = "${dirname(find_in_parent_folders())}/modules//sg"
 }
-
 dependency "vpc" {
   config_path = "../vpc"
 }
-
 dependencies {
   paths = [
     "../sg-lb-public",
@@ -16,8 +14,7 @@ dependencies {
     "../sg-prometheus",
   ]
 }
-
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

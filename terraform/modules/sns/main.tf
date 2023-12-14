@@ -2,7 +2,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//sns"
+#   source = "${dirname(find_in_parent_folders())}/modules//sns"
 # }
 # include {
 #   path = find_in_parent_folders()

@@ -1,12 +1,12 @@
-# Create Route53 hosted zone for public domain.
+# Create Route53 hosted zone for public domain
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//route53-zone"
+  source = "${dirname(find_in_parent_folders())}/modules//route53-zone"
 }
 dependency "delegation-set" {
   config_path = "../route53-delegation-set"
 }
-include {
+include "root" {
   path = find_in_parent_folders()
 }
 

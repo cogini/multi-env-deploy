@@ -1,18 +1,18 @@
 # Create RDS database for app
 
 terraform {
-  source = "${get_terragrunt_dir()}/../../../modules//rds"
+  source = "${dirname(find_in_parent_folders())}/modules//rds"
 }
 # dependency "kms" {
 #   config_path = "../kms"
 # }
-dependency "vpc" {
-  config_path = "../vpc"
-}
 dependency "sg" {
   config_path = "../sg-db"
 }
-include {
+dependency "vpc" {
+  config_path = "../vpc"
+}
+include "root" {
   path = find_in_parent_folders()
 }
 
@@ -29,64 +29,77 @@ inputs = {
   skip_final_snapshot = true
   # apply_immediately = true
 
-  # Micro doesn't support encryption, only small
+  # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html
+  # instance_class = "db.t3.micro"
+  # Default instance class is micro, but it doesn't support encryption
+  # instance_class = "db.t3.small"
   # storage_encrypted = true
-  # instance_class = "db.t2.small"
 
   subnet_ids = dependency.vpc.outputs.subnets["database"]
+  db_subnet_group_name = dependency.vpc.outputs.database_subnet_group
+
   security_group_ids = [dependency.sg.outputs.security_group_id]
+
   dns_domain = dependency.vpc.outputs.private_dns_domain
   dns_zone_id = dependency.vpc.outputs.private_dns_zone_id
 
   # kms_key_id = dependency.kms.outputs.key_arn
 
   # https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
+  # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
   engine = "postgres"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].EngineVersion'
+  # aws rds describe-db-engine-versions --default-only --engine postgres
   engine_version = "11.12"
+  # major_engine_version = "9.6"
+  # major_engine_version = "10"
+  # engine_version = "15.3"
+  # major_engine_version = "15"
   port = "5432"
   # aws rds describe-db-engine-versions --engine postgres | jq '.DBEngineVersions[].DBParameterGroupFamily'
   # family = "postgres9.6"
   family = "postgres11"
+  # family = "postgres15"
   # DB option group
-  # major_engine_version = "9.6"
-  # major_engine_version = "10"
-  rds_master_user = "postgresql"
-  # Set rds_master_pass via environment var
+  rds_master_user = "postgres"
+  # rds_master_user = "postgresql"
+  # Set rds_master_pass via environment TF_VAR_rds_master_pass
 
-  ca_cert_identifier = "rds-ca-2019"
+  db_name = "postgres"
+
+  # ca_cert_identifier = "rds-ca-2019"
 
   # create_monitoring_role = true
   # monitoring_interval = 60
   # performance_insights_enabled = true
   # performance_insights_retention_period = 7
 
-  # parameters = [
-  #   {
-  #     name = "rds.force_ssl",
-  #     value = 1
-  #   }
-  #   {
-  #     name = "shared_preload_libraries",
-  #     value = "pg_stat_statements",
-  #     apply_method = "pending-reboot"
-  #   },
-  #   {
-  #     name = "pg_stat_statements.track",
-  #     value = "all",
-  #     apply_method = "pending-reboot"
-  #   },
-  #   {
-  #     name = "track_activity_query_size",
-  #     value = "2048",
-  #     apply_method = "pending-reboot"
-  #   },
-  #   {
-  #     name = "idle_in_transaction_session_timeout",
-  #     value = "3600000",
-  #     apply_method = "dynamic"
-  #   }
-  # ]
+  parameters = [
+    {
+      name = "rds.force_ssl",
+      value = 0
+    },
+    # {
+    #   name = "shared_preload_libraries",
+    #   value = "pg_stat_statements",
+    #   apply_method = "pending-reboot"
+    # },
+    # {
+    #   name = "pg_stat_statements.track",
+    #   value = "all",
+    #   apply_method = "pending-reboot"
+    # },
+    # {
+    #   name = "track_activity_query_size",
+    #   value = "2048",
+    #   apply_method = "pending-reboot"
+    # },
+    # {
+    #   name = "idle_in_transaction_session_timeout",
+    #   value = "3600000",
+    #   apply_method = "dynamic"
+    # }
+  ]
 
   # https://github.com/terraform-aws-modules/terraform-aws-vpc#public-access-to-rds-instances
   # Allow public access to RDS instance

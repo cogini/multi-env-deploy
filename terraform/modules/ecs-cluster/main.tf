@@ -46,6 +46,13 @@ resource "aws_ecs_cluster" "this" {
     }
   }
 
+  dynamic "service_connect_defaults" {
+    for_each = var.service_discovery_namespace == null ? [] : tolist([1])
+    content {
+      namespace = var.service_discovery_namespace
+    }
+  }
+
   tags = merge(
     {
       "Name"  = local.name

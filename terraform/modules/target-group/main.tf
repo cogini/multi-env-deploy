@@ -53,6 +53,7 @@ resource "aws_lb_target_group" "this" {
   name                 = local.name
   port                 = var.port
   protocol             = var.protocol
+  protocol_version     = var.protocol_version
   deregistration_delay = var.deregistration_delay
 
   dynamic "health_check" {

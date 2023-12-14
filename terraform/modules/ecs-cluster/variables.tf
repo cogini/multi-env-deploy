@@ -19,3 +19,9 @@ variable "container_insights" {
   description = "Whether to enable container_insights: enabled or disabled"
   default     = null
 }
+
+variable "service_discovery_namespace" {
+  description = "ARN of default service discovery namespace"
+  type        = string
+  default     = null
+}

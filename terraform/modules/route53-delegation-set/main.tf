@@ -7,10 +7,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//route53-delegation-set"
-# }
-# dependencies {
-#   paths = []
+#   source = "${dirname(find_in_parent_folders())}/modules//route53-delegation-set"
 # }
 # include {
 #   path = find_in_parent_folders()
