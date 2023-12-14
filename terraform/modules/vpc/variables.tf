@@ -6,6 +6,7 @@
 variable "availability_zones" {
   description = "Availaibility zones"
   type        = list(string)
+  default     = []
 }
 
 variable "cidr" {

@@ -6,7 +6,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   name = var.app_name
-  azs  = slice(data.aws_availability_zones.available.names, 0, 3)
+  azs = var.availability_zones == [] ? slice(data.aws_availability_zones.available.names, 0, 3) : var.availability_zones
 
   tags = merge(
     {
@@ -27,7 +27,7 @@ module "vpc" {
   name = local.name
   cidr = var.cidr
 
-  azs                 = var.availability_zones
+  azs                 = local.azs
   private_subnets     = var.private_subnets
   public_subnets      = var.public_subnets
   database_subnets    = var.database_subnets
