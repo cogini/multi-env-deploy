@@ -17,13 +17,13 @@ locals {
 
   # Extract variables for easy access
   # aws_account_name = local.account_vars.locals.aws_account_name
-  # aws_account_id   = local.account_vars.locals.aws_account_id
+  aws_account_id   = local.account_vars.locals.aws_account_id
   aws_region       = local.region_vars.locals.aws_region
 
-  org = local.common_vars.locals.org
+  org      = local.common_vars.locals.org
   app_name = local.common_vars.locals.app_name
-  # env = local.env_vars.locals.env
-  env = get_env("ENV", "dev")
+  # env     = local.env_vars.locals.env
+  env      = get_env("ENV", "dev")
 }
 
 # Generate an AWS provider block
@@ -35,7 +35,7 @@ provider "aws" {
   region = "${local.aws_region}"
 
   # Only these AWS Account IDs may be operated on by this template
-  # allowed_account_ids = [local.aws_account_id]
+  allowed_account_ids = ["${local.aws_account_id}"]
 }
 EOF
 }
@@ -80,14 +80,15 @@ terraform {
 # especially helpful with multi-account configs where terraform_remote_state
 # data sources are placed directly into the modules.
 inputs = merge(
-  local.account_vars.locals,
-  local.common_vars.locals,
-  local.env_vars.locals,
-  local.region_vars.locals,
   {
-    # Used within TF modules for parsing data
+    # Used to reference data from other modules from state
     remote_state_s3_bucket_region = local.aws_region
     remote_state_s3_bucket_name   = format("%s-%s-%s-tfstate", local.org, local.app_name, local.env)
     remote_state_s3_key_prefix    = local.env
-  }
+    remote_state_s3_parent_dir    = dirname(path_relative_to_include())
+  },
+  local.common_vars.locals,
+  local.account_vars.locals,
+  local.env_vars.locals,
+  local.region_vars.locals,
 )
