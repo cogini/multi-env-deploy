@@ -44,6 +44,8 @@
 #   dns_zone_id = dependency.vpc.outputs.private_dns_zone_id
 # }
 
+data "aws_availability_zones" "available" {}
+
 data "aws_ami" "this" {
   most_recent = true
   owners      = ["amazon"]
@@ -64,6 +66,7 @@ locals {
   host_name = var.host_name == "" ? var.comp : var.host_name
   fqdn      = "${local.host_name}.${var.dns_domain}"
   ami       = var.ami == "" ? data.aws_ami.this.id : var.ami
+  availability_zones = var.availability_zones == [] ? data.aws_availability_zones.available.names : var.availability_zones
 }
 
 # https://www.terraform.io/docs/providers/aws/r/instance.html
@@ -78,7 +81,7 @@ resource "aws_instance" "this" {
   subnet_id                            = element(distinct(compact(var.subnet_ids)), count.index)
   vpc_security_group_ids               = var.security_group_ids
   iam_instance_profile                 = var.instance_profile_name
-  # availability_zone                   = var.availability_zones[count.index]
+  availability_zone                    = local.availability_zones[count.index]
   associate_public_ip_address          = false
   disable_api_termination              = var.disable_api_termination
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior

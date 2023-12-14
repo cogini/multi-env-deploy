@@ -16,6 +16,7 @@ variable "assign_eip" {
 variable "availability_zones" {
   description = "Availaibility zones"
   type        = list(string)
+  default     = []
 }
 
 variable "comp" {
@@ -145,4 +146,3 @@ variable "root_volume_delete_on_termination" {
   description = "Whether the volume should be destroyed on instance termination"
   default     = true
 }
-
