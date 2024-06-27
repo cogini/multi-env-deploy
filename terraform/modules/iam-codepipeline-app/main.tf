@@ -2,7 +2,7 @@
 
 # Example config:
 # terraform {
-#   source = "${get_terragrunt_dir()}/../../../modules//iam-codepipeline-app"
+#   source = "${dirname(find_in_parent_folders())}/modules//iam-codepipeline-app"
 # }
 # dependency "iam" {
 #   config_path = "../iam-codepipeline"
