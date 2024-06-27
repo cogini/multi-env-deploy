@@ -23,8 +23,24 @@
 #   private_route_table_ids     = dependency.vpc.outputs.private_route_table_ids
 # }
 
+data "aws_ami" "fck_nat" {
+  filter {
+    name   = "name"
+    values = ["fck-nat-amzn2-*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["arm64"]
+  }
+
+  owners      = ["568608671756"]
+  most_recent = true
+}
+
 locals {
   name = var.name == "" ? var.app_name : var.name
+  image_id = var.image_id == null ? data.aws_ami.fck_nat.id : var.image_id
 
   tags = merge(
     {
@@ -46,7 +62,11 @@ module "nat" {
   public_subnet               = var.public_subnet
   private_subnets_cidr_blocks = var.private_subnets_cidr_blocks
   private_route_table_ids     = var.private_route_table_ids
-  # enabled                     = var.enabled
+  enabled                     = var.enabled
+
+  image_id = local.image_id
+  instance_types = var.instance_types
+  key_name = var.key_name
 
   # enable port forwarding (optional)
   # user_data_write_files = [
