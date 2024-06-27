@@ -32,20 +32,25 @@ variable "codestar_connection_arn" {
 
 variable "codepipeline_service_role_id" {
   description = "CodePipeline service role"
+  default     = null
 }
 
 variable "codedeploy_service_role_id" {
   description = "CodeDeploy service role"
+  default     = null
 }
 
 variable "codebuild_service_role_id" {
   description = "CodeBuild service role"
+  default     = null
 }
 
 variable "artifacts_bucket_arn" {
   description = "Artifacts S3 bucket"
+  default     = null
 }
 
 variable "cache_bucket_arn" {
   description = "Build cache S3 bucket"
+  default     = null
 }
