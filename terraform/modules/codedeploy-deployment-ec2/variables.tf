@@ -27,14 +27,23 @@ variable "trigger_events" {
   type        = list(string)
 }
 
-#variable "ec2_tag_set" {
-#  description = "Set of tags used to find instances to deploy to (EC2)"
-#  default     = []
-#}
-
 variable "ec2_tag_filter" {
   description = "Tags used to find instances to deploy to (EC2)"
-  type        = list(any)
+  type        = list(object({
+    key         = string,
+    type        = string,
+    value       = string
+  }))
+  default     = []
+}
+
+variable "ec2_tag_set" {
+  description = "Set of tags used to find instances to deploy to (EC2)"
+  type        = list(list(object({
+    key         = string,
+    type        = string,
+    value       = string
+  })))
   default     = []
 }
 
@@ -56,7 +65,22 @@ variable "deployment_option" {
 
 variable "on_premises_instance_tag_filter" {
   description = "Tags used to find instances to deploy to (on-premises)"
-  type        = list(any)
+  # type        = list(any)
+  type        = list(object({
+    key         = string,
+    type        = string,
+    value       = string
+  }))
+  default     = []
+}
+
+variable "on_premises_tag_set" {
+  description = "Set of tags used to find instances to deploy to (on-premises)"
+  type        = list(list(object({
+    key         = string,
+    type        = string,
+    value       = string
+  })))
   default     = []
 }
 
