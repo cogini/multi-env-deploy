@@ -101,6 +101,8 @@ locals {
   enable_ecr        = length(var.ecr_arns) > 0
   enable_ecs        = length(var.ecs) > 0
   enable_codebuild  = var.codebuild_project_name != ""
+  kms_key_id        = var.kms_key_id
+  subs              = var.subs == null ? [var.sub] : var.subs
 
   ecs_task_roles = [ for r in var.ecs : r.task_role_arn ]
   ecs_execution_roles = [ for r in var.ecs : r.execution_role_arn ]
@@ -113,35 +115,49 @@ locals {
         "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
       ] : []
   ])
-  enable_codedeploy = length(local.ecs_codedeploy_arns) > 0
+
+  ec2_codedeploy_arns = flatten([ for r in var.ec2 :
+    try(r.codedeploy_application_name, null) != null ?
+      [
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
+        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
+      ] : []
+  ])
+
+  enable_codedeploy = length(local.ec2_codedeploy_arns) > 0
+}
+
+data "aws_iam_policy_document" "assume" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type = "Federated"
+      identifiers = [
+        "arn:${var.aws_partition}:iam::${local.aws_account_id}:oidc-provider/token.actions.githubusercontent.com"
+      ]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    # Use subject (sub) condition key for iam
+    # https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#available-keys-for-iam
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = var.subs
+    }
+  }
 }
 
 resource "aws_iam_role" "this" {
   name               = "${local.name}-github-action"
   description        = "Allow GitHub Action to call AWS services"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:${var.aws_partition}:iam::${local.aws_account_id}:oidc-provider/token.actions.githubusercontent.com"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-        },
-        "StringLike": {
-          "token.actions.githubusercontent.com:sub": "${var.sub}"
-        }
-      }
-    }
-  ]
-}
-EOF
+  assume_role_policy = data.aws_iam_policy_document.assume.json
 }
 
 # Give access to S3 buckets
@@ -155,6 +171,7 @@ data "aws_iam_policy_document" "s3" {
       actions = [
         "s3:GetBucketLocation",
         "s3:ListBucket",
+        "s3:CreateMultipartUpload",
       ]
       resources = ["arn:${var.aws_partition}:s3:::${statement.value}"]
     }
@@ -169,6 +186,7 @@ data "aws_iam_policy_document" "s3" {
         "s3:GetObject",
         "s3:PutObject",
         "s3:PutObjectAcl",
+        "s3:CreateMultipartUpload",
       ]
       resources = ["arn:${var.aws_partition}:s3:::${statement.value}/*"]
     }
@@ -406,52 +424,103 @@ resource "aws_iam_role_policy_attachment" "ecs" {
 
 
 # Create CodeDeploy deployment
-# data "aws_iam_policy_document" "codedeploy-app-deploy" {
-#   count = local.enable_codedeploy ? 1 : 0
-#
-#   statement {
-#     actions   = ["codedeploy:CreateDeployment"]
-#     resources = ["${local.codedeploy_arn}:deploymentgroup:${local.codedeploy_deploymentgroup_name}*/*"]
-#   }
-#   statement {
-#     actions   = ["codedeploy:GetDeploymentConfig"]
-#     resources = ["${local.codedeploy_arn}:deploymentconfig:${local.codedeploy_deploymentconfig_name}*"]
-#   }
-#   statement {
-#     actions   = ["codedeploy:GetApplicationRevision"]
-#     resources = ["${local.codedeploy_arn}:application:${local.codedeploy_application_name}"]
-#   }
-#   statement {
-#     actions   = ["codedeploy:RegisterApplicationRevision"]
-#     resources = ["${local.codedeploy_arn}:application:${local.codedeploy_application_name}"]
-#   }
-#
-#   # Allow writing revision to deploy bucket
-#   statement {
-#     actions = ["s3:ListBucket"]
-#     resources = ["${local.codedeploy_bucket_arn}/*"]
-#   }
-#   statement {
-#     actions = ["s3:PutObject*"]
-#     resources = [local.codedeploy_bucket_arn]
-#   }
-#   statement {
-#     actions   = ["s3:ListAllMyBuckets"]
-#     resources = ["*"]
-#   }
+data "aws_iam_policy_document" "codedeploy-app-deploy" {
+  count = local.enable_codedeploy ? 1 : 0
+
+  dynamic "statement" {
+    for_each = local.enable_codedeploy ? tolist([1]) : []
+    content {
+      actions = [
+        "codedeploy:GetDeploymentGroup",
+        "codedeploy:CreateDeployment",
+        "codedeploy:GetDeployment",
+        "codedeploy:GetDeploymentConfig",
+        "codedeploy:GetApplicationRevision",
+        "codedeploy:RegisterApplicationRevision"
+      ]
+      resources = local.ec2_codedeploy_arns
+    }
+  }
+
+  # Allow writing revision to deploy bucket
+  # statement {
+  #   actions = ["s3:ListBucket"]
+  #   resources = ["${local.codedeploy_bucket_arn}/*"]
+  # }
+  # statement {
+  #   actions = ["s3:PutObject*"]
+  #   resources = [local.codedeploy_bucket_arn]
+  # }
+  # statement {
+  #   actions   = ["s3:ListAllMyBuckets"]
+  #   resources = ["*"]
+  # }
+}
+
+resource "aws_iam_policy" "codedeploy-app-deploy" {
+  count = local.enable_codedeploy ? 1 : 0
+
+  name        = "${local.name}-codedeploy-app-deploy"
+  description = "Create CodeDeploy revision for app and deploy to app-deploy S3 bucket"
+  policy      = data.aws_iam_policy_document.codedeploy-app-deploy[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "codedeploy-app-deploy" {
+  count = local.enable_codedeploy ? 1 : 0
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.codedeploy-app-deploy[0].arn
+}
+
+# Allow access to S3 bucket encrypted with CMK
+# resource "aws_kms_grant" "github-action" {
+#   count             = var.kms_key_id != null ? 1 : 0
+#   name              = "${var.name}-github-action"
+#   key_id            = var.kms_key_id
+#   grantee_principal = aws_iam_role.this.arn
+#   operations        = ["Encrypt", "Decrypt", "GenerateDataKey", "DescribeKey"]
 # }
-#
-# resource "aws_iam_policy" "codedeploy-app-deploy" {
-#   count = local.enable_codedeploy ? 1 : 0
-#
-#   name        = "${local.codedeploy_name}-codedeploy-app-deploy"
-#   description = "Create CodeDeploy revision for app and deploy to app-deploy S3 bucket"
-#   policy      = data.aws_iam_policy_document.codedeploy-app-deploy[0].json
-# }
-#
-# resource "aws_iam_role_policy_attachment" "codedeploy-app-deploy" {
-#   count = local.enable_codedeploy ? 1 : 0
-#
-#   role       = aws_iam_role.this.name
-#   policy_arn = aws_iam_policy.codedeploy-app-deploy[0].arn
-# }
+
+# KMS
+# https://docs.aws.amazon.com/kms/latest/developerguide/kms-api-permissions-reference.html
+# https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
+# https://repost.aws/knowledge-center/s3-access-denied-error-kms
+data "aws_iam_policy_document" "kms" {
+  count = local.kms_key_id != null ? 1 : 0
+
+  statement {
+    sid = "AllowKeyUsage"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+    resources = [var.kms_key_id]
+
+    dynamic "condition" {
+      for_each = length(var.kms_key_aliases) > 0 ? tolist([1]) : []
+      content {
+        test     = "ForAnyValue:StringEquals"
+        variable = "kms:ResourceAliases"
+        values   = var.kms_key_aliases
+      }
+    }
+  }
+}
+
+resource "aws_iam_policy" "kms" {
+  count       = local.kms_key_id != null ? 1 : 0
+
+  name_prefix = "${local.name}-kms-"
+  description = "Enable access to KMS"
+  policy      = data.aws_iam_policy_document.kms[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "kms" {
+  count = local.kms_key_id != null ? 1 : 0
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.kms[0].arn
+}
