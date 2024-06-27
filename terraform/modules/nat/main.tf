@@ -39,7 +39,7 @@ data "aws_ami" "fck_nat" {
 }
 
 locals {
-  name = var.name == "" ? var.app_name : var.name
+  name     = var.name == "" ? var.app_name : var.name
   image_id = var.image_id == null ? data.aws_ami.fck_nat.id : var.image_id
 
   tags = merge(
@@ -64,9 +64,9 @@ module "nat" {
   private_route_table_ids     = var.private_route_table_ids
   enabled                     = var.enabled
 
-  image_id = local.image_id
+  image_id       = local.image_id
   instance_types = var.instance_types
-  key_name = var.key_name
+  key_name       = var.key_name
 
   # enable port forwarding (optional)
   # user_data_write_files = [

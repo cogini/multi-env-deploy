@@ -8,7 +8,7 @@ variable "ami_filter_name" {
   type        = list(string)
   # default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-*"]
   # default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*"]
-  default     = []
+  default = []
 }
 
 variable "ami_filter_architecture" {
@@ -21,7 +21,7 @@ variable "ami_filter_owners" {
   description = "Filter to find AMI owners, e.g. amazon"
   type        = list(string)
   # default     = ["amazon"]
-  default     = null
+  default = null
 }
 
 variable "availability_zones" {

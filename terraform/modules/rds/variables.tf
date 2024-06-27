@@ -200,7 +200,7 @@ variable "publicly_accessible" {
 
 variable "rds_master_pass" {
   description = "Password for the master DB user. Note that this may show up in logs, and it will be stored in the state file"
-  default = null
+  default     = null
 }
 
 variable "rds_master_user" {

@@ -245,8 +245,8 @@ data "aws_iam_policy_document" "ecs-discovery" {
 }
 
 resource "aws_iam_policy" "ecs-discovery" {
-  count = var.enable_ecs_discovery ? 1 : 0
-  name = "${local.name}-${var.comp}-ecs-discovery"
+  count       = var.enable_ecs_discovery ? 1 : 0
+  name        = "${local.name}-${var.comp}-ecs-discovery"
   description = "Allow ECS service and task discovery"
   policy      = data.aws_iam_policy_document.ecs-discovery[0].json
 }
@@ -288,7 +288,7 @@ data "aws_iam_policy_document" "sqs" {
 }
 
 resource "aws_iam_policy" "sqs" {
-  count = local.configure_sqs ? 1 : 0
+  count       = local.configure_sqs ? 1 : 0
   name_prefix = "${local.name}-${var.comp}-sqs-"
   description = "allow sqs actions"
   policy      = data.aws_iam_policy_document.sqs[0].json

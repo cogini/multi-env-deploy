@@ -25,7 +25,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  name        = var.role_name == "" ? "${var.app_name}-${var.comp}" : var.role_name
+  name             = var.role_name == "" ? "${var.app_name}-${var.comp}" : var.role_name
   application_name = var.application_name == "" ? local.name : var.application_name
   aws_account_id   = var.aws_account_id == "" ? data.aws_caller_identity.current.account_id : var.aws_account_id
 }

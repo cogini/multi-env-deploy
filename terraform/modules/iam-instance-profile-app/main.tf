@@ -170,7 +170,7 @@ locals {
 
 # Send data to to AWS X-Ray and Prometheus
 locals {
-  write_xray = var.xray
+  write_xray       = var.xray
   write_prometheus = var.prometheus
 }
 

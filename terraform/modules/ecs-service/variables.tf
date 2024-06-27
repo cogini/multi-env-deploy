@@ -143,13 +143,13 @@ variable "scheduling_strategy" {
 variable "service_registries" {
   description = "Service discovery registries for the service"
   type = object({
-    registry_arn     = string,
+    registry_arn = string,
     # Port of SRV record
-    port             = optional(number),
+    port = optional(number),
     # Container name from task definition
-    container_name   = optional(string),
+    container_name = optional(string),
     # Port from task definition
-    container_port   = optional(number)
+    container_port = optional(number)
   })
   default = null
 }
@@ -160,34 +160,34 @@ variable "service_connect_configuration" {
   type = object({
     enabled = optional(bool), # Default true
     log_configuration = optional(object({
-            # Log driver to use. Valid values: awslogs, fluentd, gelf, journald, json-file, splunk, syslog
-            log_driver = string,
-            # Configuration options to send to the log driver. See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html
-            options = optional(map(string)),
-            # The secrets to pass to the log configuration. See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html
-            secret_option = optional(list(object({
-                    # Name of secret
-                    name = string,
-                    # Secret to expose to the container, either full ARN of the
-                    # AWS Secrets Manager secret or full ARN of parameter in
-                    # AWS Systems Manager Parameter Store.
-                    value_from = string
-                })))
-        })),
+      # Log driver to use. Valid values: awslogs, fluentd, gelf, journald, json-file, splunk, syslog
+      log_driver = string,
+      # Configuration options to send to the log driver. See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html
+      options = optional(map(string)),
+      # The secrets to pass to the log configuration. See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html
+      secret_option = optional(list(object({
+        # Name of secret
+        name = string,
+        # Secret to expose to the container, either full ARN of the
+        # AWS Secrets Manager secret or full ARN of parameter in
+        # AWS Systems Manager Parameter Store.
+        value_from = string
+      })))
+    })),
     # The namespace name or ARN of aws_service_discovery_http_namespace
     namespace = optional(string),
     # Service Connect service objects
     service = optional(list(object({
-            # List of client aliases for ths service. Maximum number of aliases is 1.
-            client_alias = optional(list(string)),
-            # The name of the new AWS Cloud Map service that ECS creates.
-            # Must be a valid DNS name, and must be unique in the namespace.
-            discovery_name = optional(string),
-            # Port number for the Service Connect proxy to listen on.
-            ingress_port_override = optional(number),
-            # Name of one of the portMappings from all the containers in the task definition.
-            port_name = number
-        }))),
+      # List of client aliases for ths service. Maximum number of aliases is 1.
+      client_alias = optional(list(string)),
+      # The name of the new AWS Cloud Map service that ECS creates.
+      # Must be a valid DNS name, and must be unique in the namespace.
+      discovery_name = optional(string),
+      # Port number for the Service Connect proxy to listen on.
+      ingress_port_override = optional(number),
+      # Name of one of the portMappings from all the containers in the task definition.
+      port_name = number
+    }))),
   })
   default = null
 }

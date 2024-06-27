@@ -10,14 +10,14 @@ variable "image_id" {
 
 variable "instance_types" {
   description = "AMI of NAT instance, default latest Amazon Linux 2"
-  type     = list(string)
-  default  = ["t4g.nano"]
+  type        = list(string)
+  default     = ["t4g.nano"]
 }
 
 variable "key_name" {
   description = "Name of key pair"
-  type     = string
-  default  = null
+  type        = string
+  default     = null
 }
 
 variable "name" {

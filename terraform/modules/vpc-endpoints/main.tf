@@ -1,5 +1,5 @@
 locals {
-  name = var.app_name
+  name        = var.app_name
   cidr_blocks = var.cidr_blocks
 
   tags = merge(

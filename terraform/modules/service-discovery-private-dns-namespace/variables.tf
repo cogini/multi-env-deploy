@@ -1,12 +1,12 @@
 variable "description" {
   description = "Description"
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "name" {
   description = "DNS namespace"
-  default = ""
+  default     = ""
 }
 
 variable "vpc_id" {

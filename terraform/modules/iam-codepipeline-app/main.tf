@@ -105,7 +105,7 @@ locals {
 
 # Give CodeDeploy access to artifacts S3 bucket
 data "aws_iam_policy_document" "codedeploy-s3-deploy" {
-  count  = var.artifacts_bucket_arn != null ? 1 : 0
+  count = var.artifacts_bucket_arn != null ? 1 : 0
 
   statement {
     sid = "AccessCodePipelineArtifacts"
@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "codedeploy-s3-deploy" {
 }
 
 resource "aws_iam_role_policy" "codedeploy-s3-deploy" {
-  count  = var.codedeploy_service_role_id != null ? 1 : 0
+  count = var.codedeploy_service_role_id != null ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codedeploy-s3-deploy"
   role   = var.codedeploy_service_role_id
@@ -134,7 +134,7 @@ resource "aws_iam_role_policy" "codedeploy-s3-deploy" {
 
 # Give CodePipeline access to artifacts S3 bucket
 data "aws_iam_policy_document" "codepipeline-s3-deploy" {
-  count  = var.artifacts_bucket_arn != null ? 1 : 0
+  count = var.artifacts_bucket_arn != null ? 1 : 0
 
   statement {
     sid = "AccessCodePipelineArtifacts"
@@ -153,7 +153,7 @@ data "aws_iam_policy_document" "codepipeline-s3-deploy" {
 }
 
 resource "aws_iam_role_policy" "codepipeline-s3-deploy" {
-  count  = var.codepipeline_service_role_id != null ? 1 : 0
+  count = var.codepipeline_service_role_id != null ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codepipeline-s3-deploy"
   role   = var.codepipeline_service_role_id
@@ -162,7 +162,7 @@ resource "aws_iam_role_policy" "codepipeline-s3-deploy" {
 
 # Give CodePipeline access to build cache S3 bucket
 data "aws_iam_policy_document" "codepipeline-s3-build-cache" {
-  count  = var.cache_bucket_arn != null ? 1 : 0
+  count = var.cache_bucket_arn != null ? 1 : 0
 
   statement {
     sid = "AccessCodePipelineArtifacts"
@@ -181,7 +181,7 @@ data "aws_iam_policy_document" "codepipeline-s3-build-cache" {
 }
 
 resource "aws_iam_role_policy" "codepipeline-s3-build-cache" {
-  count  = var.codepipeline_service_role_id != null ? 1 : 0
+  count = var.codepipeline_service_role_id != null ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codepipeline-s3-build-cache"
   role   = var.codepipeline_service_role_id
@@ -190,7 +190,7 @@ resource "aws_iam_role_policy" "codepipeline-s3-build-cache" {
 
 # Give CodeBuild access to artifacts S3 bucket
 data "aws_iam_policy_document" "codebuild-s3-deploy" {
-  count  = var.artifacts_bucket_arn != null ? 1 : 0
+  count = var.artifacts_bucket_arn != null ? 1 : 0
 
   statement {
     sid = "AccessCodePipelineArtifacts"
@@ -207,7 +207,7 @@ data "aws_iam_policy_document" "codebuild-s3-deploy" {
 }
 
 resource "aws_iam_role_policy" "codebuild-s3-deploy" {
-  count  = var.codebuild_service_role_id != null ? 1 : 0
+  count = var.codebuild_service_role_id != null ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codebuild-s3-deploy"
   role   = var.codebuild_service_role_id
@@ -216,7 +216,7 @@ resource "aws_iam_role_policy" "codebuild-s3-deploy" {
 
 # Allow CodeBuild to write to build cache bucket
 data "aws_iam_policy_document" "codebuild-s3-build-cache" {
-  count  = var.cache_bucket_arn != null ? 1 : 0
+  count = var.cache_bucket_arn != null ? 1 : 0
 
   statement {
     actions = [
@@ -233,7 +233,7 @@ data "aws_iam_policy_document" "codebuild-s3-build-cache" {
 }
 
 resource "aws_iam_role_policy" "codebuild-s3-build-cache" {
-  count  = (var.codebuild_service_role_id != null && var.cache_bucket_arn != null) ? 1 : 0
+  count = (var.codebuild_service_role_id != null && var.cache_bucket_arn != null) ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codebuild-s3-build-cache"
   role   = var.codebuild_service_role_id
@@ -274,7 +274,7 @@ data "aws_iam_policy_document" "codebuild-s3-assets" {
 }
 
 resource "aws_iam_role_policy" "codebuild-s3-assets" {
-  count  = (var.codebuild_service_role_id != null && length(var.s3_buckets) > 0) ? 1 : 0
+  count = (var.codebuild_service_role_id != null && length(var.s3_buckets) > 0) ? 1 : 0
 
   name   = "${var.app_name}-${var.comp}-codebuild-s3-assets"
   role   = var.codebuild_service_role_id
@@ -327,7 +327,7 @@ data "aws_iam_policy_document" "codestar-connection" {
 }
 
 resource "aws_iam_policy" "codestar-connection" {
-  count = (var.codepipeline_service_role_id != null && var.codestar_connection_arn != null) ? 1 : 0
+  count       = (var.codepipeline_service_role_id != null && var.codestar_connection_arn != null) ? 1 : 0
   name        = "${var.app_name}-${var.comp}-codestar-connection"
   description = "Enable CodePipeline to access CodeStar Connection"
   policy      = data.aws_iam_policy_document.codestar-connection[0].json

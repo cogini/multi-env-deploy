@@ -1,6 +1,6 @@
 variable "name" {
   description = "Cognito identity pool name"
-  default = ""
+  default     = ""
 }
 
 variable "comp" {
@@ -9,5 +9,5 @@ variable "comp" {
 
 variable "allow_unauthenticated_identities" {
   description = "Allow unauthenticated identities in identity pool"
-  default = false
+  default     = false
 }

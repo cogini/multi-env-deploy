@@ -18,7 +18,7 @@
 # }
 
 locals {
-  name = var.name == "" ? "${var.org}/${var.app_name}-${var.comp}" : var.name
+  name             = var.name == "" ? "${var.org}/${var.app_name}-${var.comp}" : var.name
   configure_policy = var.allow_codebuild || length(var.cross_accounts) > 0
 }
 
@@ -53,25 +53,25 @@ data "aws_iam_policy_document" "this" {
   dynamic "statement" {
     for_each = var.allow_codebuild ? list([1]) : []
     content {
-        sid = "CodeBuildAccess"
+      sid = "CodeBuildAccess"
 
-        actions = [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:BatchGetImage",
-          "ecr:BatchImportUpstreamImage",
-          "ecr:CompleteLayerUpload",
-          "ecr:CreateRepository",
-          "ecr:GetAuthorizationToken",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:InitiateLayerUpload",
-          "ecr:PutImage",
-          "ecr:UploadLayerPart",
-        ]
+      actions = [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:BatchImportUpstreamImage",
+        "ecr:CompleteLayerUpload",
+        "ecr:CreateRepository",
+        "ecr:GetAuthorizationToken",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:InitiateLayerUpload",
+        "ecr:PutImage",
+        "ecr:UploadLayerPart",
+      ]
 
-        principals {
-          type        = "Service"
-          identifiers = ["codebuild.amazonaws.com"]
-        }
+      principals {
+        type        = "Service"
+        identifiers = ["codebuild.amazonaws.com"]
+      }
     }
   }
 

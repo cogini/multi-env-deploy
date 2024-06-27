@@ -1,7 +1,7 @@
 variable "cidr_blocks" {
   description = "The CIDR block for the VPC"
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "create_ec2_instance_connect_endpoint" {

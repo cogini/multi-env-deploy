@@ -49,9 +49,9 @@ resource "aws_ecs_service" "this" {
   #   }
   # }
 
-  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  iam_role                           = var.iam_role
-  launch_type                        = var.launch_type
+  health_check_grace_period_seconds = var.health_check_grace_period_seconds
+  iam_role                          = var.iam_role
+  launch_type                       = var.launch_type
 
   # https://www.terraform.io/docs/providers/aws/r/ecs_service.html#load_balancer-1
   dynamic "load_balancer" {
@@ -113,16 +113,16 @@ resource "aws_ecs_service" "this" {
   dynamic "service_connect_configuration" {
     for_each = var.service_connect_configuration == null ? [] : tolist([1])
     content {
-      enabled = lookup(service_connect_configuration, "enabled", true)
+      enabled   = lookup(service_connect_configuration, "enabled", true)
       namespace = lookup(service_connect_configuration, "namespace", null)
 
       dynamic "service" {
         for_each = lookup(service_connect_configuration, "service", [])
         content {
-          client_alias = lookup(service.value, "client_alias", [])
-          discovery_name = lookup(service.value, "discovery_name", null)
+          client_alias          = lookup(service.value, "client_alias", [])
+          discovery_name        = lookup(service.value, "discovery_name", null)
           ingress_port_override = lookup(service.value, "ingress_port_override", null)
-          port_name = lookup(service.value, "port_name", null)
+          port_name             = lookup(service.value, "port_name", null)
         }
       }
 
@@ -135,7 +135,7 @@ resource "aws_ecs_service" "this" {
           dynamic "secret_option" {
             for_each = lookup(log_configuration.value, "secret_option", [])
             content {
-              name      = lookup(secret_option.value, "name", null)
+              name       = lookup(secret_option.value, "name", null)
               value_from = lookup(secret_option.value, "value_from", null)
             }
           }

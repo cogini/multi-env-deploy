@@ -5,9 +5,9 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-  name = var.app_name
-  az_count = length(var.private_subnets)
-  azs  = slice(data.aws_availability_zones.available.names, 0, local.az_count)
+  name                     = var.app_name
+  az_count                 = length(var.private_subnets)
+  azs                      = slice(data.aws_availability_zones.available.names, 0, local.az_count)
   dhcp_options_domain_name = var.dhcp_options_domain_name == "" ? "${local.name}.internal" : var.dhcp_options_domain_name
 
   tags = merge(
@@ -43,8 +43,8 @@ module "vpc" {
   # enable_dns_hostnames = true
   # enable_dns_support   = true
 
-  enable_nat_gateway = var.enable_nat_gateway
-  single_nat_gateway = var.single_nat_gateway
+  enable_nat_gateway     = var.enable_nat_gateway
+  single_nat_gateway     = var.single_nat_gateway
   one_nat_gateway_per_az = var.one_nat_gateway_per_az
 
   customer_gateways  = var.customer_gateways

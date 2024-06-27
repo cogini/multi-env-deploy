@@ -29,22 +29,22 @@ variable "trigger_events" {
 
 variable "ec2_tag_filter" {
   description = "Tags used to find instances to deploy to (EC2)"
-  type        = list(object({
-    key         = string,
-    type        = string,
-    value       = string
+  type = list(object({
+    key   = string,
+    type  = string,
+    value = string
   }))
-  default     = []
+  default = []
 }
 
 variable "ec2_tag_set" {
   description = "Set of tags used to find instances to deploy to (EC2)"
-  type        = list(list(object({
-    key         = string,
-    type        = string,
-    value       = string
+  type = list(list(object({
+    key   = string,
+    type  = string,
+    value = string
   })))
-  default     = []
+  default = []
 }
 
 variable "codedeploy_service_role_arn" {
@@ -66,22 +66,22 @@ variable "deployment_option" {
 variable "on_premises_instance_tag_filter" {
   description = "Tags used to find instances to deploy to (on-premises)"
   # type        = list(any)
-  type        = list(object({
-    key         = string,
-    type        = string,
-    value       = string
+  type = list(object({
+    key   = string,
+    type  = string,
+    value = string
   }))
-  default     = []
+  default = []
 }
 
 variable "on_premises_tag_set" {
   description = "Set of tags used to find instances to deploy to (on-premises)"
-  type        = list(list(object({
-    key         = string,
-    type        = string,
-    value       = string
+  type = list(list(object({
+    key   = string,
+    type  = string,
+    value = string
   })))
-  default     = []
+  default = []
 }
 
 variable "deployment_config_name" {

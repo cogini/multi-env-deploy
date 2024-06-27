@@ -79,12 +79,12 @@ resource "aws_codebuild_project" "this" {
   }
 
   source {
-    type     = "GITHUB"
+    type = "GITHUB"
 
     # Overridden by GitHub Action
     location = "https://github.com/cogini/dummy"
 
-    buildspec = var.buildspec
+    buildspec           = var.buildspec
     report_build_status = var.report_build_status
 
     # build_status_config {

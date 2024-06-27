@@ -104,25 +104,25 @@ locals {
   kms_key_id        = var.kms_key_id
   subs              = var.subs == null ? [var.sub] : var.subs
 
-  ecs_task_roles = [ for r in var.ecs : r.task_role_arn ]
-  ecs_execution_roles = [ for r in var.ecs : r.execution_role_arn ]
-  ecs_service_arns = [ for r in var.ecs : r.service_arn ]
-  ecs_codedeploy_arns = flatten([ for r in var.ecs :
+  ecs_task_roles      = [for r in var.ecs : r.task_role_arn]
+  ecs_execution_roles = [for r in var.ecs : r.execution_role_arn]
+  ecs_service_arns    = [for r in var.ecs : r.service_arn]
+  ecs_codedeploy_arns = flatten([for r in var.ecs :
     try(r.codedeploy_application_name, null) != null ?
-      [
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
-      ] : []
+    [
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
+    ] : []
   ])
 
-  ec2_codedeploy_arns = flatten([ for r in var.ec2 :
+  ec2_codedeploy_arns = flatten([for r in var.ec2 :
     try(r.codedeploy_application_name, null) != null ?
-      [
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
-        "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
-      ] : []
+    [
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentgroup:${r.codedeploy_application_name}/${r.codedeploy_deployment_group_name}",
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:deploymentconfig:*",
+      "arn:${var.aws_partition}:codedeploy:${var.aws_region}:${local.aws_account_id}:application:${r.codedeploy_application_name}"
+    ] : []
   ])
 
   enable_codedeploy = length(local.ec2_codedeploy_arns) > 0
@@ -306,7 +306,7 @@ data "aws_iam_policy_document" "codebuild" {
   count = local.enable_codebuild ? 1 : 0
 
   statement {
-    actions   = [
+    actions = [
       # Required to start running builds
       "codebuild:StartBuild",
       # Required to get information about builds
@@ -316,7 +316,7 @@ data "aws_iam_policy_document" "codebuild" {
   }
 
   statement {
-    actions   = [
+    actions = [
       "logs:GetLogEvents",
     ]
     resources = ["arn:${var.aws_partition}:logs:${var.aws_region}:${local.aws_account_id}:log-group:/aws/codebuild/${var.codebuild_project_name}:*"]
@@ -511,7 +511,7 @@ data "aws_iam_policy_document" "kms" {
 }
 
 resource "aws_iam_policy" "kms" {
-  count       = local.kms_key_id != null ? 1 : 0
+  count = local.kms_key_id != null ? 1 : 0
 
   name_prefix = "${local.name}-kms-"
   description = "Enable access to KMS"

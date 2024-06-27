@@ -67,10 +67,10 @@ data "aws_ami" "this" {
 }
 
 locals {
-  name      = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
-  host_name = var.host_name == "" ? var.comp : var.host_name
-  fqdn      = "${local.host_name}.${var.dns_domain}"
-  ami       = var.ami == "" ? data.aws_ami.this.id : var.ami
+  name               = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  host_name          = var.host_name == "" ? var.comp : var.host_name
+  fqdn               = "${local.host_name}.${var.dns_domain}"
+  ami                = var.ami == "" ? data.aws_ami.this.id : var.ami
   availability_zones = var.availability_zones == [] ? data.aws_availability_zones.available.names : var.availability_zones
 }
 

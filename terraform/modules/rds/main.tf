@@ -1,9 +1,9 @@
 # Create RDS database instance for app
 
 locals {
-  name       = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
-  dns_name   = var.dns_name == "" ? "${var.comp}-db" : var.dns_name
-  enable_sd  = var.service_discovery_namespace_id == null ? false : true
+  name      = var.name == "" ? "${var.app_name}-${var.comp}" : var.name
+  dns_name  = var.dns_name == "" ? "${var.comp}-db" : var.dns_name
+  enable_sd = var.service_discovery_namespace_id == null ? false : true
 }
 
 # https://www.terraform.io/docs/providers/aws/d/db_instance.html

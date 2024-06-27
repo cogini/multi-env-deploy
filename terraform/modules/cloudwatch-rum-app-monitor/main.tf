@@ -97,17 +97,17 @@ resource "aws_rum_app_monitor" "this" {
 
   dynamic "app_monitor_configuration" {
     for_each = var.app_monitor_configuration == null ? [] : tolist([1])
-     content {
-       allow_cookies = lookup(var.app_monitor_configuration, "allow_cookies", null)
-       enable_xray   = lookup(var.app_monitor_configuration, "enable_xray", null)
-       excluded_pages = lookup(var.app_monitor_configuration, "excluded_pages", null)
-       favorite_pages = lookup(var.app_monitor_configuration, "favorite_pages", null)
-       guest_role_arn = lookup(var.app_monitor_configuration, "guest_role_arn", null)
-       identity_pool_id = lookup(var.app_monitor_configuration, "identity_pool_id", null)
-       included_pages = lookup(var.app_monitor_configuration, "included_pages", null)
-       session_sample_rate   = lookup(var.app_monitor_configuration, "session_sample_rate", null)
-       telemetries        = lookup(var.app_monitor_configuration, "telemetries", null)
-     }
+    content {
+      allow_cookies       = lookup(var.app_monitor_configuration, "allow_cookies", null)
+      enable_xray         = lookup(var.app_monitor_configuration, "enable_xray", null)
+      excluded_pages      = lookup(var.app_monitor_configuration, "excluded_pages", null)
+      favorite_pages      = lookup(var.app_monitor_configuration, "favorite_pages", null)
+      guest_role_arn      = lookup(var.app_monitor_configuration, "guest_role_arn", null)
+      identity_pool_id    = lookup(var.app_monitor_configuration, "identity_pool_id", null)
+      included_pages      = lookup(var.app_monitor_configuration, "included_pages", null)
+      session_sample_rate = lookup(var.app_monitor_configuration, "session_sample_rate", null)
+      telemetries         = lookup(var.app_monitor_configuration, "telemetries", null)
+    }
   }
 
   tags = merge(

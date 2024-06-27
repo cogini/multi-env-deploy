@@ -5,7 +5,7 @@ output "eni_id" {
 
 output "eni_private_ip" {
   description = "Private IP of the ENI for the NAT instance"
-  value       = module.nat.eni_private_ip	
+  value       = module.nat.eni_private_ip
 }
 
 output "iam_role_name" {
