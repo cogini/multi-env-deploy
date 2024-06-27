@@ -7,6 +7,11 @@ variable "comp" {
   description = "Component, e.g. app, worker"
 }
 
+variable "create_instance_profile" {
+  description = "Whether to create instance profile or just role"
+  default     = true
+}
+
 variable "s3_buckets" {
   description = "S3 bucket access"
   type        = map(any)
@@ -31,6 +36,12 @@ variable "cloudwatch_metrics_namespace" {
 
 variable "xray" {
   description = "Allow sending traces to X-Ray"
+  type        = bool
+  default     = false
+}
+
+variable "prometheus" {
+  description = "Allow sending traces to AWS Prometheus"
   type        = bool
   default     = false
 }
