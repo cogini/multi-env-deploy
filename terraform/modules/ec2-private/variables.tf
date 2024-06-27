@@ -3,9 +3,25 @@ variable "ami" {
   default     = ""
 }
 
-variable "ami_filter" {
+variable "ami_filter_name" {
   description = "Filter to find AMI"
-  default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-*"]
+  type        = list(string)
+  # default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-*"]
+  # default     = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*"]
+  default     = []
+}
+
+variable "ami_filter_architecture" {
+  description = "Filter to find AMI architectture"
+  type        = list(string)
+  default     = ["arm64"]
+}
+
+variable "ami_filter_owners" {
+  description = "Filter to find AMI owners, e.g. amazon"
+  type        = list(string)
+  # default     = ["amazon"]
+  default     = null
 }
 
 variable "availability_zones" {
@@ -43,6 +59,11 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "enabled" {
+  description = "Whether this module is enabled"
+  default     = true
+}
+
 variable "host_name" {
   description = "DNS name, var.name if empty"
   default     = ""
@@ -55,7 +76,7 @@ variable "instance_count" {
 
 variable "instance_type" {
   description = "Type of instance to start"
-  default     = "t3.micro"
+  default     = "t4g.nano"
 }
 
 variable "instance_profile_name" {
