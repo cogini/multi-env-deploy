@@ -1,12 +1,12 @@
 # Service role
 output "instance_profile_name" {
   description = "IAM instance profile name"
-  value       = aws_iam_instance_profile.this.name
+  value       = try(aws_iam_instance_profile.this[0].name, null)
 }
 
 output "instance_profile_arn" {
   description = "Instance profile arn"
-  value       = aws_iam_instance_profile.this.arn
+  value       = try(aws_iam_instance_profile.this[0].arn, null)
 }
 
 output "role_arn" {
