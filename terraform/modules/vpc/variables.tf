@@ -14,6 +14,21 @@ variable "cidr" {
   default     = "10.10.0.0/16"
 }
 
+variable "dhcp_options_domain_name" {
+  description = "DHCP domain name"
+  default     = ""
+}
+
+variable "dhcp_options_domain_name_servers" {
+  description = "DHCP domain name servers"
+  default     = ["127.0.0.1", "10.10.0.2"]
+}
+
+variable "enable_dhcp_options" {
+  description = "Enable DHCP for VPC"
+  default     = true
+}
+
 variable "public_subnets" {
   description = "A list of public subnets inside the VPC"
   type        = list(string)
@@ -66,6 +81,11 @@ variable "enable_nat_gateway" {
 
 variable "single_nat_gateway" {
   description = "Provision a single shared NAT Gateway across all of your private networks"
+  default     = false
+}
+
+variable "one_nat_gateway_per_az" {
+  description = "Provision a NAT Gateway per AZ"
   default     = false
 }
 
