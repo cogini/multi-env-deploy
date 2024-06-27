@@ -48,8 +48,8 @@ remote_state {
     bucket         = format("%s-%s-%s-tfstate", local.org, local.app_name, local.env)
     dynamodb_table = format("%s-%s-%s-tfstate", local.org, local.app_name, local.env)
     key            = "${path_relative_to_include()}/terraform.tfstate"
-    region         = local.aws_region
-    # region         = get_env("TF_VAR_remote_state_s3_bucket_region", "us-east-1")
+    # region         = local.aws_region
+    region         = get_env("TF_VAR_remote_state_s3_bucket_region", "us-east-1")
   }
   generate = {
     path      = "backend.tf"
