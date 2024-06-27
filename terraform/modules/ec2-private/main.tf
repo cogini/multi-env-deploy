@@ -26,7 +26,7 @@
 #   # Create one per az
 #   # instance_count = 0
 #
-#   instance_type = "t3.nano"
+#   instance_type = "t4g.nano"
 #
 #   # Ubuntu 18.04
 #   # ami = "ami-0f63c02167ca94956"
@@ -46,6 +46,13 @@
 
 data "aws_availability_zones" "available" {}
 
+# data "aws_ec2_instance_type" "this" {
+#   count         = var.enabled ? 1 : 0
+#   instance_type = var.instance_type
+# }
+
+# https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html
+# https://discourse.ubuntu.com/t/search-and-launch-ubuntu-22-04-in-aws-using-cli/27986
 data "aws_ami" "this" {
   most_recent = true
   owners      = ["amazon"]
@@ -59,6 +66,16 @@ data "aws_ami" "this" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
+  # filter {
+  #   name   = "architecture"
+  #   values = data.aws_ec2_instance_type.this[count.index].supported_architectures
+  # }
+
+  # filter {
+  #   name   = "virtualization-type"
+  #   values = ["hvm"]
+  # }
 }
 
 locals {
