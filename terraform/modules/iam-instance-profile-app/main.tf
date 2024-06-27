@@ -168,6 +168,12 @@ locals {
   configure_cloudwatch_logs = length(local.cloudwatch_logs) > 0
 }
 
+# Send data to to AWS X-Ray and Prometheus
+locals {
+  write_xray = var.xray
+  write_prometheus = var.prometheus
+}
+
 # Allow writing to CloudWatch metrics
 # https://docs.aws.amazon.com/IAM/latest/UserGuide/list_amazoncloudwatch.html
 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/iam-cw-condition-keys-namespace.html
@@ -240,21 +246,33 @@ data "aws_iam_policy_document" "s3" {
     content {
       actions = ["s3:Get*", "s3:List*"]
       resources = [
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-east-2/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-east-1/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-west-1/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-west-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-east-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-northeast-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-northeast-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-northeast-3/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-south-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-south-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-3/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-4/*",
         "arn:${var.aws_partition}:s3:::aws-codedeploy-ca-central-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-central-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-central-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-north-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-south-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-south-2/*",
         "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-west-1/*",
         "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-west-2/*",
         "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-west-3/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-eu-central-1/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-northeast-1/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-northeast-2/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-1/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-southeast-2/*",
-        "arn:${var.aws_partition}:s3:::aws-codedeploy-ap-south-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-il-central-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-me-central-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-me-south-1/*",
         "arn:${var.aws_partition}:s3:::aws-codedeploy-sa-east-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-east-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-east-2/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-west-1/*",
+        "arn:${var.aws_partition}:s3:::aws-codedeploy-us-west-2/*",
       ]
     }
   }
@@ -517,9 +535,17 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 # Allow uploading segment documents and telemetry to the X-Ray API
 # https://docs.aws.amazon.com/xray/latest/devguide/security_iam_id-based-policy-examples.html
 resource "aws_iam_role_policy_attachment" "xray" {
-  count      = var.xray ? 1 : 0
+  count      = local.write_xray ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
+}
+
+# Grant write only access to AWS Managed Prometheus workspaces
+# https://docs.aws.amazon.com/prometheus/latest/userguide/security-iam-awsmanpol.html
+resource "aws_iam_role_policy_attachment" "prometheus" {
+  count      = local.write_prometheus ? 1 : 0
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:${var.aws_partition}:iam::aws:policy/AmazonPrometheusRemoteWriteAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "kms" {
@@ -538,7 +564,7 @@ resource "aws_iam_role_policy_attachment" "kms" {
 # }
 
 # Allow listing EC2 instances
-# Needed for Prometheus
+# Needed for Prometheus server
 resource "aws_iam_role_policy_attachment" "ec2-read-only" {
   count      = var.enable_ec2_readonly ? 1 : 0
   role       = aws_iam_role.this.name
@@ -604,7 +630,7 @@ resource "aws_iam_role_policy_attachment" "ec2-describe-tags" {
 }
 
 # Allow readonly access to cloudwatch logs
-# Needed for Prometheus
+# Needed for Prometheus server
 resource "aws_iam_role_policy_attachment" "cwlogs-read-only" {
   count      = var.enable_cwl_readonly ? 1 : 0
   role       = aws_iam_role.this.name
@@ -613,6 +639,7 @@ resource "aws_iam_role_policy_attachment" "cwlogs-read-only" {
 
 # Create instance profile for role
 resource "aws_iam_instance_profile" "this" {
-  name = aws_iam_role.this.name
-  role = aws_iam_role.this.name
+  count = var.create_instance_profile ? 1 : 0
+  name  = aws_iam_role.this.name
+  role  = aws_iam_role.this.name
 }
