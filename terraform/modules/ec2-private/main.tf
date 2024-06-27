@@ -55,16 +55,16 @@ data "aws_availability_zones" "available" {}
 # https://discourse.ubuntu.com/t/search-and-launch-ubuntu-22-04-in-aws-using-cli/27986
 data "aws_ami" "this" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = var.ami_filter_owners
 
   filter {
     name   = "name"
-    values = var.ami_filter
+    values = var.ami_filter_name
   }
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "architecture"
+    values = var.ami_filter_architecture
   }
 
   # filter {
