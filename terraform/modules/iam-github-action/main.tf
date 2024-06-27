@@ -40,6 +40,9 @@
 # dependency "iam-ecs-task-role" {
 #   config_path = "../iam-ecs-task-role-app"
 # }
+# dependency "kms" {
+#   config_path = "../kms"
+# }
 # dependency "s3" {
 #   config_path = "../s3-app"
 # }
@@ -77,6 +80,15 @@
 #       execution_role_arn               = dependency.iam-ecs-task-execution.outputs.arn
 #     }
 #   ]
+#
+#   ec2 = [
+#       {
+#         codedeploy_application_name      = dependency.codedeploy-app.outputs.app_name
+#         codedeploy_deployment_group_name = dependency.codedeploy-deployment.outputs.deployment_group_name
+#       }
+#     ]
+#
+#   kms_key_id = dependency.kms.outputs.key_arn
 # }
 
 data "aws_caller_identity" "current" {}
