@@ -7,6 +7,22 @@ variable "aws_account_id" {
   default     = ""
 }
 
+variable "kms_default_key" {
+  description = "Enable access to default KMS key"
+  default     = false
+}
+
+variable "kms_key_id" {
+  description = "KMS key id"
+  default     = null
+}
+
+variable "kms_key_aliases" {
+  description = "KMS key id"
+  type        = list(string)
+  default     = []
+}
+
 variable "name" {
   description = "Role name"
   default     = ""
@@ -14,6 +30,14 @@ variable "name" {
 
 variable "sub" {
   description = "GitHub repo allowed access, e.g. repo:cogini/*"
+  type        = string
+  default     = null
+}
+
+variable "subs" {
+  description = "GitHub repo allowed access, e.g. repo:cogini/*"
+  type        = list(string)
+  default     = null
 }
 
 variable "s3_buckets" {
@@ -30,6 +54,12 @@ variable "enable_cloudfront" {
 variable "ecr_arns" {
   description = "ARNs of ECR repository"
   type        = set(string)
+  default     = []
+}
+
+variable "ec2" {
+  description = "EC2 config"
+  type        = list(map(string))
   default     = []
 }
 
